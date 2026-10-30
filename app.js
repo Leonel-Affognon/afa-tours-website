@@ -71,21 +71,23 @@ if(reviewForm) reviewForm.addEventListener("submit",async e=>{
   catch(err){note.textContent=err.message;}finally{button.disabled=false;}
 });
 const mediaForm=document.getElementById("mediaForm");
-if(mediaForm) mediaForm.addEventListener("submit",async e=>{
-  e.preventDefault();const f=new FormData(mediaForm),file=f.get("media"),button=mediaForm.querySelector("button"),note=document.getElementById("mediaFeedback");note.hidden=false;
-  if(!file||!file.size){note.textContent="Choisissez un fichier.";return;}
-  const allowed=["image/jpeg","image/png","image/webp","video/mp4","video/webm"];
-  const max=file.type.startsWith("video/")?50*1024*1024:10*1024*1024;
-  if(!allowed.includes(file.type)||file.size>max){note.textContent="Format non accepté ou fichier trop volumineux (10 Mo pour une image, 50 Mo pour une vidéo).";return;}
-  button.disabled=true;note.textContent="Téléversement sécurisé…";
-  try{
-    const ext=file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"");
-    const path="incoming/"+crypto.randomUUID()+"."+ext;
-    const {error:uploadError}=await supabase.storage.from("afa-submissions").upload(path,file,{contentType:file.type,upsert:false});
-    if(uploadError)throw uploadError;
-    await submitIntake({action:"media",full_name:f.get("full_name"),email:f.get("email"),caption:f.get("caption"),object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:f.get("consent_publication")==="true",consent_marketing:f.get("consent_marketing")==="true"});
-    mediaForm.reset();note.textContent="Votre média a été reçu. Il restera privé jusqu'à sa validation.";
-  }catch(err){note.textContent=err.message||"Impossible d'envoyer le fichier.";}finally{button.disabled=false;}
+const mediaInput=mediaForm?.querySelector('input[name="media"]');
+const mediaSelection=document.getElementById("mediaSelection");
+mediaInput?.addEventListener("change",()=>{if(mediaSelection)mediaSelection.textContent=[...(mediaInput.files||[])].map(x=>x.name+" · "+(x.size/1048576).toFixed(1)+" Mo").join(" | ");});
+if(mediaForm)mediaForm.addEventListener("submit",async e=>{
+ e.preventDefault();const f=new FormData(mediaForm),files=[...(mediaInput?.files||[])],button=mediaForm.querySelector('button[type="submit"]'),note=document.getElementById("mediaFeedback");
+ note.hidden=false;if(!files.length){note.textContent="Sélectionnez au moins un fichier.";return;}
+ button.disabled=true;const uploaded=[];
+ try{
+  for(let i=0;i<files.length;i++){const file=files[i];if(!file.type.startsWith("image/")&&!file.type.startsWith("video/"))throw new Error(file.name+" n'est pas une photo ou une vidéo.");
+   const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"")||"bin",path="incoming/"+crypto.randomUUID()+"."+ext;
+   button.textContent="Envoi "+(i+1)+"/"+files.length+"…";note.textContent="Envoi des fichiers originaux. Ne fermez pas cette page.";
+   const {error}=await supabase.storage.from("afa-submissions").upload(path,file,{contentType:file.type||"application/octet-stream",upsert:false});if(error)throw error;
+   uploaded.push({object_path:path,media_type:file.type.startsWith("video/")?"video":"image"});
+  }
+  await submitIntake({action:"media",full_name:f.get("full_name"),email:f.get("email"),caption:f.get("caption"),media_files:uploaded,consent_publication:f.get("consent_publication")==="true",consent_marketing:f.get("consent_marketing")==="true"});
+  mediaForm.reset();if(mediaSelection)mediaSelection.textContent="";note.textContent=uploaded.length+" fichier(s) reçu(s). Les originaux sont conservés en attente de validation.";
+ }catch(err){note.textContent=err.message||"Erreur pendant l'envoi.";}finally{button.disabled=false;button.textContent="Envoyer mes médias";}
 });
 async function loadReviews(){
   const target=document.getElementById("publishedReviews");if(!target)return;

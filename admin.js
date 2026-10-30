@@ -24,8 +24,20 @@ if(active==="media"){
  const no=data.filter(x=>x.consent_marketing===false).length;
  const missing=data.filter(x=>x.consent_marketing==null).length;
  const visible=data.filter(x=>mediaConsentFilter==="all"||(mediaConsentFilter==="yes"&&x.consent_marketing===true)||(mediaConsentFilter==="no"&&x.consent_marketing===false)||(mediaConsentFilter==="unknown"&&x.consent_marketing==null));
- content.innerHTML="<h2>"+cfg.title+"</h2><div class='media-consent-summary'><button data-media-filter='all'>Tous ("+data.length+")</button><button data-media-filter='yes'>Marketing : oui ("+yes+")</button><button data-media-filter='no'>Marketing : non ("+no+")</button>"+(missing?"<button data-media-filter='unknown'>Non renseigné ("+missing+")</button>":"")+"</div><p>Les autorisations de publication sur le site et d’utilisation marketing sont distinctes. La publication est bloquée sans accord explicite.</p>"+table(visible,cfg.cols);
+ content.innerHTML="<h2>"+cfg.title+"</h2>"+"<form id=\"adminMediaForm\" class=\"admin-grid\"><h3>Ajouter plusieurs photos ou vidéos</h3><label>Fichiers<input name=\"admin_media\" type=\"file\" accept=\"image/*,video/*\" multiple required></label><label><input name=\"admin_publication\" type=\"checkbox\"> Autorisation de publication</label><label><input name=\"admin_marketing\" type=\"checkbox\"> Autorisation marketing</label><button class=\"button\" type=\"submit\">Téléverser</button><p id=\"adminMediaFeedback\"></p></form>"+<div class='media-consent-summary'><button data-media-filter='all'>Tous ("+data.length+")</button><button data-media-filter='yes'>Marketing : oui ("+yes+")</button><button data-media-filter='no'>Marketing : non ("+no+")</button>"+(missing?"<button data-media-filter='unknown'>Non renseigné ("+missing+")</button>":"")+"</div><p>Les autorisations de publication sur le site et d’utilisation marketing sont distinctes. La publication est bloquée sans accord explicite.</p>"+table(visible,cfg.cols);
  content.querySelectorAll("[data-media-filter]").forEach(button=>button.addEventListener("click",()=>{mediaConsentFilter=button.dataset.mediaFilter;render();}));
+ const adminForm=document.getElementById("adminMediaForm");
+ if(adminForm)adminForm.addEventListener("submit",async event=>{
+  event.preventDefault();const form=event.currentTarget,files=[...form.elements.admin_media.files],feedback=document.getElementById("adminMediaFeedback"),button=form.querySelector("button");button.disabled=true;
+  try{const {data:{user}}=await supabase.auth.getUser();const rows=[];
+   for(let i=0;i<files.length;i++){const file=files[i];if(!file.type.startsWith("image/")&&!file.type.startsWith("video/"))throw new Error("Type de fichier non pris en charge.");
+    feedback.textContent="Envoi "+(i+1)+"/"+files.length;const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"")||"bin",path="incoming/admin-"+crypto.randomUUID()+"."+ext;
+    const {error}=await supabase.storage.from("afa-submissions").upload(path,file,{contentType:file.type||"application/octet-stream"});if(error)throw error;
+    rows.push({display_name:"Équipe AFA",email:user?.email||"",caption:file.name,object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:form.elements.admin_publication.checked,consent_marketing:form.elements.admin_marketing.checked,status:"pending"});
+   }
+   const {error}=await supabase.from("media_submissions").insert(rows);if(error)throw error;feedback.textContent=rows.length+" média(s) ajouté(s).";form.reset();render();
+  }catch(error){feedback.textContent=error.message||"Erreur d’envoi.";}finally{button.disabled=false;}
+ });
  return;
 }
 if(active==="tours"){content.innerHTML=tourForm()+table(data,cfg.cols);document.getElementById("tourForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget),p=Object.fromEntries(f);p.price_from=p.price_from?Number(p.price_from):null;const {error}=await supabase.from("tours").insert(p);if(error)alert(error.message);else render();});return;}
