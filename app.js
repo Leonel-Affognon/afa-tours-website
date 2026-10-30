@@ -83,3 +83,13 @@ async function loadReviews(){
   target.innerHTML=data.map(r=>`<article class="review-card"><div class="review-stars" aria-label="${r.rating} sur 5">${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</div><h3>${escapeHtml(r.title||r.tour_name||"Expérience au Bénin")}</h3><p>${escapeHtml(r.body)}</p><small>${escapeHtml(r.display_name)}${r.country?" · "+escapeHtml(r.country):""}</small></article>`).join("");
 }
 loadReviews();
+
+async function loadVisitorMedia(){
+ const target=document.querySelector(".gallery-grid");if(!target)return;
+ const {data,error}=await supabase.from("public_media").select("display_name,caption,media_type,public_url,published_at").order("published_at",{ascending:false}).limit(12);
+ if(error||!data?.length)return;
+ target.innerHTML=data.map(m=>m.media_type==="video"
+  ? `<a class="gallery-tile visitor-media" href="${escapeHtml(m.public_url)}" target="_blank" rel="noopener"><video src="${escapeHtml(m.public_url)}" muted playsinline preload="metadata"></video><span>${escapeHtml(m.caption||m.display_name)}</span></a>`
+  : `<a class="gallery-tile visitor-media" href="${escapeHtml(m.public_url)}" target="_blank" rel="noopener" style="background-image:url('${escapeHtml(m.public_url)}')"><span>${escapeHtml(m.caption||m.display_name)}</span></a>`).join("");
+}
+loadVisitorMedia();
