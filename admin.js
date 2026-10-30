@@ -18,5 +18,19 @@ content.innerHTML="<h2>"+c.title+"</h2>"+table(data,c.cols);
 }
 function table(rows,cols){if(!rows.length)return "<p>Aucun élément pour le moment.</p>";return '<div style="overflow:auto"><table class="admin-table"><thead><tr>'+cols.map(c=>"<th>"+c+"</th>").join("")+"<th>Actions</th></tr></thead><tbody>"+rows.map(row=>"<tr>"+cols.map(c=>"<td>"+esc(row[c]??"—")+"</td>").join("")+"<td>"+(row.status?'<select data-status="'+row.id+'">'+["new","read","contacted","quoted","confirmed","approved","rejected","cancelled","completed","closed"].map(s=>'<option '+(row.status===s?"selected":"")+'>'+s+"</option>").join("")+"</select><button data-save=""+row.id+"">Enregistrer</button>':"")+"</td></tr>").join("")+"</tbody></table></div>";}
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-content.addEventListener("click",async e=>{const b=e.target.closest("[data-save]");if(!b)return;const id=b.dataset.save, status=content.querySelector('[data-status="'+id+'"]').value;const {error}=await supabase.from(config[active].table).update({status,...(active==="reviews"&&status==="approved"?{published_at:new Date().toISOString()}: {})}).eq("id",id);if(error)alert(error.message);else render();});
+content.addEventListener("click",async e=>{const b=e.target.closest("[data-save]");if(!b)return;const id=b.dataset.save, status=content.querySelector('[data-status="'+id+'"]').value;let extra={};
+if(active==="media"&&status==="approved"){
+ const {data:row,error:readError}=await supabase.from("media_submissions").select("*").eq("id",id).single();
+ if(readError){alert(readError.message);return;}
+ const {data:file,error:downloadError}=await supabase.storage.from("afa-submissions").download(row.object_path);
+ if(downloadError){alert(downloadError.message);return;}
+ const ext=row.object_path.split(".").pop();const publicPath="visitor/"+id+"."+ext;
+ const {error:uploadError}=await supabase.storage.from("afa-public-media").upload(publicPath,file,{upsert:true});
+ if(uploadError){alert(uploadError.message);return;}
+ const {data:publicData}=supabase.storage.from("afa-public-media").getPublicUrl(publicPath);
+ const {error:galleryError}=await supabase.from("public_media").insert({display_name:row.display_name,caption:row.caption,media_type:row.media_type,public_url:publicData.publicUrl});
+ if(galleryError){alert(galleryError.message);return;}
+ extra={object_path:publicPath};
+}
+const {error}=await supabase.from(config[active].table).update({status,...extra,...(active==="reviews"&&status==="approved"?{published_at:new Date().toISOString()}: {})}).eq("id",id);if(error)alert(error.message);else render();});
 const {data:{session}}=await supabase.auth.getSession();if(session)await init();
