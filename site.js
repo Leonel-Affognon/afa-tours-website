@@ -3,7 +3,7 @@
   const progress=document.createElement("div");progress.className="reading-progress";body.prepend(progress);
   const topButton=document.createElement("button");topButton.className="back-to-top";topButton.type="button";topButton.setAttribute("aria-label","Retour en haut");topButton.innerHTML="↑";body.append(topButton);
   const nav=document.querySelector(".main-nav"),toggle=document.querySelector(".menu-toggle");
-  if(toggle&&nav)toggle.addEventListener("click",()=>{const open=nav.classList.toggle("open");toggle.setAttribute("aria-expanded",String(open));});
+  if(toggle&&nav&&!document.querySelector('script[src="script.js"]'))toggle.addEventListener("click",()=>{const open=nav.classList.toggle("open");toggle.setAttribute("aria-expanded",String(open));});
   nav?.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{nav.classList.remove("open");toggle?.setAttribute("aria-expanded","false");}));
   const current=location.pathname.split("/").pop()||"index.html";
   nav?.querySelectorAll("a").forEach(a=>{if(a.getAttribute("href")===current)a.classList.add("active");});
