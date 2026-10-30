@@ -55,7 +55,7 @@ loadPublishedTours();
 
 const reviewForm=document.getElementById("reviewForm");
 if(reviewForm) reviewForm.addEventListener("submit",async e=>{
-  e.preventDefault();const f=new FormData(reviewForm),button=reviewForm.querySelector("button"),note=document.getElementById("reviewFeedback");button.disabled=true;note.hidden=false;note.textContent="Envoi en cours…";
+  e.preventDefault();const f=new FormData(reviewForm),button=reviewForm.querySelector(".review-submit"),note=document.getElementById("reviewFeedback");button.disabled=true;note.hidden=false;note.textContent="Envoi en cours…";
   const rating=Number(f.get("rating"));if(!rating){note.textContent="Choisissez une note en étoiles avant de publier.";button.disabled=false;return;}
   try{await submitIntake({action:"review",full_name:f.get("full_name"),email:f.get("email"),rating,title:f.get("title"),tour_name:f.get("tour_name"),body:f.get("body")});reviewForm.reset();document.getElementById("reviewRating").value="";setRating(0);reviewDialog.close();note.textContent="Merci. Votre avis a été reçu et sera publié après vérification.";note.hidden=false;}
   catch(err){note.textContent=err.message;}finally{button.disabled=false;}
@@ -81,6 +81,11 @@ async function loadReviews(){
   const target=document.getElementById("publishedReviews");if(!target)return;
   const {data,error}=await supabase.from("reviews").select("display_name,country,rating,title,body,tour_name,published_at").eq("status","approved").order("published_at",{ascending:false}).limit(12);
   if(error||!data?.length)return;
+  const average=data.reduce((sum,r)=>sum+Number(r.rating||0),0)/data.length;
+  const avg=document.getElementById("averageRating"),stars=document.getElementById("averageStars"),count=document.getElementById("reviewCount");
+  if(avg)avg.textContent=average.toFixed(1).replace(".",",")+"/5";
+  if(stars){const rounded=Math.round(average);stars.textContent="★".repeat(rounded)+"☆".repeat(5-rounded);stars.setAttribute("aria-label","Note moyenne "+average.toFixed(1)+" sur 5");}
+  if(count)count.textContent=data.length+" avis publié"+(data.length>1?"s":"");
   target.innerHTML=data.map(r=>`<article class="review-card"><div class="review-stars" aria-label="${r.rating} sur 5">${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</div><h3>${escapeHtml(r.title||r.tour_name||"Expérience au Bénin")}</h3><p>${escapeHtml(r.body)}</p><small>${escapeHtml(r.display_name)}${r.country?" · "+escapeHtml(r.country):""}</small></article>`).join("");
 }
 loadReviews();
