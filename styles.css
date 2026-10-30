@@ -84,7 +84,6 @@ body{font-family:var(--sans);font-size:16px;font-weight:500;line-height:1.65;col
 .media-consent-summary button{border:1px solid var(--line);background:#fff;padding:10px 14px;font:700 12px var(--sans);cursor:pointer}
 .media-consent-summary button:hover{border-color:var(--orange);color:var(--red)}
 
-
 /* AFA TOURS — immersive multi-page design system */
 :root{--forest:#153c35;--forest-deep:#0d2925;--clay:#bd5a3b;--sun:#e3a65a;--sand:#f4eee4;--paper:#fffdf9;--ink:#1e2824;--muted:#66716b;--line:#ded8cd;--sans:'DM Sans',Arial,sans-serif;--serif:'Playfair Display',Georgia,serif}
 html{scroll-behavior:smooth;scroll-padding-top:100px}
