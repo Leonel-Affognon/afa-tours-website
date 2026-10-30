@@ -93,3 +93,10 @@ async function loadVisitorMedia(){
   : `<a class="gallery-tile visitor-media" href="${escapeHtml(m.public_url)}" target="_blank" rel="noopener" style="background-image:url('${escapeHtml(m.public_url)}')"><span>${escapeHtml(m.caption||m.display_name)}</span></a>`).join("");
 }
 loadVisitorMedia();
+
+const contactForm=document.getElementById("contactForm");
+if(contactForm)contactForm.addEventListener("submit",async e=>{
+ e.preventDefault();const f=new FormData(contactForm),button=contactForm.querySelector("button"),note=document.getElementById("contactFeedback");button.disabled=true;note.hidden=false;note.textContent="Envoi en cours…";
+ try{await submitIntake({action:"message",full_name:f.get("full_name"),email:f.get("email"),subject:f.get("subject"),body:f.get("body")});contactForm.reset();note.textContent="Message transmis à l'équipe AFA TOURS. Merci.";}
+ catch(err){note.textContent=err.message;}finally{button.disabled=false;}
+});
