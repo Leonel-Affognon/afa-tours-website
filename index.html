@@ -70,7 +70,7 @@
     <div class="section-heading"><div><div class="section-kicker">VOTRE REGARD SUR LE BÉNIN</div><h2>Partagez vos <em>souvenirs</em></h2></div><p>Proposez une photo ou une courte vidéo prise pendant votre expérience. Chaque contenu est vérifié avant publication.</p></div>
     <form id="mediaForm" class="booking-form contribution-form">
       <div class="form-row"><label>Votre nom<input name="full_name" required maxlength="100"></label><label>Votre email<input name="email" type="email" required></label></div>
-      <label>Photo ou vidéo<input name="media" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" required></label>
+      <label>Photos et vidéos<input name="media" type="file" accept="image/*,video/*" multiple required><small>Plusieurs fichiers à la fois. Les originaux sont envoyés sans compression automatique.</small><div id="mediaSelection" aria-live="polite"></div></label>
       <label>Légende<textarea name="caption" rows="2" maxlength="500"></textarea></label>
       <fieldset class="consent-choice"><legend>Autorisez-vous AFA TOURS à publier ce contenu sur son site après validation ? *</legend><label><input type="radio" name="consent_publication" value="true" required> Oui, j’autorise la publication</label><label><input type="radio" name="consent_publication" value="false" required> Non, je n’autorise pas la publication</label></fieldset>
 <fieldset class="consent-choice"><legend>Autorisez-vous AFA TOURS à utiliser ce contenu dans ses communications marketing ? *</legend><label><input type="radio" name="consent_marketing" value="true" required> Oui</label><label><input type="radio" name="consent_marketing" value="false" required> Non</label></fieldset>
