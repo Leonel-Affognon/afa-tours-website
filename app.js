@@ -26,7 +26,7 @@ if (bookingForm) {
         request_type: data.get("bookingType") === "Demander un circuit personnalisé" ? "custom_trip" : "existing_tour",
         full_name: data.get("name"), email: data.get("email"), phone: data.get("phone"), budget: data.get("bookingType") === "Demander un circuit personnalisé" ? data.get("budget") : null,
         preferred_date: data.get("date"), party_size: Number(data.get("people") || 1),
-        tour_name: data.get("tour"), message: data.get("message")
+        tour_name: [...data.getAll("tours"), data.get("tour")].filter(Boolean).join(" | "), message: data.get("message")
       });
       form.reset();
       const note = document.getElementById("bookingFeedback");
