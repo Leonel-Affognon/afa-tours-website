@@ -9,3 +9,67 @@
 @media(max-width:680px){.brand img{width:43px;height:43px}.brand b{font-size:10px}.brand small{font-size:8px;letter-spacing:.06em}.hero{min-height:650px}.hero h1{font-size:clamp(44px,12vw,60px)}.booking-form{box-shadow:7px 7px 0 #eadfd3}}
 
 .form-feedback{padding:12px;background:#fff;border-left:3px solid var(--orange);font-size:13px;line-height:1.6;margin:12px 0;color:var(--ink)}.form-feedback[hidden]{display:none}.contribution-form{max-width:760px;margin:35px auto 0}.community-section{background:var(--cream)}.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.review-card{background:#fff;padding:24px;border:1px solid var(--line)}.review-stars{color:var(--orange);letter-spacing:.15em}.review-card h3{font:22px var(--serif);margin:10px 0}.review-card p{font-size:13px;line-height:1.8;color:var(--muted)}.review-card small{font-size:11px;font-weight:700}.consent-line{display:flex!important;grid-template-columns:20px 1fr!important;align-items:start;gap:10px!important;line-height:1.6}.consent-line input{width:17px!important;margin:0!important}.media-section{background:#fff}
+
+
+/* AFA — typographic and editorial refinement */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap');
+:root{--sans:'DM Sans',Arial,sans-serif;--serif:'Playfair Display',Georgia,serif;--ink:#241711;--muted:#66594f;--line:#dfd0c1;--cream:#fbf4eb;--orange:#c66a2b;--red:#9d2924;--brown:#29130d}
+body{font-family:var(--sans);font-size:16px;font-weight:500;line-height:1.65;color:var(--ink);-webkit-font-smoothing:antialiased}
+.main-nav{font-size:14px;font-weight:700;gap:25px}
+.brand b{font-size:13px;font-weight:800}.brand small{font-weight:800}
+.button{font-size:13px;font-weight:800;letter-spacing:.015em;padding:15px 24px}
+.eyebrow,.section-kicker{font-size:11px;font-weight:800;letter-spacing:.16em}
+.hero h1{font-weight:700;letter-spacing:-.035em;line-height:1.04}
+.hero-copy{font-size:18px;font-weight:500;line-height:1.75}
+.intro h2,.section h2,.experience-copy h2,.booking-intro h2{font-weight:700;letter-spacing:-.025em;line-height:1.12}
+.intro-grid p,.section-heading>p,.experience-copy p,.booking-intro>p{font-size:16px;font-weight:500;line-height:1.8;color:#55483f}
+.tour-info h3{font-weight:700;font-size:25px;line-height:1.22}
+.tour-info p{font-size:14px;font-weight:500;line-height:1.75;color:#5e5148}
+.text-link{font-size:13px;font-weight:800}
+.booking-form label{font-size:13px;font-weight:700}
+.booking-form input,.booking-form select,.booking-form textarea{font:15px var(--sans);font-weight:500;padding:14px 15px}
+.booking-form h3{font-size:27px;font-weight:700}
+.booking-form>small{font-size:12px}
+.footer-links{font-size:13px;font-weight:600}
+.footer-bottom{font-size:11px}
+.section{padding-top:112px;padding-bottom:112px}
+.tour-card{border:1px solid #e5d6c8;border-bottom:3px solid var(--orange);box-shadow:0 7px 24px #31170d0a}
+.tour-card:hover{box-shadow:0 16px 34px #31170d18}
+.hero-shade{background:linear-gradient(90deg,rgba(30,13,8,.88),rgba(30,13,8,.62) 52%,rgba(30,13,8,.14))}
+.reviews-heading{display:flex;align-items:end;justify-content:space-between;gap:30px;margin-bottom:34px}
+.reviews-heading h2{font-size:clamp(36px,4vw,54px);margin:13px 0 10px}
+.reviews-intro{max-width:640px;font-size:16px;line-height:1.75;color:#5d5047;margin:0}
+.review-open-button{flex-shrink:0;gap:18px}
+.reviews-overview{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 0;border-top:1px solid #d9c8b8;border-bottom:1px solid #d9c8b8;margin-bottom:28px}
+.reviews-score{display:flex;align-items:center;gap:18px}
+.reviews-score>strong{font:700 42px/1 var(--serif);color:var(--brown)}
+.review-stars-large{font-size:21px;letter-spacing:3px;color:#c66a2b;line-height:1.25}
+#reviewCount{font-size:13px;color:#66594f;font-weight:600}
+.reviews-trust{font-size:13px;color:#66594f;font-weight:600}
+.review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.review-card{background:#fff;border:1px solid #e4d8cd;padding:25px 25px 23px;box-shadow:0 5px 18px #29130d08;min-height:230px;display:flex;flex-direction:column}
+.review-card .review-stars{font-size:17px;letter-spacing:3px;color:#c66a2b}
+.review-card h3{font:700 21px/1.3 var(--serif);margin:13px 0 8px;color:#2c1a12}
+.review-card p{font-size:15px;line-height:1.75;color:#4e423a;margin:0 0 20px;white-space:pre-line}
+.review-card small{font-size:12px;font-weight:700;color:#6b5a4e;margin-top:auto}
+.reviews-empty{grid-column:1/-1;padding:32px 0;color:#6b5a4e;font-size:15px}
+.review-dialog{width:min(640px,calc(100% - 28px));max-height:90vh;overflow:auto;border:0;padding:0;background:#fff;color:var(--ink);box-shadow:0 28px 90px #160a0670}
+.review-dialog::backdrop{background:#1a0c08b8;backdrop-filter:blur(3px)}
+.review-dialog-head{display:flex;justify-content:space-between;align-items:start;padding:28px 32px 20px;border-bottom:1px solid #e7ddd4;background:#fcf7f1}
+.review-dialog-head h3{font:700 29px/1.2 var(--serif);margin:9px 0 0}
+.dialog-close{border:0;background:transparent;font-size:30px;line-height:1;cursor:pointer;color:#4d3a30}
+.review-compose{padding:25px 32px 32px}
+.review-prompt{font-size:15px;font-weight:700;margin:0 0 12px}
+.rating-picker{display:flex;gap:8px;margin:0 0 23px}
+.rating-star{border:0;background:transparent;color:#cfc4ba;font-size:35px;line-height:1;cursor:pointer;padding:2px;transition:color .12s,transform .12s}
+.rating-star.active,.rating-star:hover{color:#c66a2b}
+.rating-star:hover{transform:scale(1.12)}
+.review-compose label{display:grid;gap:7px;margin:0 0 16px;font-size:13px;font-weight:700}
+.review-compose input,.review-compose textarea{width:100%;padding:13px 14px;border:1px solid #d9ccc0;background:#fff;font:15px var(--sans);color:var(--ink);border-radius:0}
+.review-compose input:focus,.review-compose textarea:focus{outline:2px solid #c66a2b;outline-offset:1px}
+.optional-label{font-size:12px;font-weight:500;color:#786a60}
+.review-compose .form-row{gap:14px}
+.review-privacy-note{font-size:12px;line-height:1.6;color:#6b5d53;margin:0 0 18px}
+.review-submit{width:100%}
+@media(max-width:900px){.review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.section{padding-top:76px;padding-bottom:76px}.hero-copy{font-size:16px}.reviews-heading{display:block}.reviews-heading .button{margin-top:20px}.reviews-overview{align-items:flex-start;flex-direction:column}.review-grid{grid-template-columns:1fr}.review-compose{padding:20px}.review-dialog-head{padding:22px 20px 17px}.review-compose .form-row{grid-template-columns:1fr}.review-card{min-height:0}}
