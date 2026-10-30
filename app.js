@@ -14,7 +14,7 @@ if (bookingForm) {
       const result = await submitIntake({
         action: "booking",
         request_type: data.get("bookingType") === "Demander un circuit personnalisé" ? "custom_trip" : "existing_tour",
-        full_name: data.get("name"), email: data.get("email"),
+        full_name: data.get("name"), email: data.get("email"), phone: data.get("phone"), budget: data.get("budget"),
         preferred_date: data.get("date"), party_size: Number(data.get("people") || 1),
         tour_name: data.get("tour"), message: data.get("message")
       });
