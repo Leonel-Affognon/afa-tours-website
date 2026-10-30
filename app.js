@@ -1,6 +1,16 @@
 import { supabase, submitIntake } from "./backend.js";
 
 const bookingForm = document.getElementById("bookingForm");
+const bookingType = document.getElementById("bookingType");
+const budgetField = document.getElementById("budgetField");
+function syncBudgetField() {
+  if (!bookingType || !budgetField) return;
+  const custom = bookingType.value === "Demander un circuit personnalisé";
+  budgetField.hidden = !custom;
+  if (!custom) budgetField.querySelector("input").value = "";
+}
+bookingType?.addEventListener("change", syncBudgetField);
+syncBudgetField();
 if (bookingForm) {
   bookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -14,7 +24,7 @@ if (bookingForm) {
       const result = await submitIntake({
         action: "booking",
         request_type: data.get("bookingType") === "Demander un circuit personnalisé" ? "custom_trip" : "existing_tour",
-        full_name: data.get("name"), email: data.get("email"), phone: data.get("phone"), budget: data.get("budget"),
+        full_name: data.get("name"), email: data.get("email"), phone: data.get("phone"), budget: data.get("bookingType") === "Demander un circuit personnalisé" ? data.get("budget") : null,
         preferred_date: data.get("date"), party_size: Number(data.get("people") || 1),
         tour_name: data.get("tour"), message: data.get("message")
       });
@@ -73,7 +83,7 @@ if(mediaForm) mediaForm.addEventListener("submit",async e=>{
     const path="incoming/"+crypto.randomUUID()+"."+ext;
     const {error:uploadError}=await supabase.storage.from("afa-submissions").upload(path,file,{contentType:file.type,upsert:false});
     if(uploadError)throw uploadError;
-    await submitIntake({action:"media",full_name:f.get("full_name"),email:f.get("email"),caption:f.get("caption"),object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:f.get("consent_publication")==="on",consent_marketing:f.get("consent_marketing")==="on"});
+    await submitIntake({action:"media",full_name:f.get("full_name"),email:f.get("email"),caption:f.get("caption"),object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:f.get("consent_publication")==="true",consent_marketing:f.get("consent_marketing")==="true"});
     mediaForm.reset();note.textContent="Votre média a été reçu. Il restera privé jusqu'à sa validation.";
   }catch(err){note.textContent=err.message||"Impossible d'envoyer le fichier.";}finally{button.disabled=false;}
 });
