@@ -55,8 +55,9 @@ loadPublishedTours();
 
 const reviewForm=document.getElementById("reviewForm");
 if(reviewForm) reviewForm.addEventListener("submit",async e=>{
-  e.preventDefault();const f=new FormData(reviewForm),button=reviewForm.querySelector("button"),note=document.getElementById("reviewFeedback");button.disabled=true;note.hidden=false;note.textContent="Envoi en cours…";
-  try{await submitIntake({action:"review",full_name:f.get("full_name"),email:f.get("email"),rating:Number(f.get("rating")),tour_name:f.get("tour_name"),body:f.get("body")});reviewForm.reset();note.textContent="Merci. Votre avis a été reçu et sera publié après modération.";}
+  e.preventDefault();const f=new FormData(reviewForm),button=reviewForm.querySelector(".review-submit"),note=document.getElementById("reviewFeedback");button.disabled=true;note.hidden=false;note.textContent="Envoi en cours…";
+  const rating=Number(f.get("rating"));if(!rating){note.textContent="Choisissez une note en étoiles avant de publier.";button.disabled=false;return;}
+  try{await submitIntake({action:"review",full_name:f.get("full_name"),email:f.get("email"),rating,title:f.get("title"),tour_name:f.get("tour_name"),body:f.get("body")});reviewForm.reset();document.getElementById("reviewRating").value="";setRating(0);reviewDialog.close();note.textContent="Merci. Votre avis a été reçu et sera publié après vérification.";note.hidden=false;}
   catch(err){note.textContent=err.message;}finally{button.disabled=false;}
 });
 const mediaForm=document.getElementById("mediaForm");
@@ -80,6 +81,11 @@ async function loadReviews(){
   const target=document.getElementById("publishedReviews");if(!target)return;
   const {data,error}=await supabase.from("reviews").select("display_name,country,rating,title,body,tour_name,published_at").eq("status","approved").order("published_at",{ascending:false}).limit(12);
   if(error||!data?.length)return;
+  const average=data.reduce((sum,r)=>sum+Number(r.rating||0),0)/data.length;
+  const avg=document.getElementById("averageRating"),stars=document.getElementById("averageStars"),count=document.getElementById("reviewCount");
+  if(avg)avg.textContent=average.toFixed(1).replace(".",",")+"/5";
+  if(stars){const rounded=Math.round(average);stars.textContent="★".repeat(rounded)+"☆".repeat(5-rounded);stars.setAttribute("aria-label","Note moyenne "+average.toFixed(1)+" sur 5");}
+  if(count)count.textContent=data.length+" avis publié"+(data.length>1?"s":"");
   target.innerHTML=data.map(r=>`<article class="review-card"><div class="review-stars" aria-label="${r.rating} sur 5">${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</div><h3>${escapeHtml(r.title||r.tour_name||"Expérience au Bénin")}</h3><p>${escapeHtml(r.body)}</p><small>${escapeHtml(r.display_name)}${r.country?" · "+escapeHtml(r.country):""}</small></article>`).join("");
 }
 loadReviews();
@@ -100,3 +106,14 @@ if(contactForm)contactForm.addEventListener("submit",async e=>{
  try{await submitIntake({action:"message",full_name:f.get("full_name"),email:f.get("email"),subject:f.get("subject"),body:f.get("body")});contactForm.reset();note.textContent="Message transmis à l'équipe AFA TOURS. Merci.";}
  catch(err){note.textContent=err.message;}finally{button.disabled=false;}
 });
+
+const reviewDialog=document.getElementById("reviewDialog");
+const openReviewDialog=document.getElementById("openReviewDialog");
+if(openReviewDialog&&reviewDialog)openReviewDialog.addEventListener("click",()=>reviewDialog.showModal());
+document.getElementById("closeReviewDialog")?.addEventListener("click",()=>reviewDialog.close());
+reviewDialog?.addEventListener("click",e=>{if(e.target===reviewDialog)reviewDialog.close();});
+function setRating(value){
+ document.getElementById("reviewRating").value=value||"";
+ document.querySelectorAll(".rating-star").forEach(star=>{const active=Number(star.dataset.rating)<=value;star.classList.toggle("active",active);star.setAttribute("aria-pressed",String(active));});
+}
+document.querySelectorAll(".rating-star").forEach(star=>star.addEventListener("click",()=>setRating(Number(star.dataset.rating))));
