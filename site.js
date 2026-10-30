@@ -20,3 +20,53 @@
   document.querySelectorAll(".tour-grid,.destination-grid").forEach(grid=>grid.classList.add("stagger-grid"));
   const year=document.getElementById("year");if(year)year.textContent=new Date().getFullYear();
 })();
+
+/* Mobile-first navigation: persistent shortcuts + an optional full page menu */
+(() => {
+  if (document.querySelector(".mobile-quick-nav")) return;
+  const current = location.pathname.split("/").pop() || "index.html";
+  const links = [
+    ["index.html","⌂","Accueil"],
+    ["circuits.html","◇","Circuits"],
+    ["destinations.html","◎","Destinations"],
+    ["contact.html","✉","Contact"]
+  ];
+  const nav = document.createElement("nav");
+  nav.className = "mobile-quick-nav";
+  nav.setAttribute("aria-label","Navigation rapide");
+  links.forEach(([href,symbol,label]) => {
+    const a=document.createElement("a");a.href=href;
+    if(current===href)a.setAttribute("aria-current","page");
+    const icon=document.createElement("span");icon.className="nav-symbol";icon.setAttribute("aria-hidden","true");icon.textContent=symbol;
+    const text=document.createElement("span");text.textContent=label;
+    a.append(icon,text);nav.append(a);
+  });
+  const more=document.createElement("button");more.type="button";more.setAttribute("aria-expanded","false");more.setAttribute("aria-controls","mobileMorePanel");
+  const moreIcon=document.createElement("span");moreIcon.className="nav-symbol";moreIcon.setAttribute("aria-hidden","true");moreIcon.textContent="☰";
+  const moreText=document.createElement("span");moreText.textContent="Plus";
+  more.append(moreIcon,moreText);nav.append(more);
+  const panel=document.createElement("div");panel.className="mobile-more-panel";panel.id="mobileMorePanel";
+  panel.setAttribute("aria-label","Toutes les rubriques");
+  [["experiences.html","Expériences"],["about.html","Notre agence"],["gallery.html","Galerie"],["confidentialite.html","Confidentialité"]].forEach(([href,label])=>{
+    const a=document.createElement("a");a.href=href;a.textContent=label;panel.append(a);
+  });
+  more.addEventListener("click",()=>{
+    const open=panel.classList.toggle("open");more.setAttribute("aria-expanded",String(open));
+  });
+  panel.addEventListener("click",e=>{if(e.target.closest("a")){panel.classList.remove("open");more.setAttribute("aria-expanded","false");}});
+  document.addEventListener("click",e=>{if(!panel.contains(e.target)&&!more.contains(e.target)){panel.classList.remove("open");more.setAttribute("aria-expanded","false");}});
+  document.body.append(panel,nav);
+
+  // One gentle invitation per visit, never a recurring interruption.
+  const nudge=document.createElement("aside");nudge.className="discovery-nudge";nudge.setAttribute("aria-label","Suggestion de découverte");
+  nudge.innerHTML='<button class="nudge-close" type="button" aria-label="Fermer">×</button><strong>Et si vous exploriez le Bénin autrement ?</strong><p>Découvrez nos circuits et expériences conçus autour des lieux et des rencontres.</p><a href="circuits.html">Explorer les circuits →</a>';
+  document.body.append(nudge);
+  let alreadyShown=false;
+  try{alreadyShown=sessionStorage.getItem("afaDiscoveryNudgeShown")==="1";}catch(e){}
+  const close=()=>{nudge.classList.remove("visible");try{sessionStorage.setItem("afaDiscoveryNudgeShown","1");}catch(e){}};
+  nudge.querySelector(".nudge-close").addEventListener("click",close);
+  if(!alreadyShown&&window.matchMedia("(max-width: 760px)").matches){
+    window.setTimeout(()=>{nudge.classList.add("visible");try{sessionStorage.setItem("afaDiscoveryNudgeShown","1");}catch(e){}},30000);
+    nudge.querySelector("a").addEventListener("click",()=>nudge.classList.remove("visible"));
+  }
+})();
