@@ -70,3 +70,47 @@
     nudge.querySelector("a").addEventListener("click",()=>nudge.classList.remove("visible"));
   }
 })();
+
+/* AFA Motion Intelligence — scroll state, section awareness and pointer micro-interactions */
+(() => {
+ const root=document.documentElement,header=document.querySelector(".site-header");
+ const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ const finePointer=window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+ let scrollTick=false;
+ const update=()=>{
+  const y=window.scrollY||0;header?.classList.toggle("is-scrolled",y>28);
+  const max=root.scrollHeight-window.innerHeight,bar=document.querySelector(".reading-progress");
+  if(bar)bar.style.transform="scaleX("+(max>0?y/max:0)+")";scrollTick=false;
+ };
+ window.addEventListener("scroll",()=>{if(!scrollTick){window.requestAnimationFrame(update);scrollTick=true;}},{passive:true});update();
+ const navLinks=[...document.querySelectorAll(".main-nav a")];
+ const sectionLinks=navLinks.map(a=>({a,id:(a.getAttribute("href")||"").startsWith("#")?(a.getAttribute("href")||"").slice(1):null})).filter(x=>x.id&&document.getElementById(x.id));
+ if("IntersectionObserver" in window&&sectionLinks.length){
+  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
+   if(entry.isIntersecting){navLinks.forEach(a=>a.classList.remove("active"));sectionLinks.find(x=>x.id===entry.target.id)?.a.classList.add("active");}
+  }),{rootMargin:"-35% 0px -55% 0px",threshold:0});
+  sectionLinks.forEach(x=>observer.observe(document.getElementById(x.id)));
+ }
+ if(finePointer&&!reduce){
+  document.querySelectorAll(".tour-card,.destination-card").forEach(card=>{
+   card.addEventListener("pointermove",event=>{
+    const r=card.getBoundingClientRect(),x=(event.clientX-r.left)/r.width-.5,y=(event.clientY-r.top)/r.height-.5;
+    card.style.transform="perspective(900px) rotateX("+(-y*2.2).toFixed(2)+"deg) rotateY("+(x*2.8).toFixed(2)+"deg) translateY(-4px)";
+   });
+   card.addEventListener("pointerleave",()=>{card.style.transform="";});
+  });
+  document.querySelectorAll(".button").forEach(button=>button.addEventListener("pointermove",event=>{
+   const r=button.getBoundingClientRect();button.style.setProperty("--pointer-x",(event.clientX-r.left)+"px");button.style.setProperty("--pointer-y",(event.clientY-r.top)+"px");
+  }));
+ }
+ const hero=document.querySelector(".hero,.inner-hero");
+ if(hero&&finePointer&&!reduce){
+  let raf=0;window.addEventListener("pointermove",event=>{
+   if(event.pointerType==="touch")return;if(raf)cancelAnimationFrame(raf);
+   raf=requestAnimationFrame(()=>{
+    const dx=(event.clientX/window.innerWidth-.5)*7,dy=(event.clientY/window.innerHeight-.5)*5;
+    hero.style.setProperty("--hero-depth-x",dx.toFixed(2)+"px");hero.style.setProperty("--hero-depth-y",dy.toFixed(2)+"px");
+   });
+  },{passive:true});
+ }
+})();
