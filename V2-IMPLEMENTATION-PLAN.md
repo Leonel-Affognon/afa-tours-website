@@ -52,3 +52,30 @@ The current GitHub Pages site is a static front end. A static website alone cann
 - Booking confirmation workflow and cancellation rules.
 - Payment provider decision and business settlement details.
 - Exact legal business address and privacy contact.
+
+
+## Implemented in Supabase project (2026-10-30)
+Project: `AFA-TOURS-PRODUCTION` (region `eu-west-1`).
+- Database tables: tours, bookings, reviews, messages, media_submissions, public_media, admin_users, intake_rate_limits, admin_bootstrap_tokens.
+- RLS enabled on every public table. Public reads are limited to published tours, approved reviews and published media. Reservations, messages, moderation queues and admin data are private.
+- Storage buckets: `afa-public-media` (public approved assets, 10 MB max) and `afa-submissions` (private incoming media, 50 MB max).
+- Edge Functions: `public-intake` for validated anonymous booking/message/review/media submissions; `bootstrap-owner` for one-time first-owner activation.
+- Seeded two initial editable circuits: Porto-Novo and Adjarra. Replace provisional cover images with AFA-owned photographs.
+- Website frontend now includes booking, direct contact, review submission, media contribution, privacy page and admin interface.
+- Publishable key is used in browser code; secret key remains server-side in Supabase Edge Functions.
+
+## Owner activation required before admin use
+1. Open `/admin.html` after the V2 site is deployed.
+2. Create the owner account with the official AFA email and a strong password (12+ characters).
+3. Confirm the email if Supabase requests it, then sign in.
+4. Enter the one-time activation code provided privately by the project owner/maintainer. It expires after 14 days and can only be used once.
+5. After activation, the owner can manage tours, bookings, messages, reviews and media.
+
+## Still not completed / launch dependencies
+- Owner account activation and end-to-end browser test using the real owner account.
+- Confirm official WhatsApp number and email; current contact values are carried over from the existing site.
+- Replace temporary stock images with AFA-owned photographs and add the complete approved tour catalogue and pricing.
+- Confirm legal entity address, data controller/contact and retention periods; privacy page is a working draft until then.
+- Configure `afatours.com` only after domain ownership and DNS access are available.
+- Select and integrate a supported online payment provider only after merchant account details and settlement method are confirmed. No card data is collected by this site.
+- Test the public forms through a real browser and confirm email notifications / operational response process; no outbound email service has been configured.
