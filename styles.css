@@ -200,3 +200,43 @@ body{background:#fff;color:var(--ink)}
 }
 @keyframes mobilePanelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.mobile-more-panel.open{animation:none}.discovery-nudge{transition:none}}
+
+/* AFA Motion System v3 — cinematic, restrained and responsive */
+:root{--motion-fast:180ms;--motion-medium:420ms;--motion-slow:760ms;--motion-ease:cubic-bezier(.2,.72,.2,1)}
+html{scroll-behavior:smooth;scroll-padding-top:110px}body{overflow-x:clip}
+.site-header{transition:height .35s var(--motion-ease),box-shadow .35s,background .35s}
+.site-header.is-scrolled{height:76px;box-shadow:0 10px 32px #29130d18;background:rgba(255,255,255,.97)}
+.site-header.is-scrolled .brand img{width:48px;height:48px;transition:width .35s,height .35s}
+.main-nav a{transition:color var(--motion-fast)}
+.button{position:relative;overflow:hidden;isolation:isolate}
+.button:before{content:"";position:absolute;inset:0 auto 0 -120%;width:70%;background:linear-gradient(105deg,transparent,#ffffff55,transparent);transform:skewX(-18deg);transition:left .7s var(--motion-ease);z-index:-1}
+.button:hover:before{left:150%}
+.button:focus-visible,.main-nav a:focus-visible,.mobile-quick-nav a:focus-visible{outline:3px solid var(--sun);outline-offset:4px}
+.hero,.inner-hero{isolation:isolate;overflow:hidden}.hero-content,.inner-hero-content{z-index:1}
+.hero-content>*{animation:afaRise .8s var(--motion-ease) both}
+.hero-content .eyebrow{animation-delay:.08s}.hero-content h1{animation-delay:.18s}.hero-content .hero-copy{animation-delay:.29s}.hero-content .hero-buttons{animation-delay:.4s}.hero-content .hero-note{animation-delay:.52s}
+.inner-hero-content>*{animation:afaRise .75s var(--motion-ease) both}
+.inner-hero-content .eyebrow{animation-delay:.08s}.inner-hero-content h1{animation-delay:.18s}.inner-hero-content>p:not(.eyebrow){animation-delay:.3s}.inner-hero-content .button{animation-delay:.42s}
+.reveal{opacity:0;transform:translate3d(0,34px,0);transition:opacity .75s var(--motion-ease),transform .75s var(--motion-ease)}
+.reveal.is-visible{opacity:1;transform:translate3d(0,0,0)}
+.stagger-grid>.reveal:nth-child(2){transition-delay:.10s}.stagger-grid>.reveal:nth-child(3){transition-delay:.19s}.stagger-grid>.reveal:nth-child(4){transition-delay:.28s}
+.tour-card,.destination-card{transform-style:preserve-3d;transition:transform .45s var(--motion-ease),box-shadow .45s,border-color .3s}
+.tour-image,.destination-image,.gallery-tile{background-size:cover;background-position:center;transition:background-size .8s,filter .5s}
+.tour-image:after,.destination-image:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 55%,rgba(31,19,12,.22));opacity:.55;transition:opacity .4s}
+.tour-card:hover .tour-image:after,.destination-card:hover .destination-image:before{opacity:1}
+.tour-card:hover,.destination-card:hover{box-shadow:0 25px 65px #29130d20;border-color:#e8b58f}
+.tour-card:hover .image-label{transform:translateY(-3px);transition:transform .35s}.image-label{transition:transform .35s}
+.gallery-tile{overflow:hidden}.gallery-tile:hover{filter:saturate(1.13) contrast(1.03)}
+.text-link span{display:inline-block;transition:transform .25s var(--motion-ease)}.text-link:hover span{transform:translate(5px,-3px)}
+.section-kicker{display:inline-flex;align-items:center;gap:12px}.section-kicker:before{content:"";width:25px;height:1px;background:currentColor;opacity:.75}
+.reading-progress{height:3px;background:linear-gradient(90deg,var(--clay),var(--sun));box-shadow:0 1px 8px #e8792e55}
+.back-to-top{transition:opacity .3s,transform .3s,background .25s}.back-to-top:hover{background:var(--clay)}
+.experience-photo{position:relative;overflow:hidden}.experience-photo:before{content:"";position:absolute;inset:0;background:inherit;background-size:cover;background-position:center;transform:scale(1.04);transition:transform 1.2s var(--motion-ease)}
+.experience-band:hover .experience-photo:before{transform:scale(1.1)}
+.booking-form{transition:box-shadow .4s,transform .4s}.booking-form:focus-within{box-shadow:14px 14px 0 #e8ddcd,0 24px 55px #29130d12}
+.footer-links a{transition:color .2s,transform .2s}.footer-links a:hover{transform:translateY(-2px)}
+@keyframes afaRise{from{opacity:0;transform:translate3d(0,24px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@media(min-width:761px) and (hover:hover) and (pointer:fine){.tour-card:hover{transform:translateY(-8px) rotateX(1deg)}.destination-card:hover{transform:translateY(-7px)}}
+@media(min-width:761px) and (max-width:1100px){.tour-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.section{padding-left:6%;padding-right:6%}}
+@media(max-width:760px){html{scroll-padding-top:82px}.site-header.is-scrolled{height:66px}.site-header.is-scrolled .brand img{width:40px;height:40px}.hero-content>*,.inner-hero-content>*{animation-duration:.65s}.reveal{transform:translate3d(0,22px,0);transition-duration:.6s}.tour-card:hover,.destination-card:hover{transform:none}.tour-card:active,.destination-card:active{transform:scale(.99)}.booking-form:focus-within{box-shadow:7px 7px 0 #e8ddcd}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.reveal{opacity:1;transform:none}.hero-content>*,.inner-hero-content>*{animation:none;opacity:1;transform:none}}
