@@ -297,3 +297,7 @@ html{scroll-behavior:smooth;scroll-padding-top:110px}body{overflow-x:clip}
  .floating-whatsapp{animation:none}
  .reveal{filter:none;will-change:auto}
 }
+
+/* Persistent language control across all public pages */
+.header-actions{display:flex;align-items:center;gap:9px;flex-shrink:0}.header-actions select{border:1px solid #dfd0c1;background:#fff;color:#29130d;padding:9px 10px;min-width:112px;font:700 12px 'DM Sans',Arial,sans-serif;cursor:pointer}.language-label{font-size:10px;font-weight:800;letter-spacing:.08em;color:#9d4926;text-transform:uppercase}.goog-te-banner-frame,.goog-te-gadget,.goog-te-balloon-frame{display:none!important}body{top:0!important}#google_translate_element{display:none!important}.skiptranslate{display:none!important}
+@media(max-width:680px){.site-header{gap:6px}.header-actions{display:flex!important;margin-left:0}.header-actions select{min-width:90px;max-width:100px;padding:8px 5px;font-size:11px}.header-actions .button{display:none!important}.language-label{display:none}}
