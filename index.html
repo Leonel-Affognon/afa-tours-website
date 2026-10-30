@@ -43,14 +43,28 @@
   </section>
   <section class="section contact-section" id="message"><div class="section-heading"><div><div class="section-kicker">CONTACT DIRECT</div><h2>Écrivez à notre <em>équipe</em></h2></div><p>Une question avant de réserver ? Envoyez-nous un message directement depuis le site.</p></div><form id="contactForm" class="booking-form contribution-form"><div class="form-row"><label>Votre nom<input name="full_name" required maxlength="100"></label><label>Votre email<input name="email" type="email" required></label></div><label>Objet<input name="subject" maxlength="160"></label><label>Votre message<textarea name="body" rows="4" required minlength="5" maxlength="4000"></textarea></label><button class="button" type="submit">Envoyer le message</button><p id="contactFeedback" class="form-feedback" role="status" hidden></p></form></section>
   <section class="section community-section" id="avis">
-    <div class="section-heading"><div><div class="section-kicker">VOS EXPÉRIENCES</div><h2>Ils ont voyagé avec <em>AFA TOURS</em></h2></div><p>Les avis sont vérifiés par notre équipe avant publication.</p></div>
-    <div id="publishedReviews" class="review-grid" aria-live="polite"><p class="notice">Les témoignages validés apparaîtront ici.</p></div>
-    <form id="reviewForm" class="booking-form contribution-form"><h3>Partager votre expérience</h3>
-      <div class="form-row"><label>Votre nom<input name="full_name" required maxlength="100"></label><label>Votre email<input name="email" type="email" required></label></div>
-      <div class="form-row"><label>Votre note<select name="rating" required><option value="">Choisir</option><option value="5">5 — Excellent</option><option value="4">4 — Très bien</option><option value="3">3 — Bien</option><option value="2">2 — Moyen</option><option value="1">1 — Décevant</option></select></label><label>Destination<input name="tour_name" maxlength="150"></label></div>
-      <label>Votre témoignage<textarea name="body" rows="4" required minlength="10" maxlength="2500"></textarea></label>
-      <button class="button" type="submit">Envoyer mon avis</button><p class="form-feedback" id="reviewFeedback" role="status" hidden></p>
-    </form>
+    <div class="reviews-heading">
+      <div><div class="section-kicker">AVIS DE NOS VOYAGEURS</div><h2>Leurs mots. <em>Leurs voyages.</em></h2><p class="reviews-intro">Les expériences vécues au Bénin, racontées par celles et ceux qui nous ont accompagnés.</p></div>
+      <button class="button review-open-button" type="button" id="openReviewDialog">Écrire un avis <span aria-hidden="true">↗</span></button>
+    </div>
+    <div class="reviews-overview" id="reviewsOverview"><div class="reviews-score"><strong id="averageRating">—</strong><div><div class="review-stars-large" id="averageStars" aria-label="Aucune note">☆☆☆☆☆</div><span id="reviewCount">Aucun avis publié pour le moment</span></div></div><span class="reviews-trust">Chaque avis est lu avant publication.</span></div>
+    <div id="publishedReviews" class="review-grid" aria-live="polite"><p class="reviews-empty">Les premiers témoignages de nos voyageurs apparaîtront ici.</p></div>
+    <dialog class="review-dialog" id="reviewDialog" aria-labelledby="reviewDialogTitle">
+      <div class="review-dialog-head"><div><div class="section-kicker">VOTRE EXPÉRIENCE COMPTE</div><h3 id="reviewDialogTitle">Racontez votre voyage</h3></div><button type="button" class="dialog-close" id="closeReviewDialog" aria-label="Fermer">×</button></div>
+      <form id="reviewForm" class="review-compose">
+        <p class="review-prompt">Comment s'est passée votre expérience avec AFA TOURS ?</p>
+        <div class="rating-picker" role="group" aria-label="Votre note">
+          <button type="button" class="rating-star" data-rating="1" aria-label="1 étoile">★</button><button type="button" class="rating-star" data-rating="2" aria-label="2 étoiles">★</button><button type="button" class="rating-star" data-rating="3" aria-label="3 étoiles">★</button><button type="button" class="rating-star" data-rating="4" aria-label="4 étoiles">★</button><button type="button" class="rating-star" data-rating="5" aria-label="5 étoiles">★</button>
+        </div>
+        <input type="hidden" name="rating" id="reviewRating">
+        <label>Votre avis<textarea name="body" rows="5" required minlength="10" maxlength="2500" placeholder="Qu'avez-vous aimé ? Que devraient savoir les futurs voyageurs ?"></textarea></label>
+        <label>Titre de votre avis <span class="optional-label">(facultatif)</span><input name="title" maxlength="140" placeholder="Résumez votre expérience"></label>
+        <div class="form-row"><label>Votre nom<input name="full_name" required maxlength="100" placeholder="Nom affiché avec votre avis"></label><label>Votre adresse email<input name="email" type="email" required placeholder="Pour le suivi, non affichée"></label></div>
+        <label>Le circuit ou le lieu visité <span class="optional-label">(facultatif)</span><input name="tour_name" maxlength="150" placeholder="Ex. : Porto-Novo, Adjarra…"></label>
+        <p class="review-privacy-note">Votre adresse email ne sera pas publiée. Votre avis sera visible après vérification par notre équipe.</p>
+        <button class="button review-submit" type="submit">Publier mon avis</button><p class="form-feedback" id="reviewFeedback" role="status" hidden></p>
+      </form>
+    </dialog>
   </section>
   <section class="section media-section">
     <div class="section-heading"><div><div class="section-kicker">VOTRE REGARD SUR LE BÉNIN</div><h2>Partagez vos <em>souvenirs</em></h2></div><p>Proposez une photo ou une courte vidéo prise pendant votre expérience. Chaque contenu est vérifié avant publication.</p></div>
