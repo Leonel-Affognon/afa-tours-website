@@ -52,3 +52,34 @@ async function loadPublishedTours() {
 }
 function escapeHtml(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 loadPublishedTours();
+
+const reviewForm=document.getElementById("reviewForm");
+if(reviewForm) reviewForm.addEventListener("submit",async e=>{
+  e.preventDefault();const f=new FormData(reviewForm),button=reviewForm.querySelector("button"),note=document.getElementById("reviewFeedback");button.disabled=true;note.hidden=false;note.textContent="Envoi en cours…";
+  try{await submitIntake({action:"review",full_name:f.get("full_name"),email:f.get("email"),rating:Number(f.get("rating")),tour_name:f.get("tour_name"),body:f.get("body")});reviewForm.reset();note.textContent="Merci. Votre avis a été reçu et sera publié après modération.";}
+  catch(err){note.textContent=err.message;}finally{button.disabled=false;}
+});
+const mediaForm=document.getElementById("mediaForm");
+if(mediaForm) mediaForm.addEventListener("submit",async e=>{
+  e.preventDefault();const f=new FormData(mediaForm),file=f.get("media"),button=mediaForm.querySelector("button"),note=document.getElementById("mediaFeedback");note.hidden=false;
+  if(!file||!file.size){note.textContent="Choisissez un fichier.";return;}
+  const allowed=["image/jpeg","image/png","image/webp","video/mp4","video/webm"];
+  const max=file.type.startsWith("video/")?50*1024*1024:10*1024*1024;
+  if(!allowed.includes(file.type)||file.size>max){note.textContent="Format non accepté ou fichier trop volumineux (10 Mo pour une image, 50 Mo pour une vidéo).";return;}
+  button.disabled=true;note.textContent="Téléversement sécurisé…";
+  try{
+    const ext=file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"");
+    const path="incoming/"+crypto.randomUUID()+"."+ext;
+    const {error:uploadError}=await supabase.storage.from("afa-submissions").upload(path,file,{contentType:file.type,upsert:false});
+    if(uploadError)throw uploadError;
+    await submitIntake({action:"media",full_name:f.get("full_name"),email:f.get("email"),caption:f.get("caption"),object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:f.get("consent_publication")==="on",consent_marketing:f.get("consent_marketing")==="on"});
+    mediaForm.reset();note.textContent="Votre média a été reçu. Il restera privé jusqu'à sa validation.";
+  }catch(err){note.textContent=err.message||"Impossible d'envoyer le fichier.";}finally{button.disabled=false;}
+});
+async function loadReviews(){
+  const target=document.getElementById("publishedReviews");if(!target)return;
+  const {data,error}=await supabase.from("reviews").select("display_name,country,rating,title,body,tour_name,published_at").eq("status","approved").order("published_at",{ascending:false}).limit(12);
+  if(error||!data?.length)return;
+  target.innerHTML=data.map(r=>`<article class="review-card"><div class="review-stars" aria-label="${r.rating} sur 5">${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</div><h3>${escapeHtml(r.title||r.tour_name||"Expérience au Bénin")}</h3><p>${escapeHtml(r.body)}</p><small>${escapeHtml(r.display_name)}${r.country?" · "+escapeHtml(r.country):""}</small></article>`).join("");
+}
+loadReviews();
