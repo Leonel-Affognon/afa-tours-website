@@ -114,3 +114,6 @@
   },{passive:true});
  }
 })();
+
+/* Touch feedback and section timing */
+(() => { if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; document.querySelectorAll(".button,.tour-card,.destination-card,.gallery-tile").forEach(el=>{el.addEventListener("touchstart",()=>el.classList.add("touch-active"),{passive:true});el.addEventListener("touchend",()=>el.classList.remove("touch-active"),{passive:true});el.addEventListener("touchcancel",()=>el.classList.remove("touch-active"),{passive:true});});})();
