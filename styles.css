@@ -315,3 +315,6 @@ html{scroll-behavior:smooth;scroll-padding-top:110px}body{overflow-x:clip}
 .selected-circuit-item button{border:0;background:transparent;color:#9a4b2b;text-decoration:underline;cursor:pointer;font:600 12px 'DM Sans',sans-serif}
 .selection-browse-links{margin:12px 0 0}.selection-browse-links a{margin-right:8px}
 @media(max-width:600px){.destination-circuit-option{align-items:flex-start;flex-direction:column}.destination-circuit-option .circuit-pick{width:100%}.selected-circuit-item{align-items:flex-start}}
+
+/* Shared catalog cards — synchronized homepage and circuit details */
+.tour-card-image-link{display:block;color:inherit}.tour-facts{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0 4px;font-size:12px;color:#75452e}.tour-facts strong{font-weight:800}.tour-facts span{font-weight:700}.all-tours-link{text-align:center;margin:30px 0 0}.all-tours-link .button{background:#fff;color:var(--brown);border-color:var(--orange)}.destination-card[id]{scroll-margin-top:110px}
