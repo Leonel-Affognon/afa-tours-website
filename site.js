@@ -117,3 +117,14 @@
 
 /* Touch feedback and section timing */
 (() => { if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; document.querySelectorAll(".button,.tour-card,.destination-card,.gallery-tile").forEach(el=>{el.addEventListener("touchstart",()=>el.classList.add("touch-active"),{passive:true});el.addEventListener("touchend",()=>el.classList.remove("touch-active"),{passive:true});el.addEventListener("touchcancel",()=>el.classList.remove("touch-active"),{passive:true});});})();
+
+/* Load the optional Motion Plus layer after all original site effects. */
+(() => {
+  if (document.querySelector('link[data-afa-motion-plus]')) return;
+  const stylesheet=document.createElement("link");
+  stylesheet.rel="stylesheet";stylesheet.href="motion-plus.css";stylesheet.dataset.afaMotionPlus="true";
+  document.head.append(stylesheet);
+  const script=document.createElement("script");
+  script.src="motion-plus.js";script.defer=true;
+  document.body.append(script);
+})();

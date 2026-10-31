@@ -1,0 +1,84 @@
+/* AFA Motion Plus — additive visual layer. Existing motion rules remain untouched. */
+body.afa-motion-ready .hero{isolation:isolate}
+body.afa-motion-ready .hero::before{
+  content:"";position:absolute;z-index:1;pointer-events:none;width:min(48vw,560px);height:min(48vw,560px);
+  right:4%;top:8%;border-radius:50%;
+  background:radial-gradient(circle,rgba(234,128,50,.18) 0%,rgba(234,128,50,.07) 34%,transparent 70%);
+  filter:blur(5px);animation:afaAmbientDrift 14s ease-in-out infinite alternate;
+}
+body.afa-motion-ready .hero::after{
+  content:"";position:absolute;z-index:1;inset:0;pointer-events:none;opacity:.18;
+  background:radial-gradient(460px circle at var(--afa-spot-x,78%) var(--afa-spot-y,32%),rgba(255,211,158,.22),transparent 72%);
+  transition:opacity .35s ease;
+}
+body.afa-motion-ready .hero-content{z-index:2}
+body.afa-motion-ready .hero-stamp{z-index:2}
+@keyframes afaAmbientDrift{0%{transform:translate3d(0,0,0) scale(.92)}100%{transform:translate3d(-24px,18px,0) scale(1.08)}}
+
+/* Image depth: affects image pixels only, never the card layout or existing card motion. */
+body.afa-motion-ready .tour-image,
+body.afa-motion-ready .destination-image,
+body.afa-motion-ready .gallery-tile{
+  background-size:cover;transition:background-size .8s ease,filter .55s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  body.afa-motion-ready .tour-card:hover .tour-image,
+  body.afa-motion-ready .destination-card:hover .destination-image,
+  body.afa-motion-ready .gallery-tile:hover{
+    filter:saturate(1.08) contrast(1.025);
+  }
+  body.afa-motion-ready .tour-card:hover .tour-image,
+  body.afa-motion-ready .destination-card:hover .destination-image{background-size:108% auto}
+  body.afa-motion-ready .gallery-tile:hover{background-size:108% auto}
+  body.afa-motion-ready .hero:hover::after{opacity:.42}
+}
+body.afa-motion-ready .tour-card img,
+body.afa-motion-ready .destination-card img,
+body.afa-motion-ready .gallery-tile img{
+  transition:transform .85s cubic-bezier(.2,.7,.2,1),filter .6s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  body.afa-motion-ready .tour-card:hover img,
+  body.afa-motion-ready .destination-card:hover img,
+  body.afa-motion-ready .gallery-tile:hover img{transform:scale(1.045);filter:saturate(1.08)}
+}
+
+/* A restrained moving highlight on calls to action. */
+body.afa-motion-ready .button{position:relative}
+body.afa-motion-ready .button::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(112deg,transparent 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,.2) 50%,rgba(255,255,255,0) 62%,transparent 100%);
+  transform:translateX(-125%);animation:afaButtonSheen 8s ease-in-out infinite;
+}
+@keyframes afaButtonSheen{0%,68%,100%{transform:translateX(-125%)}82%{transform:translateX(125%)}}
+
+/* Additional sections not covered by the site's existing reveal system. */
+body.afa-motion-ready .afa-motion-reveal{opacity:0;transform:translate3d(0,22px,0);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+body.afa-motion-ready .afa-motion-reveal.afa-motion-visible{opacity:1;transform:translate3d(0,0,0)}
+body.afa-motion-ready .section-heading h2,
+body.afa-motion-ready .reviews-heading h2{
+  text-decoration:underline;text-decoration-color:rgba(234,128,50,0);
+  text-decoration-thickness:2px;text-underline-offset:9px;
+  transition:text-decoration-color .5s ease;
+}
+body.afa-motion-ready .section-heading:hover h2,
+body.afa-motion-ready .reviews-heading:hover h2{text-decoration-color:rgba(234,128,50,.7)}
+
+/* Touch devices get a short, tactile response without hover-only effects. */
+body.afa-motion-ready .button.afa-tap-feedback{filter:brightness(.94);transition:filter .12s ease}
+@media (max-width:760px){
+  body.afa-motion-ready .hero::before{width:75vw;height:75vw;right:-20%;top:12%;opacity:.75}
+  body.afa-motion-ready .hero::after{opacity:.12}
+  body.afa-motion-ready .afa-motion-reveal{transform:translate3d(0,14px,0)}
+}
+@media (prefers-reduced-motion:reduce){
+  body.afa-motion-ready .hero::before,
+  body.afa-motion-ready .button::after{animation:none!important}
+  body.afa-motion-ready .afa-motion-reveal{opacity:1!important;transform:none!important;transition:none!important}
+  body.afa-motion-ready .tour-image,
+  body.afa-motion-ready .destination-image,
+  body.afa-motion-ready .gallery-tile,
+  body.afa-motion-ready .tour-card img,
+  body.afa-motion-ready .destination-card img,
+  body.afa-motion-ready .gallery-tile img{transition:none!important}
+}
