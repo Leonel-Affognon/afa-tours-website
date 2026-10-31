@@ -23,16 +23,28 @@ if (bookingForm) {
     const form = event.currentTarget;
     const button = form.querySelector('[type="submit"]');
     const original = button.textContent;
-    const data = new FormData(form);\n    let uploadedAudioPath=null;\n    if(voiceBlob){if(voiceBlob.size>50*1024*1024)throw new Error("Le fichier audio dépasse la limite de 50 Mo.");const ext=voiceMime.includes("mp4")?"m4a":voiceMime.includes("ogg")?"ogg":"webm";uploadedAudioPath="incoming/voice-"+crypto.randomUUID()+"."+ext;const {error:uploadError}=await supabase.storage.from("afa-submissions").upload(uploadedAudioPath,voiceBlob,{contentType:voiceMime,upsert:false});if(uploadError)throw new Error("Impossible de téléverser le message vocal : "+uploadError.message);}
+    const data = new FormData(form);
+    let uploadedAudioPath = null;
     button.disabled = true; button.textContent = "Envoi en cours…";
     try {
+      if (voiceBlob) {
+        if (voiceBlob.size > 50 * 1024 * 1024) throw new Error("Le fichier audio dépasse la limite de 50 Mo.");
+        const ext = voiceMime.includes("mp4") ? "m4a" : voiceMime.includes("ogg") ? "ogg" : "webm";
+        uploadedAudioPath = "incoming/voice-" + crypto.randomUUID() + "." + ext;
+        const { error: uploadError } = await supabase.storage.from("afa-submissions").upload(uploadedAudioPath, voiceBlob, { contentType: voiceMime, upsert: false });
+        if (uploadError) throw new Error("Impossible de téléverser le message vocal : " + uploadError.message);
+      }
       const result = await submitIntake({
         action: "booking",
         request_type: data.get("bookingType") === "Demander un circuit personnalisé" ? "custom_trip" : "existing_tour",
         full_name: data.get("name"), email: data.get("email"), phone: data.get("phone"), budget: data.get("bookingType") === "Demander un circuit personnalisé" ? data.get("budget") : null,
         preferred_date: data.get("date"), party_size: Number(data.get("people") || 1),
-        tour_name: [...data.getAll("tours"), data.get("tour")].filter(Boolean).join(" | "), message: data.get("message"), audio_path: uploadedAudioPath, audio_mime_type: voiceBlob ? voiceMime : null
+        tour_name: [...data.getAll("tours"), data.get("tour")].filter(Boolean).join(" | "), message: data.get("message")
       });
+      if (uploadedAudioPath) {
+        const { error: noteError } = await supabase.from("booking_voice_notes").insert({ booking_reference: result.reference, audio_path: uploadedAudioPath, audio_mime_type: voiceMime });
+        if (noteError) throw new Error("Demande enregistrée, mais le rattachement du message vocal a échoué. Contactez AFA avec la référence " + result.reference + ".");
+      }
       form.reset();
       const note = document.getElementById("bookingFeedback");
       note.textContent = "Demande enregistrée. Référence : " + result.reference + ". Notre équipe vous contactera.";
