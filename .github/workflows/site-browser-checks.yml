@@ -1,0 +1,85 @@
+name: AFA website browser checks
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport:
+          - { name: desktop, width: 1440, height: 900 }
+          - { name: tablet, width: 768, height: 1024 }
+          - { name: mobile, width: 390, height: 844 }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Check deployed site on ${{ matrix.viewport.name }}
+        env:
+          SITE_URL: https://leonel-affognon.github.io/afa-tours-website/
+          VIEWPORT_WIDTH: ${{ matrix.viewport.width }}
+          VIEWPORT_HEIGHT: ${{ matrix.viewport.height }}
+          VIEWPORT_NAME: ${{ matrix.viewport.name }}
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+              viewport: { width: Number(process.env.VIEWPORT_WIDTH), height: Number(process.env.VIEWPORT_HEIGHT) },
+              isMobile: process.env.VIEWPORT_NAME === 'mobile',
+              hasTouch: process.env.VIEWPORT_NAME !== 'desktop'
+            });
+            const page = await context.newPage();
+            const errors = [];
+            page.on('pageerror', error => errors.push(error.message));
+            page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+            const pages = ['', 'circuits.html', 'destinations.html', 'experiences.html', 'about.html', 'gallery.html', 'contact.html'];
+            for (const path of pages) {
+              const response = await page.goto(new URL(path, process.env.SITE_URL).href, { waitUntil: 'networkidle', timeout: 60000 });
+              if (!response || !response.ok()) throw new Error(path + ': HTTP ' + (response && response.status()));
+              await page.waitForTimeout(700);
+              const state = await page.evaluate(() => ({
+                title: document.title,
+                bodyReady: document.body.classList.contains('page-ready'),
+                motionReady: document.body.classList.contains('afa-motion-ready'),
+                motionCss: !!document.querySelector('link[data-afa-motion-plus]'),
+                mobileNav: !!document.querySelector('.mobile-quick-nav'),
+                width: document.documentElement.scrollWidth,
+                viewport: window.innerWidth
+              }));
+              if (!state.title) throw new Error(path + ': missing document title');
+              if (!state.bodyReady || !state.motionReady || !state.motionCss) throw new Error(path + ': motion layer did not initialize: ' + JSON.stringify(state));
+              if (state.width > state.viewport + 2) throw new Error(path + ': horizontal overflow ' + JSON.stringify(state));
+              if (process.env.VIEWPORT_NAME === 'mobile' && !state.mobileNav) throw new Error(path + ': mobile quick navigation missing');
+              await page.screenshot({ path: 'screenshot-' + (path || 'home').replaceAll('/', '-') + process.env.VIEWPORT_NAME + '.png', fullPage: true });
+              console.log('PASS', process.env.VIEWPORT_NAME, path || '/', JSON.stringify(state));
+            }
+            if (errors.length) throw new Error('Browser console/page errors: ' + errors.join(' | '));
+            await browser.close();
+          })().catch(error => { console.error(error); process.exit(1); });
+          NODE
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: afa-${{ matrix.viewport.name }}-screenshots
+          path: screenshot-*.png
+          if-no-files-found: ignore
