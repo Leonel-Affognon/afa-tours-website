@@ -49,6 +49,10 @@ if (bookingForm) {
       const note = document.getElementById("bookingFeedback");
       note.textContent = "Demande enregistrée. Référence : " + result.reference + ". Notre équipe vous contactera.";
       note.hidden = false;
+      const shareArea=document.getElementById("whatsappShareArea");
+      const shareButton=document.getElementById("shareBookingWhatsApp");
+      const downloadLink=document.getElementById("downloadVoiceAudio");
+      if(shareArea&&shareButton){shareArea.hidden=false;const shareText="Bonjour AFA TOURS, ma demande vient d’être envoyée sur votre site. Référence : "+result.reference+". Voici les détails complémentaires.";shareButton.onclick=async()=>{const waUrl="https://wa.me/2290197165646?text="+encodeURIComponent(shareText);if(voiceBlob&&navigator.share&&navigator.canShare){const ext=voiceMime.includes("mp4")?"m4a":voiceMime.includes("ogg")?"ogg":"webm";const file=new File([voiceBlob],"message-vocal-afa."+ext,{type:voiceMime});if(navigator.canShare({files:[file]})){try{await navigator.share({title:"Message vocal AFA TOURS",text:shareText,files:[file]});return;}catch(err){if(err.name==="AbortError")return;}}}if(voiceBlob&&downloadLink){downloadLink.href=voiceUrl;downloadLink.hidden=false;}window.open(waUrl,"_blank","noopener");};}
     } catch (error) {
       const note = document.getElementById("bookingFeedback");
       note.textContent = error.message + " Vous pouvez aussi nous joindre sur WhatsApp.";
