@@ -11,6 +11,11 @@ function syncBudgetField() {
 }
 bookingType?.addEventListener("change", syncBudgetField);
 syncBudgetField();
+// Optional voice-note recorder for booking requests.
+let voiceBlob=null,voiceMime="",voiceUrl="",voiceRecorder=null,voiceStream=null,voiceChunks=[],voiceSeconds=0,voiceInterval=null;
+const recordBtn=document.getElementById("recordAudioButton"),stopBtn=document.getElementById("stopAudioButton"),discardBtn=document.getElementById("discardAudioButton"),audioPreview=document.getElementById("audioPreview"),audioStatus=document.getElementById("audioRecordStatus"),audioTimer=document.getElementById("audioTimer");
+const voiceStatus=t=>{if(audioStatus)audioStatus.textContent=t;};
+if(recordBtn&&navigator.mediaDevices?.getUserMedia&&window.MediaRecorder){recordBtn.onclick=async()=>{try{voiceStream=await navigator.mediaDevices.getUserMedia({audio:true});const types=["audio/webm;codecs=opus","audio/mp4","audio/ogg;codecs=opus","audio/webm"];voiceMime=types.find(t=>MediaRecorder.isTypeSupported(t))||"";voiceRecorder=new MediaRecorder(voiceStream,voiceMime?{mimeType:voiceMime}:{});voiceChunks=[];voiceSeconds=0;voiceRecorder.ondataavailable=x=>{if(x.data.size)voiceChunks.push(x.data);};voiceRecorder.onstop=()=>{voiceBlob=new Blob(voiceChunks,{type:voiceRecorder.mimeType||voiceMime||"audio/webm"});voiceMime=voiceBlob.type;voiceUrl=URL.createObjectURL(voiceBlob);audioPreview.src=voiceUrl;audioPreview.hidden=false;discardBtn.hidden=false;voiceStream?.getTracks().forEach(t=>t.stop());voiceStream=null;voiceStatus("Message vocal prêt.");};voiceRecorder.start();recordBtn.disabled=true;stopBtn.disabled=false;voiceStatus("Enregistrement en cours (3 minutes maximum).");voiceInterval=setInterval(()=>{voiceSeconds++;audioTimer.textContent=String(Math.floor(voiceSeconds/60)).padStart(2,"0")+":"+String(voiceSeconds%60).padStart(2,"0");if(voiceSeconds>=180)stopBtn.click();},1000);}catch(x){voiceStatus("Microphone indisponible ou autorisation refusée.");}};stopBtn.onclick=()=>{if(voiceRecorder?.state!=="inactive")voiceRecorder.stop();clearInterval(voiceInterval);recordBtn.disabled=false;stopBtn.disabled=true;};discardBtn.onclick=()=>{voiceBlob=null;if(voiceUrl)URL.revokeObjectURL(voiceUrl);voiceUrl="";audioPreview.removeAttribute("src");audioPreview.hidden=true;discardBtn.hidden=true;voiceStatus("Audio supprimé.");};}else if(recordBtn){recordBtn.disabled=true;voiceStatus("Enregistrement indisponible. Utilisez HTTPS et un navigateur récent.");}
 if (bookingForm) {
   bookingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -19,8 +24,16 @@ if (bookingForm) {
     const button = form.querySelector('[type="submit"]');
     const original = button.textContent;
     const data = new FormData(form);
+    let uploadedAudioPath = null;
     button.disabled = true; button.textContent = "Envoi en cours…";
     try {
+      if (voiceBlob) {
+        if (voiceBlob.size > 50 * 1024 * 1024) throw new Error("Le fichier audio dépasse la limite de 50 Mo.");
+        const ext = voiceMime.includes("mp4") ? "m4a" : voiceMime.includes("ogg") ? "ogg" : "webm";
+        uploadedAudioPath = "incoming/voice-" + crypto.randomUUID() + "." + ext;
+        const { error: uploadError } = await supabase.storage.from("afa-submissions").upload(uploadedAudioPath, voiceBlob, { contentType: voiceMime, upsert: false });
+        if (uploadError) throw new Error("Impossible de téléverser le message vocal : " + uploadError.message);
+      }
       const result = await submitIntake({
         action: "booking",
         request_type: data.get("bookingType") === "Demander un circuit personnalisé" ? "custom_trip" : "existing_tour",
@@ -28,10 +41,18 @@ if (bookingForm) {
         preferred_date: data.get("date"), party_size: Number(data.get("people") || 1),
         tour_name: [...data.getAll("tours"), data.get("tour")].filter(Boolean).join(" | "), message: data.get("message")
       });
+      if (uploadedAudioPath) {
+        const { error: noteError } = await supabase.from("booking_voice_notes").insert({ booking_reference: result.reference, audio_path: uploadedAudioPath, audio_mime_type: voiceMime });
+        if (noteError) throw new Error("Demande enregistrée, mais le rattachement du message vocal a échoué. Contactez AFA avec la référence " + result.reference + ".");
+      }
       form.reset();
       const note = document.getElementById("bookingFeedback");
       note.textContent = "Demande enregistrée. Référence : " + result.reference + ". Notre équipe vous contactera.";
       note.hidden = false;
+      const shareArea=document.getElementById("whatsappShareArea");
+      const shareButton=document.getElementById("shareBookingWhatsApp");
+      const downloadLink=document.getElementById("downloadVoiceAudio");
+      if(shareArea&&shareButton){shareArea.hidden=false;const shareText="Bonjour AFA TOURS, ma demande vient d’être envoyée sur votre site. Référence : "+result.reference+". Voici les détails complémentaires.";shareButton.onclick=async()=>{const waUrl="https://wa.me/2290197165646?text="+encodeURIComponent(shareText);if(voiceBlob&&navigator.share&&navigator.canShare){const ext=voiceMime.includes("mp4")?"m4a":voiceMime.includes("ogg")?"ogg":"webm";const file=new File([voiceBlob],"message-vocal-afa."+ext,{type:voiceMime});if(navigator.canShare({files:[file]})){try{await navigator.share({title:"Message vocal AFA TOURS",text:shareText,files:[file]});return;}catch(err){if(err.name==="AbortError")return;}}}if(voiceBlob&&downloadLink){downloadLink.href=voiceUrl;downloadLink.hidden=false;}window.open(waUrl,"_blank","noopener");};}
     } catch (error) {
       const note = document.getElementById("bookingFeedback");
       note.textContent = error.message + " Vous pouvez aussi nous joindre sur WhatsApp.";
