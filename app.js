@@ -64,7 +64,7 @@ if (bookingForm) {
 async function loadPublishedTours() {
   const grid = document.querySelector(".tour-grid");
   if (!grid) return;
-  const { data, error } = await supabase.from("tours").select("id,slug,title,summary,location,duration,price_from,currency,cover_image,featured").eq("status","published").order("sort_order");
+  const { data, error } = await supabase.from("tours").select("id,slug,title,summary,location,duration,price_from,currency,cover_image,featured").eq("status","published").in("content_type",["tour","excursion","experience"]).order("sort_order");
   if (error || !data?.length) return; // Keep editorial fallback cards until tours are added in the admin.
   grid.innerHTML = data.map(t => `
     <article class="tour-card">
