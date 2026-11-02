@@ -14,8 +14,8 @@
  };
  cards.forEach(card=>{
   const title=card.querySelector(".destination-copy h2"),name=title?.textContent.trim(),link=card.querySelector(".destination-copy .text-link");if(!name||!link)return;
-  const tour=catalog.find(t=>t.title===name);if(!tour)return;
-  const btn=document.createElement("button");btn.type="button";btn.className="text-link circuit-pick";btn.dataset.destinationPick=name;btn.textContent="Ajouter ce circuit";
+  const tour=catalog.find(t=>t.title===name);if(!tour){link.href="contact.html?destination="+encodeURIComponent(name)+"#booking";return;}
+  const btn=document.createElement("button");btn.type="button";btn.className="text-link circuit-pick";btn.dataset.circuitPick=name;btn.textContent="Ajouter ce circuit";
   btn.addEventListener("click",()=>{selected=selected.includes(name)?selected.filter(x=>x!==name):[...selected,name];save(selected);render();});
   link.insertAdjacentElement("afterend",btn);
  });
