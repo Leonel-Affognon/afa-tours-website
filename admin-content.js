@@ -7,7 +7,8 @@ const opts=(a,s)=>a.map(x=>'<option value="'+x[0]+'" '+(x[0]===s?'selected':'')+
 export async function renderContentManager(root){
  const [loaded,destinationResult]=await Promise.all([supabase.from("tours").select("*").order("updated_at",{ascending:false}).limit(500),supabase.from("destinations").select("id,name,slug,status").order("sort_order")]);
  if(loaded.error){root.innerHTML="<h2>Catalogue complet</h2><p>"+esc(loaded.error.message)+"</p>";return;}
- const rows=loaded.data||[];\n const destinations=destinationResult.data||[];
+ const rows=loaded.data||[];
+ const destinations=destinationResult.data||[];
  root.innerHTML='<h2>Catalogue complet AFA TOURS</h2><p>Ajoutez, modifiez, publiez, archivez ou supprimez vos circuits, excursions, expériences, festivals et événements sans coder.</p>'+
  '<div class="admin-tabs" id="catalogTabs">'+TYPES.map((t,i)=>'<button type="button" data-kind="'+t[0]+'" class="'+(i===0?'active':'')+'">'+t[1]+'</button>').join("")+'<button type="button" data-kind="all">Tout</button></div>'+
  '<div class="admin-panel"><h3 id="editorTitle">Ajouter un contenu</h3><form id="catalogForm" class="admin-grid">'+
