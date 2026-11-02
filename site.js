@@ -47,7 +47,7 @@
   more.append(moreIcon,moreText);nav.append(more);
   const panel=document.createElement("div");panel.className="mobile-more-panel";panel.id="mobileMorePanel";
   panel.setAttribute("aria-label","Toutes les rubriques");
-  [["experiences.html","Expériences"],["about.html","Notre agence"],["gallery.html","Galerie"],["confidentialite.html","Confidentialité"]].forEach(([href,label])=>{
+  [["experiences.html","Expériences"],["agenda.html","Festivals & événements"],["about.html","Notre agence"],["gallery.html","Galerie"],["confidentialite.html","Confidentialité"]].forEach(([href,label])=>{
     const a=document.createElement("a");a.href=href;a.textContent=label;panel.append(a);
   });
   more.addEventListener("click",()=>{
