@@ -1,7 +1,8 @@
 (() => {
  const catalog=window.AFA_TOUR_CATALOG||[];
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- const price=t=>t.priceValue?esc(t.price):"Tarif sur demande";
+ const currencyButton=(amount,currency="XOF")=>'<span class="afa-price-currency" data-price-currency data-amount="'+Number(amount)+'" data-base="'+esc(currency)+'"><button type="button" class="afa-price-currency-button" data-price-currency-toggle aria-expanded="false">Voir dans ma monnaie</button><span class="afa-price-currency-panel" data-currency-panel hidden><span class="afa-price-currency-value" data-currency-output>Choisissez une devise</span><select aria-label="Choisir une devise" data-currency-select><option value="EUR">EUR</option></select><small data-currency-date>Taux indicatifs</small></span></span>';
+ const price=t=>t.priceValue?esc(t.price)+currencyButton(t.priceValue,t.currency||"XOF"):"Tarif sur demande";
  const image=(t)=>'<div class="tour-image" style="background-image:url(\''+esc(t.image)+'\')"><span class="image-label">'+esc(t.destination.toUpperCase())+'</span></div>';
  const card=t=>'<article class="tour-card"><a class="tour-card-image-link" href="circuits.html#'+esc(t.id)+'" aria-label="Découvrir '+esc(t.title)+'">'+image(t)+'</a><div class="tour-info"><div class="tour-meta">'+esc(t.category)+'</div><h3>'+esc(t.title)+'</h3><p>'+esc(t.shortDescription)+'</p><p class="tour-facts"><strong>'+esc(t.duration)+'</strong><span>'+price(t)+'</span></p><a href="circuits.html#'+esc(t.id)+'" class="text-link">Découvrir ce circuit <span>↗</span></a></div></article>';
  const grid=document.querySelector(".tour-grid");
