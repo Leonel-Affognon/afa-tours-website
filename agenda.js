@@ -2,24 +2,44 @@ import { supabase } from "./backend.js";
 const root=document.getElementById("agendaGrid");
 const safeHttpUrl=value=>{try{const url=new URL(value);return ["https:","http:"].includes(url.protocol)?url.href:"";}catch{return "";}};
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fallbackVodun={
+ id:"vodun-days-2027-fallback",slug:"vodun-days-2027",title:"Vodun Days 2027 – Ouidah",
+ summary:"Du 2 au 9 janvier 2027, vivez les Vodun Days à Ouidah avec AFA TOURS : accompagnement, découverte du patrimoine et formules adaptées à votre séjour.",
+ description:"Les Vodun Days reviennent à Ouidah du 2 au 9 janvier 2027.",
+ location:"Ouidah, Bénin",country:"Bénin",city:"Ouidah",duration:"Du 2 au 9 janvier 2027",
+ price_from:25000,ticket_price:null,currency:"XOF",
+ cover_image:"https://www.gouv.bj/upload/images/albums/802360682082001736762573.jpg",
+ gallery:["https://www.gouv.bj/upload/images/albums/037610193924001736715700.jpg","https://vodundays.bj/wp-content/uploads/2024/11/Ceremonie.jpg"],
+ video_url:"https://www.youtube.com/playlist?list=PL6nGRnf5v3jg5ByAAlBgMpCKWi743C2HC",
+ pricing_options:[
+ {name:"Découverte – 1 journée",duration:"1 jour",price:25000,currency:"XOF",description:"Accompagnement AFA TOURS sur une journée, selon programme et disponibilité."},
+ {name:"Immersion – 2 jours",duration:"2 jours",price:45000,currency:"XOF",description:"Accompagnement AFA TOURS sur deux journées."},
+ {name:"Expérience complète – 7 jours",duration:"7 jours",price:120000,currency:"XOF",description:"Formule d’accompagnement sur sept jours pendant le festival."},
+ {name:"VIP – 7 jours",duration:"7 jours",price:200000,currency:"XOF",description:"Formule premium sur sept jours, prestations exactes à confirmer dans le devis."}
+ ],
+ event_start_date:"2027-01-02",event_end_date:"2027-01-09",organizer:"Organisateurs officiels des Vodun Days",
+ booking_mode:"request",registration_url:"https://vodundays.bj/",
+ contact_whatsapp:"",content_type:"festival",
+ itinerary:"Temps forts publics du festival, animations culturelles, village Vodun Days et découverte du patrimoine de Ouidah. Le programme détaillé 2027 sera confirmé à sa publication officielle.",
+ inclusions:"Accompagnement et coordination AFA TOURS selon la formule choisie.",
+ exclusions:"Billets officiels, transport longue distance, hébergement, repas et dépenses personnelles sauf mention au devis.",
+ meeting_point:"Ouidah – point de rendez-vous communiqué après confirmation"
+};
 const currencyButton=(amount,currency="XOF")=>'<span class="afa-price-currency" data-price-currency data-amount="'+Number(amount)+'" data-base="'+esc(currency)+'"><button type="button" class="afa-price-currency-button" data-price-currency-toggle aria-expanded="false">Voir dans ma monnaie</button><span class="afa-price-currency-panel" data-currency-panel hidden><span class="afa-price-currency-value" data-currency-output="EUR">EUR : chargement…</span><span class="afa-price-currency-value" data-currency-output="USD">USD : chargement…</span><select aria-label="Choisir une autre devise" data-currency-select><option value="">Autre monnaie…</option></select><span class="afa-price-currency-value" data-currency-custom hidden></span><small data-currency-date>Taux indicatifs</small></span></span>';
 async function loadAgenda(){ if(!root)return;
- root.innerHTML="<p>Chargement de l’agenda…</p>";
- let result;
+ let data=[];
  try {
-  result=await Promise.race([
+  const result=await Promise.race([
    supabase.from("tours").select("id,slug,title,summary,description,location,country,city,duration,price_from,ticket_price,currency,cover_image,gallery,video_url,pricing_options,event_start_date,event_end_date,organizer,booking_mode,registration_url,contact_whatsapp,content_type,itinerary,inclusions,exclusions,meeting_point").eq("status","published").in("content_type",["festival","event"]).order("event_start_date",{ascending:true,nullsFirst:false}),
-   new Promise((_,reject)=>setTimeout(()=>reject(new Error("Le serveur met trop de temps à répondre.")),12000))
+   new Promise((_,reject)=>setTimeout(()=>reject(new Error("Agenda request timed out")),12000))
   ]);
+  if(result.error)throw result.error;
+  data=result.data||[];
  } catch(error) {
-  console.error("AFA agenda loading error:",error);
-  root.innerHTML='<div class="agenda-load-error"><p>Les événements ne peuvent pas être chargés pour le moment.</p><button type="button" class="button" id="agendaRetry">Réessayer</button><p class="form-hint">Si le problème persiste, actualisez la page dans quelques instants.</p></div>';
-  document.getElementById("agendaRetry")?.addEventListener("click",loadAgenda);
-  return;
+  console.error("AFA agenda database unavailable; rendering built-in event fallback:",error);
+  data=[fallbackVodun];
  }
- const {data,error}=result;
- if(error){console.error("AFA agenda query error:",error);root.innerHTML='<div class="agenda-load-error"><p>Impossible de récupérer les événements. Réessayez dans un instant.</p><button type="button" class="button" id="agendaRetry">Réessayer</button></div>';document.getElementById("agendaRetry")?.addEventListener("click",loadAgenda);return;}
- if(!data?.length){root.innerHTML="<p>Les prochaines dates et manifestations seront annoncées ici. Revenez bientôt.</p>";return;}
+ if(!data.length)data=[fallbackVodun];
  root.innerHTML=data.map(item=>{
   const type=item.content_type==="festival"?"Festival":"Événement";
   const date=item.event_start_date?new Date(item.event_start_date+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}):"Date à confirmer";
