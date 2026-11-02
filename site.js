@@ -129,9 +129,27 @@
   document.body.append(script);
 })();
 
-/* Compact currency equivalents beside each published price. */
+/* Load currency conversion only when a visitor requests an equivalent. */
 (() => {
-  if (document.querySelector('script[data-afa-price-currency]')) return;
-  const style=document.createElement("link");style.rel="stylesheet";style.href="price-currency.css";style.dataset.afaPriceCurrency="true";document.head.append(style);
-  const script=document.createElement("script");script.src="price-currency.js";script.defer=true;script.dataset.afaPriceCurrency="true";document.body.append(script);
+  let loading = false, ready = false;
+  document.addEventListener("click", event => {
+    const button = event.target.closest("[data-price-currency-toggle]");
+    if (!button || ready || loading) return;
+    loading = true;
+    const style = document.createElement("link");
+    style.rel = "stylesheet";
+    style.href = "price-currency.css";
+    style.dataset.afaPriceCurrency = "true";
+    document.head.append(style);
+    const script = document.createElement("script");
+    script.src = "price-currency.js";
+    script.defer = true;
+    script.onload = () => {
+      ready = true;
+      loading = false;
+      button.dispatchEvent(new MouseEvent("click", {bubbles:true,cancelable:true,view:window}));
+    };
+    script.onerror = () => { loading = false; };
+    document.body.append(script);
+  });
 })();
