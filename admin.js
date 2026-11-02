@@ -113,6 +113,19 @@ content.addEventListener("click",async e=>{
  const edit=e.target.closest("[data-edit-tour]");
  if(edit){const id=edit.dataset.editTour;const {data,error}=await supabase.from("tours").select("*").eq("id",id).single();if(error){alert(error.message);return;}const title=prompt("Titre",data.title);if(title===null)return;const summary=prompt("Résumé",data.summary);if(summary===null)return;const price=prompt("Prix de départ en FCFA (vide = sur devis)",data.price_from??"");if(price===null)return;const image=prompt("URL de l'image",data.cover_image??"");if(image===null)return;const {error:updateError}=await supabase.from("tours").update({title,summary,price_from:price===""?null:Number(price),cover_image:image||null}).eq("id",id);if(updateError)alert(updateError.message);else render();return;}
  const b=e.target.closest("[data-save]");if(!b)return;const id=b.dataset.save,status=content.querySelector('[data-status="'+id+'"]').value;let extra={};
+ if(active==="media"&&status==="rejected"){
+  const {data:row,error:readError}=await supabase.from("media_submissions").select("id,object_path").eq("id",id).single();
+  if(readError){alert(readError.message);return;}
+  const {data:publicRow,error:publicReadError}=await supabase.from("public_media").select("id,source_submission_id,public_url").eq("source_submission_id",id).maybeSingle();
+  if(publicReadError){alert(publicReadError.message);return;}
+  if(publicRow){
+   const publicPath=(()=>{try{return new URL(publicRow.public_url).pathname.split("/storage/v1/object/public/afa-public-media/")[1]||null}catch{return null}})();
+   const {error:removeRowError}=await supabase.from("public_media").delete().eq("id",publicRow.id);
+   if(removeRowError){alert(removeRowError.message);return;}
+   if(publicPath){const {error:removeFileError}=await supabase.storage.from("afa-public-media").remove([decodeURIComponent(publicPath)]);if(removeFileError){alert("Entrée publique retirée, mais le fichier doit être supprimé manuellement : "+removeFileError.message);return;}}
+  }
+  if(row.object_path&&row.object_path.startsWith("visitor/")){const {error:removePrivateError}=await supabase.storage.from("afa-public-media").remove([row.object_path]);if(removePrivateError){alert(removePrivateError.message);return;}}
+ }
  if(active==="media"&&status==="approved"){const {data:row,error:readError}=await supabase.from("media_submissions").select("*").eq("id",id).single();if(readError){alert(readError.message);return;}if(row.consent_publication!==true){alert("Publication impossible : aucune autorisation de publication n’a été donnée.");render();return;}const {data:file,error:downloadError}=await supabase.storage.from("afa-submissions").download(row.object_path);if(downloadError){alert(downloadError.message);return;}const ext=row.object_path.split(".").pop();const publicPath="visitor/"+id+"."+ext;const {error:uploadError}=await supabase.storage.from("afa-public-media").upload(publicPath,file,{upsert:true});if(uploadError){alert(uploadError.message);return;}const {data:publicData}=supabase.storage.from("afa-public-media").getPublicUrl(publicPath);const mediaRecord={source_submission_id:row.id,display_name:row.display_name,caption:row.caption,media_type:row.media_type,public_url:publicData.publicUrl};const {data:existingMedia,error:existingError}=await supabase.from("public_media").select("id").eq("source_submission_id",row.id).maybeSingle();if(existingError){alert(existingError.message);return;}const galleryResult=existingMedia?await supabase.from("public_media").update(mediaRecord).eq("id",existingMedia.id):await supabase.from("public_media").insert(mediaRecord);if(galleryResult.error){alert(galleryResult.error.message);return;}extra={object_path:publicPath};}
  const {error}=await supabase.from(config[active].table).update({status,...extra,...(active==="reviews"&&status==="approved"?{published_at:new Date().toISOString()}: {})}).eq("id",id);if(error)alert(error.message);else render();
 });
