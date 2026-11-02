@@ -61,6 +61,7 @@ if (bookingForm) {
   }, true);
 }
 
+const currencyButton=(amount,currency="XOF")=>'<span class="afa-price-currency" data-price-currency data-amount="'+Number(amount)+'" data-base="'+escapeHtml(currency)+'"><button type="button" class="afa-price-currency-button" data-price-currency-toggle aria-expanded="false">Voir dans ma monnaie</button><span class="afa-price-currency-panel" data-currency-panel hidden><span class="afa-price-currency-value" data-currency-output>Choisissez une devise</span><select aria-label="Choisir une devise" data-currency-select><option value="EUR">EUR</option></select><small data-currency-date>Taux indicatifs</small></span></span>';
 async function loadPublishedTours() {
   const grid = document.querySelector(".tour-grid");
   if (!grid) return;
@@ -71,7 +72,7 @@ async function loadPublishedTours() {
       <div class="tour-image" style="${safeImageStyle(t.cover_image)}"><span class="image-label">${escapeHtml(t.location || "BÉNIN")}</span></div>
       <div class="tour-info"><div class="tour-meta">${escapeHtml(t.duration || "CIRCUIT AFA")}</div>
       <h3>${escapeHtml(t.title)}</h3><p>${escapeHtml(t.summary)}</p>
-      ${t.price_from ? `<p class="tour-price">À partir de ${Number(t.price_from).toLocaleString("fr-FR")} ${escapeHtml(t.currency)}</p>` : ""}
+      ${t.price_from ? `<p class="tour-price">À partir de ${Number(t.price_from).toLocaleString("fr-FR")} ${escapeHtml(t.currency)} ${currencyButton(t.price_from,t.currency||"XOF")}</p>` : ""}
       <a href="#booking" class="text-link dynamic-tour" data-tour="${escapeHtml(t.title)}">Demander les détails <span>↗</span></a></div></article>`).join("");
   grid.querySelectorAll(".dynamic-tour").forEach(a => a.addEventListener("click", () => {
     const select = document.getElementById("tourSelect");
