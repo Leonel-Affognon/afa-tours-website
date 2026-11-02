@@ -82,3 +82,42 @@ body.afa-motion-ready .button.afa-tap-feedback{filter:brightness(.94);transition
   body.afa-motion-ready .destination-card img,
   body.afa-motion-ready .gallery-tile img{transition:none!important}
 }
+
+
+/* AFA Signature UI refinement — premium surfaces, clearer hierarchy and accessible controls */
+:root{--afa-radius:14px;--afa-shadow:0 18px 55px rgba(18,45,38,.10);--afa-shadow-hover:0 28px 70px rgba(18,45,38,.17)}
+body{font-optical-sizing:auto;text-rendering:optimizeLegibility;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+h1,h2,h3,h4{text-wrap:balance}p{text-wrap:pretty}
+a,button,select,input,textarea{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.tour-card,.destination-card,.festival-feature,.review-card{border-radius:var(--afa-radius);overflow:hidden;box-shadow:var(--afa-shadow);transition:transform .55s cubic-bezier(.2,.75,.2,1),box-shadow .55s,border-color .35s}
+.tour-info,.destination-copy{padding:clamp(20px,2.2vw,30px)}
+.tour-info h3,.destination-copy h2{line-height:1.2;letter-spacing:-.02em}
+.tour-info p,.destination-copy p{line-height:1.8}
+.tour-image,.destination-image,.gallery-tile{background-color:#e8e2d8;background-repeat:no-repeat;background-size:cover;background-position:center}
+.tour-image img,.destination-image img,.gallery-tile img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.tour-card-image-link{overflow:hidden}
+.tour-card-image-link .tour-image{transition:transform .9s cubic-bezier(.2,.75,.2,1),filter .6s}
+@media(hover:hover) and (pointer:fine){.tour-card:hover,.destination-card:hover{transform:translateY(-7px);box-shadow:var(--afa-shadow-hover)}.tour-card:hover .tour-card-image-link .tour-image{transform:scale(1.045);filter:saturate(1.08)}}
+.button{min-height:46px;border-radius:5px;letter-spacing:.025em}
+.booking-form,.admin-panel{border-radius:12px}
+.booking-form input,.booking-form select,.booking-form textarea,.review-compose input,.review-compose textarea{border-radius:6px;min-height:48px}
+.booking-form textarea,.review-compose textarea{min-height:120px}
+.mobile-quick-nav{padding-bottom:env(safe-area-inset-bottom);backdrop-filter:blur(18px)}
+.mobile-more-panel{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+.floating-whatsapp{bottom:calc(20px + env(safe-area-inset-bottom))}
+@media(max-width:760px){
+ .tour-card,.destination-card,.review-card{border-radius:12px}
+ .tour-info,.destination-copy{padding:20px}
+ .inner-hero{min-height:500px}
+ .inner-hero-content{padding:64px 6%}
+ .inner-hero-content h1{font-size:clamp(38px,10vw,62px);line-height:1.06}
+ .destination-grid{grid-template-columns:minmax(0,1fr)!important}
+ .festival-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .festival-cover{min-height:570px}
+ .festival-cover-copy{width:100%;padding:30px 6%}
+ .festival-package-grid{grid-template-columns:minmax(0,1fr)!important}
+ .contact-page-grid{gap:26px}
+}
+@media(max-width:380px){.mobile-quick-nav{gap:0}.mobile-quick-nav a,.mobile-quick-nav button{font-size:10px}.floating-whatsapp{width:44px;height:44px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
