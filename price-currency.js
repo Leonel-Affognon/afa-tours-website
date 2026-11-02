@@ -47,8 +47,8 @@
     button.setAttribute("aria-expanded",String(!panel.hidden));
     if (panel.hidden) return;
     if (widget.dataset.loaded === "1") return;
-    const output = widget.querySelector("[data-currency-output]");
-    output.textContent = "Chargement…";
+    const outputs = widget.querySelectorAll("[data-currency-output]");
+    outputs.forEach(output => output.textContent = "Chargement…");
     try {
       const currentRates = await getRates();
       const select = widget.querySelector("[data-currency-select]");
@@ -62,7 +62,7 @@
       widget.dataset.loaded = "1";
       update(widget);
     } catch(error) {
-      output.textContent = "Taux momentanément indisponibles. Réessayez.";
+      outputs.forEach(output => output.textContent = "Taux momentanément indisponibles.");
     }
   });
   document.addEventListener("change", event => {
