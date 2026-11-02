@@ -7,12 +7,26 @@
   nav?.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{nav.classList.remove("open");toggle?.setAttribute("aria-expanded","false");}));
   const current=location.pathname.split("/").pop()||"index.html";
   nav?.querySelectorAll("a").forEach(a=>{if(a.getAttribute("href")===current)a.classList.add("active");});
-  const revealTargets=document.querySelectorAll(".section,.tour-card,.destination-card,.editorial-intro,.about-story,.values-band article,.closing-banner,.booking-form,.gallery-tile");
-  revealTargets.forEach(el=>el.classList.add("reveal"));
+  const revealSelector=".section,.tour-card,.destination-card,.editorial-intro,.about-story,.values-band article,.closing-banner,.booking-form,.gallery-tile";
+  let revealObserver=null;
+  const observeReveal=scope=>{
+    const targets=[];
+    if(scope.matches?.(revealSelector))targets.push(scope);
+    scope.querySelectorAll?.(revealSelector).forEach(el=>targets.push(el));
+    targets.forEach(el=>{
+      el.classList.add("reveal");
+      if(revealObserver)revealObserver.observe(el);
+      else el.classList.add("is-visible");
+    });
+  };
   if("IntersectionObserver" in window){
-    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");observer.unobserve(entry.target);}}),{threshold:.12,rootMargin:"0px 0px -35px 0px"});
-    revealTargets.forEach(el=>observer.observe(el));
-  }else revealTargets.forEach(el=>el.classList.add("is-visible"));
+    revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");revealObserver.unobserve(entry.target);}}),{threshold:.12,rootMargin:"0px 0px -35px 0px"});
+  }
+  observeReveal(document);
+  // Catalogues load asynchronously from Supabase. Observe new cards too, otherwise
+  // they retain opacity:0 forever because they were inserted after the first scan.
+  const revealMutations=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===1)observeReveal(node);})));
+  revealMutations.observe(document.body,{childList:true,subtree:true});
   const update=()=>{const max=document.documentElement.scrollHeight-innerHeight;progress.style.transform="scaleX("+(max>0?scrollY/max:0)+")";topButton.classList.toggle("visible",scrollY>550);};
   addEventListener("scroll",update,{passive:true});update();topButton.addEventListener("click",()=>scrollTo({top:0,behavior:"smooth"}));
   document.querySelectorAll("[data-parallax]").forEach(el=>{addEventListener("scroll",()=>{if(innerWidth>760){const rect=el.getBoundingClientRect();el.style.setProperty("--parallax-y",((rect.top-innerHeight/2)*-.035)+"px");}},{passive:true});});
