@@ -33,9 +33,18 @@ jobs:
           npm init -y
           npm install --no-save playwright
           npx playwright install --with-deps chromium
-      - name: Check deployed site on ${{ matrix.viewport.name }}
+      - name: Start local site preview
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/afa-http.log 2>&1 &
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/afa-http.log
+          exit 1
+      - name: Check pull request checkout on ${{ matrix.viewport.name }}
         env:
-          SITE_URL: https://leonel-affognon.github.io/afa-tours-website/
+          SITE_URL: http://127.0.0.1:4173/
           VIEWPORT_WIDTH: ${{ matrix.viewport.width }}
           VIEWPORT_HEIGHT: ${{ matrix.viewport.height }}
           VIEWPORT_NAME: ${{ matrix.viewport.name }}
