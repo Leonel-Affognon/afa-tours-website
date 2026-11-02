@@ -3,6 +3,9 @@
  const params=new URLSearchParams(location.search);
  let selected=[];try{selected=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){}
  const fromUrl=(params.get("circuits")||"").split("|").filter(Boolean);
+ const eventName=params.get("event")||"";
+ const formulaName=params.get("formula")||"";
+ if(eventName)fromUrl.push(eventName);
  selected=[...new Set([...selected,...fromUrl])];
  if(selected.length){try{localStorage.setItem(KEY,JSON.stringify(selected))}catch(e){}}
  const group=document.getElementById("bookingCircuitOptions");
@@ -21,5 +24,8 @@
   fieldset.append(links);
  }
  const destination=params.get("destination"),tour=document.getElementById("tourSelect");
+ const requested=eventName||destination;
+ if(requested&&tour){if(![...tour.options].some(o=>o.value===requested))tour.add(new Option(requested,requested));tour.value=requested;}
+ if(formulaName){const message=document.querySelector("#bookingForm textarea[name=message]");if(message&&!message.value)message.value="Je souhaite réserver la formule « "+formulaName+" » pour "+(eventName||"cette expérience")+". Merci de me communiquer les disponibilités et les modalités.";}
  if(destination&&tour){const opt=[...tour.options].find(o=>o.value===destination);if(opt)tour.value=destination;else{tour.add(new Option(destination,destination));tour.value=destination;}}
 })();
