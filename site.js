@@ -129,9 +129,9 @@
   document.body.append(script);
 })();
 
-/* AFA TOURS — global currency converter, available on every public page. */
+/* Compact currency equivalents beside each published price. */
 (() => {
-  if (document.querySelector('script[data-afa-currency]')) return;
-  const style=document.createElement("link");style.rel="stylesheet";style.href="currency-converter.css";style.dataset.afaCurrency="true";document.head.append(style);
-  const script=document.createElement("script");script.src="currency-converter.js";script.type="module";script.defer=true;script.dataset.afaCurrency="true";document.body.append(script);
+  if (document.querySelector('script[data-afa-price-currency]')) return;
+  const style=document.createElement("link");style.rel="stylesheet";style.href="price-currency.css";style.dataset.afaPriceCurrency="true";document.head.append(style);
+  const script=document.createElement("script");script.src="price-currency.js";script.defer=true;script.dataset.afaPriceCurrency="true";document.body.append(script);
 })();
