@@ -5,8 +5,20 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const currencyButton=(amount,currency="XOF")=>'<span class="afa-price-currency" data-price-currency data-amount="'+Number(amount)+'" data-base="'+esc(currency)+'"><button type="button" class="afa-price-currency-button" data-price-currency-toggle aria-expanded="false">Voir dans ma monnaie</button><span class="afa-price-currency-panel" data-currency-panel hidden><span class="afa-price-currency-value" data-currency-output="EUR">EUR : chargement…</span><span class="afa-price-currency-value" data-currency-output="USD">USD : chargement…</span><select aria-label="Choisir une autre devise" data-currency-select><option value="">Autre monnaie…</option></select><span class="afa-price-currency-value" data-currency-custom hidden></span><small data-currency-date>Taux indicatifs</small></span></span>';
 async function loadAgenda(){ if(!root)return;
  root.innerHTML="<p>Chargement de l’agenda…</p>";
- const {data,error}=await supabase.from("tours").select("id,slug,title,summary,description,location,country,city,duration,price_from,ticket_price,currency,cover_image,gallery,video_url,pricing_options,event_start_date,event_end_date,organizer,booking_mode,registration_url,contact_whatsapp,content_type,itinerary,inclusions,exclusions,meeting_point").eq("status","published").in("content_type",["festival","event"]).order("event_start_date",{ascending:true,nullsFirst:false});
- if(error){root.innerHTML="<p>Impossible de charger l’agenda pour le moment.</p>";return;}
+ let result;
+ try {
+  result=await Promise.race([
+   supabase.from("tours").select("id,slug,title,summary,description,location,country,city,duration,price_from,ticket_price,currency,cover_image,gallery,video_url,pricing_options,event_start_date,event_end_date,organizer,booking_mode,registration_url,contact_whatsapp,content_type,itinerary,inclusions,exclusions,meeting_point").eq("status","published").in("content_type",["festival","event"]).order("event_start_date",{ascending:true,nullsFirst:false}),
+   new Promise((_,reject)=>setTimeout(()=>reject(new Error("Le serveur met trop de temps à répondre.")),12000))
+  ]);
+ } catch(error) {
+  console.error("AFA agenda loading error:",error);
+  root.innerHTML='<div class="agenda-load-error"><p>Les événements ne peuvent pas être chargés pour le moment.</p><button type="button" class="button" id="agendaRetry">Réessayer</button><p class="form-hint">Si le problème persiste, actualisez la page dans quelques instants.</p></div>';
+  document.getElementById("agendaRetry")?.addEventListener("click",loadAgenda);
+  return;
+ }
+ const {data,error}=result;
+ if(error){console.error("AFA agenda query error:",error);root.innerHTML='<div class="agenda-load-error"><p>Impossible de récupérer les événements. Réessayez dans un instant.</p><button type="button" class="button" id="agendaRetry">Réessayer</button></div>';document.getElementById("agendaRetry")?.addEventListener("click",loadAgenda);return;}
  if(!data?.length){root.innerHTML="<p>Les prochaines dates et manifestations seront annoncées ici. Revenez bientôt.</p>";return;}
  root.innerHTML=data.map(item=>{
   const type=item.content_type==="festival"?"Festival":"Événement";
