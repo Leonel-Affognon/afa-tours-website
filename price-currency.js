@@ -39,8 +39,8 @@
     const panel = widget?.querySelector("[data-currency-panel]");
     if (!widget || !panel) return;
     panel.hidden = !panel.hidden;
+    button.setAttribute("aria-expanded",String(!panel.hidden));
     if (panel.hidden) return;
-    button.setAttribute("aria-expanded","true");
     if (widget.dataset.loaded === "1") return;
     const output = widget.querySelector("[data-currency-output]");
     output.textContent = "Chargement…";
