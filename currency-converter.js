@@ -1,6 +1,8 @@
+import { supabase } from "./backend.js";
 (() => {
   if (document.querySelector(".afa-fx-widget")) return;
-  const MARGIN = 0.03; // Marge commerciale AFA TOURS, modifiable dans cette configuration.
+  let MARGIN = 0.03;
+  let enabled = true;
   const base = "XOF";
   const widget = document.createElement("section");
   widget.className = "afa-fx-widget";
@@ -14,8 +16,8 @@
   const names=new Intl.DisplayNames(["fr"],{type:"currency"});
   const fmt=(n,c)=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:c,maximumFractionDigits:["XOF","JPY","KRW"].includes(c)?0:2}).format(n);
   function populate(select,selected){const codes=Object.keys(rates||{}).sort();select.innerHTML=codes.map(c=>{let label;try{label=names.of(c)||c}catch{label=c}return '<option value="'+c+'">'+c+' — '+label+'</option>'}).join("");select.value=selected&&rates[selected]?selected:(select===from?"XOF":"EUR");}
-  function convert(){if(!rates)return;const value=Number(amount.value);if(!Number.isFinite(value)||value<0){result.textContent="Saisissez un montant valide.";return;}const a=from.value,b=to.value;if(!rates[a]||!rates[b]){result.textContent="Devise non disponible.";return;}const raw=value/rates[a]*rates[b];const converted=raw*(1+MARGIN);result.textContent=fmt(converted,b);updated.textContent="Taux de référence du "+rateDate+" · Marge AFA incluse : "+(MARGIN*100).toFixed(1)+" %";}
-  async function load(){try{const response=await fetch("https://open.er-api.com/v6/latest/XOF",{cache:"no-store"});if(!response.ok)throw new Error("Service de taux indisponible.");const data=await response.json();if(data.result!=="success"||!data.rates)throw new Error("Réponse de taux invalide.");rates=data.rates;rates.XOF=1;rateDate=data.time_last_update_utc?new Date(data.time_last_update_utc).toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"}):"dernière mise à jour";populate(from,"XOF");populate(to,"EUR");convert();}catch(e){error.textContent="Impossible de charger les taux en direct. Réessayez plus tard.";result.textContent="Conversion temporairement indisponible.";}}
+  function convert(){if(!enabled){widget.hidden=true;return;}widget.hidden=false;if(!rates)return;const value=Number(amount.value);if(!Number.isFinite(value)||value<0){result.textContent="Saisissez un montant valide.";return;}const a=from.value,b=to.value;if(!rates[a]||!rates[b]){result.textContent="Devise non disponible.";return;}const raw=value/rates[a]*rates[b];const converted=raw*(1+MARGIN);result.textContent=fmt(converted,b);updated.textContent="Taux de référence du "+rateDate+" · Marge AFA incluse : "+(MARGIN*100).toFixed(1)+" %";}
+  async function load(){try{const settings=await supabase.from("afa_site_settings").select("currency_converter_enabled,exchange_margin_percent").eq("id",true).maybeSingle();if(!settings.error&&settings.data){enabled=settings.data.currency_converter_enabled!==false;MARGIN=Number(settings.data.exchange_margin_percent??3)/100;}const response=await fetch("https://open.er-api.com/v6/latest/XOF",{cache:"no-store"});if(!response.ok)throw new Error("Service de taux indisponible.");const data=await response.json();if(data.result!=="success"||!data.rates)throw new Error("Réponse de taux invalide.");rates=data.rates;rates.XOF=1;rateDate=data.time_last_update_utc?new Date(data.time_last_update_utc).toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"}):"dernière mise à jour";populate(from,"XOF");populate(to,"EUR");convert();}catch(e){error.textContent="Impossible de charger les taux en direct. Réessayez plus tard.";result.textContent="Conversion temporairement indisponible.";}}
   amount.addEventListener("input",convert);from.addEventListener("change",convert);to.addEventListener("change",convert);
   widget.querySelector(".afa-fx-swap").addEventListener("click",()=>{const old=from.value;from.value=to.value;to.value=old;convert();});
   load();
