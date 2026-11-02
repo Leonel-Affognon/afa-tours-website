@@ -47,6 +47,7 @@ if (bookingForm) {
       }
       form.reset();
       try { localStorage.removeItem("afa-selected-circuits"); } catch (_) {}
+      window.dispatchEvent(new CustomEvent("afa:booking-submitted", { detail: { reference: result.reference } }));
       const note = document.getElementById("bookingFeedback");
       note.textContent = "Demande enregistrée. Référence : " + result.reference + ". Notre équipe vous contactera.";
       note.hidden = false;
