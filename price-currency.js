@@ -22,13 +22,18 @@
   function update(widget) {
     if (!rates) return;
     const amount = Number(widget.dataset.amount), base = widget.dataset.base || "XOF";
-    const output = widget.querySelector("[data-currency-output]");
     const select = widget.querySelector("[data-currency-select]");
-    if (!Number.isFinite(amount) || !rates[base] || !rates[select.value]) {
-      output.textContent = "Conversion indisponible."; return;
-    }
-    const converted = amount / rates[base] * rates[select.value];
-    output.textContent = "≈ " + fmt(converted, select.value);
+    const calculate = code => {
+      const output = widget.querySelector('[data-currency-output="'+code+'"]');
+      if (!output) return;
+      if (!Number.isFinite(amount) || !rates[base] || !rates[code]) { output.textContent = "Indisponible"; return; }
+      output.textContent = "≈ " + fmt(amount / rates[base] * rates[code], code);
+    };
+    calculate("EUR"); calculate("USD");
+    const custom = widget.querySelector("[data-currency-custom]");
+    if (select.value) {
+      if (custom) { custom.hidden = false; custom.textContent = "≈ " + fmt(amount / rates[base] * rates[select.value], select.value); }
+    } else if (custom) { custom.hidden = true; custom.textContent = ""; }
     const date = widget.querySelector("[data-currency-date]");
     if (date) date.textContent = updated ? "Taux indicatifs du " + updated : "Taux indicatifs";
   }
@@ -50,10 +55,10 @@
       const labels = new Intl.DisplayNames(["fr"], {type:"currency"});
       const options = Object.keys(currentRates).sort().map(code => {
         let name = code; try { name = labels.of(code) || code; } catch(e) {}
-        return '<option value="' + code + '">' + code + ' — ' + name + '</option>';
+        return code==="EUR"||code==="USD"?"":'<option value="' + code + '">' + code + ' — ' + name + '</option>';
       }).join("");
       select.innerHTML = options;
-      select.value = "EUR";
+      select.value = "";
       widget.dataset.loaded = "1";
       update(widget);
     } catch(error) {
