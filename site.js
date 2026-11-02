@@ -153,3 +153,23 @@
     document.body.append(script);
   });
 })();
+
+/* AFA booking actions: carry the selected card into the central request form. */
+(() => {
+  const bookingUrl = (anchor) => {
+    try {
+      const target = new URL(anchor.getAttribute("href"), location.href);
+      if (!target.pathname.endsWith("/contact.html") && !target.pathname.endsWith("contact.html")) return;
+      if (target.searchParams.has("circuits") || target.searchParams.has("event") || target.searchParams.has("destination") || target.searchParams.has("content")) return;
+      const card = anchor.closest(".destination-card,.tour-card,.festival-package");
+      const title = card?.querySelector("h2,h3,h4")?.textContent?.trim();
+      if (title) target.searchParams.set(card.classList.contains("festival-package") ? "event" : "destination", title);
+      anchor.href = target.pathname.split("/").pop() + target.search + target.hash;
+    } catch (_) {}
+  };
+  document.querySelectorAll('a[href*="contact.html"]').forEach(bookingUrl);
+  document.addEventListener("click", (event) => {
+    const anchor = event.target.closest('a[href*="contact.html"]');
+    if (anchor) bookingUrl(anchor);
+  }, true);
+})();
