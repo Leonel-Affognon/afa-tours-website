@@ -86,8 +86,16 @@ function safeImageStyle(value) { try { const url=new URL(value); if(!["https:","
 function escapeHtml(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 loadPublishedTours();
 async function preselectRequestedContent(){
- const slug=new URLSearchParams(location.search).get("content");
- const select=document.getElementById("tourSelect");
+ const params=new URLSearchParams(location.search);
+ const slug=params.get("content"),eventName=params.get("event"),formula=params.get("formula"),destination=params.get("destination");
+ const select=document.getElementById("tourSelect"),bookingType=document.getElementById("bookingType"),message=document.querySelector("#bookingForm textarea[name=message]");
+ if(eventName||destination){
+  const requested=eventName||destination;
+  if(select){if(![...select.options].some(o=>o.value===requested))select.add(new Option(requested,requested));select.value=requested;}
+  if(bookingType){bookingType.value="Réserver un circuit existant";bookingType.dispatchEvent(new Event("change"));}
+  if(formula&&message&&!message.value)message.value="Je souhaite réserver la formule « "+formula+" » pour "+requested+". Merci de me confirmer les disponibilités et les modalités.";
+  return;
+ }
  if(!slug||!select)return;
  const {data,error}=await supabase.from("tours").select("title,slug").eq("slug",slug).eq("status","published").maybeSingle();
  if(error||!data)return;
