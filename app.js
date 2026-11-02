@@ -64,11 +64,11 @@ if (bookingForm) {
 async function loadPublishedTours() {
   const grid = document.querySelector(".tour-grid");
   if (!grid) return;
-  const { data, error } = await supabase.from("tours").select("id,slug,title,summary,location,duration,price_from,currency,cover_image,featured").eq("status","published").order("sort_order");
+  const { data, error } = await supabase.from("tours").select("id,slug,title,summary,location,duration,price_from,currency,cover_image,featured").eq("status","published").in("content_type",["tour","excursion","experience"]).order("sort_order");
   if (error || !data?.length) return; // Keep editorial fallback cards until tours are added in the admin.
   grid.innerHTML = data.map(t => `
     <article class="tour-card">
-      <div class="tour-image" style="${t.cover_image ? `background-image:url('${t.cover_image.replace(/'/g,"%27")}')` : ""}"><span class="image-label">${escapeHtml(t.location || "BÉNIN")}</span></div>
+      <div class="tour-image" style="${safeImageStyle(t.cover_image)}"><span class="image-label">${escapeHtml(t.location || "BÉNIN")}</span></div>
       <div class="tour-info"><div class="tour-meta">${escapeHtml(t.duration || "CIRCUIT AFA")}</div>
       <h3>${escapeHtml(t.title)}</h3><p>${escapeHtml(t.summary)}</p>
       ${t.price_from ? `<p class="tour-price">À partir de ${Number(t.price_from).toLocaleString("fr-FR")} ${escapeHtml(t.currency)}</p>` : ""}
@@ -81,8 +81,19 @@ async function loadPublishedTours() {
     if (select) select.value = a.dataset.tour;
   }));
 }
+function safeImageStyle(value) { try { const url=new URL(value); if(!["https:","http:"].includes(url.protocol)) return ""; return `background-image:url(&quot;${escapeHtml(url.href)}&quot;)`; } catch { return ""; } }
 function escapeHtml(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 loadPublishedTours();
+async function preselectRequestedContent(){
+ const slug=new URLSearchParams(location.search).get("content");
+ const select=document.getElementById("tourSelect");
+ if(!slug||!select)return;
+ const {data,error}=await supabase.from("tours").select("title,slug").eq("slug",slug).eq("status","published").maybeSingle();
+ if(error||!data)return;
+ if(![...select.options].some(option=>option.value===data.title))select.add(new Option(data.title,data.title));
+ select.value=data.title;
+}
+preselectRequestedContent();
 
 const reviewForm=document.getElementById("reviewForm");
 if(reviewForm) reviewForm.addEventListener("submit",async e=>{

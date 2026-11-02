@@ -1,4 +1,5 @@
 import { supabase } from "./backend.js";
+import { renderContentManager } from "./admin-content.js";
 const loginPanel=document.getElementById("loginPanel"), dashboard=document.getElementById("dashboard"), content=document.getElementById("adminContent"), msg=document.getElementById("loginMessage");
 const config={
  bookings:{table:"bookings",cols:["reference","full_name","email","tour_name","preferred_date","party_size","status","created_at","audio_path"],title:"Demandes de réservation"},
@@ -10,15 +11,45 @@ const config={
 const statuses={bookings:["new","contacted","quoted","confirmed","cancelled","completed"],messages:["new","read","replied","closed"],reviews:["pending","approved","rejected"],media:["pending","approved","rejected"],tours:["draft","published","archived"]};
 let active="bookings";
 let mediaConsentFilter="all";
-document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);msg.textContent="Connexion…";const {error}=await supabase.auth.signInWithPassword({email:f.get("email"),password:f.get("password")});if(error){msg.textContent="Connexion refusée. Vérifiez vos identifiants et vos droits.";return;}await init();});
+document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget),button=e.currentTarget.querySelector('button[type="submit"],button:not([type])');if(button)button.disabled=true;msg.textContent="Connexion…";try{const {error}=await supabase.auth.signInWithPassword({email:f.get("email"),password:f.get("password")});if(error)throw error;await completeMfa();}catch(error){msg.textContent="Connexion refusée : "+(error.message||"vérifiez vos identifiants.");}finally{if(button)button.disabled=false;}});
+
+async function completeMfa(){
+ const {data:aal,error:aalError}=await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+ if(aalError)throw aalError;
+ if(aal?.currentLevel==="aal2"){await init();return;}
+ const {data:factors,error:factorError}=await supabase.auth.mfa.listFactors();
+ if(factorError)throw factorError;
+ const verified=(factors?.totp||[]).find(f=>f.status==="verified");
+ let factorId=verified?.id,qrCode="",secret="";
+ if(!factorId){
+  const {data:enrollment,error:enrollError}=await supabase.auth.mfa.enroll({factorType:"totp",friendlyName:"AFA TOURS Administration"});
+  if(enrollError)throw enrollError;
+  factorId=enrollment.id;qrCode=enrollment.totp?.qr_code||"";secret=enrollment.totp?.secret||"";
+ }
+ showMfaPanel({factorId,qrCode,secret});
+}
+
+function showMfaPanel({factorId,qrCode,secret}){
+ document.getElementById("mfaPanel")?.remove();
+ const panel=document.createElement("section");panel.id="mfaPanel";panel.className="admin-panel";
+ const title=document.createElement("h3");title.textContent=qrCode?"Sécuriser votre compte administrateur":"Vérification en deux étapes";
+ const instruction=document.createElement("p");instruction.textContent=qrCode?"Scannez ce QR code avec Google Authenticator, Microsoft Authenticator ou une application TOTP, puis saisissez le code à 6 chiffres.":"Saisissez le code à 6 chiffres affiché dans votre application d’authentification.";
+ panel.append(title,instruction);
+ if(qrCode){const image=document.createElement("img");image.alt="QR code de configuration MFA";image.src=qrCode;image.style.cssText="display:block;width:210px;max-width:100%;height:auto;background:white;padding:12px;border:1px solid #ddd";panel.append(image);if(secret){const label=document.createElement("p");label.textContent="Clé de configuration manuelle :";const key=document.createElement("code");key.textContent=secret;key.style.cssText="display:block;overflow-wrap:anywhere;padding:10px;background:white";panel.append(label,key);}}
+ const form=document.createElement("form");form.innerHTML='<label>Code de vérification<input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required></label><button class="button" type="submit">Vérifier et continuer</button><p class="admin-status" aria-live="polite"></p>';
+ form.addEventListener("submit",async event=>{event.preventDefault();const button=form.querySelector("button"),feedback=form.querySelector(".admin-status"),code=form.elements.code.value.trim();button.disabled=true;feedback.textContent="Vérification…";try{const {data:challenge,error:challengeError}=await supabase.auth.mfa.challenge({factorId});if(challengeError)throw challengeError;const {error:verifyError}=await supabase.auth.mfa.verify({factorId,challengeId:challenge.id,code});if(verifyError)throw verifyError;panel.remove();msg.textContent="Vérification MFA réussie.";await init();}catch(error){feedback.textContent=error.message||"Code invalide. Réessayez.";}finally{button.disabled=false;}});
+ panel.append(form);loginPanel.append(panel);
+}
+
 
 document.getElementById("signupForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);msg.textContent="Création du compte…";const {data,error}=await supabase.auth.signUp({email:f.get("email"),password:f.get("password")});if(error){msg.textContent=error.message;return;}msg.textContent=data.session?"Compte créé. Activez-le avec le code propriétaire.":"Compte créé. Vérifiez votre email, puis connectez-vous avant l'activation.";});
-document.getElementById("bootstrapForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);msg.textContent="Activation…";const {data:{session}}=await supabase.auth.getSession();if(!session){msg.textContent="Connectez-vous d'abord après avoir vérifié votre email.";return;}const {data,error}=await supabase.functions.invoke("bootstrap-owner",{body:{token:f.get("token")}});if(error||!data?.success){msg.textContent=data?.error||error?.message||"Activation impossible.";return;}msg.textContent="Compte propriétaire activé. Vous pouvez administrer le site.";await init();});
+document.getElementById("bootstrapForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);msg.textContent="Activation…";const {data:{session}}=await supabase.auth.getSession();if(!session){msg.textContent="Connectez-vous d'abord après avoir vérifié votre email.";return;}const {data,error}=await supabase.functions.invoke("bootstrap-owner",{body:{token:f.get("token")}});if(error||!data?.success){msg.textContent=data?.error||error?.message||"Activation impossible.";return;}msg.textContent="Compte propriétaire activé. Configurez maintenant la vérification en deux étapes.";await completeMfa();});
 
 document.getElementById("logoutButton").addEventListener("click",async()=>{await supabase.auth.signOut();dashboard.classList.add("hidden");loginPanel.classList.remove("hidden");});
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{active=b.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));render();}));
 async function init(){const {data:{user}}=await supabase.auth.getUser();if(!user)return;const {data:role,error}=await supabase.from("admin_users").select("role").eq("user_id",user.id).maybeSingle();if(error||!role){await supabase.auth.signOut();msg.textContent="Ce compte n'est pas autorisé à administrer le site.";return;}loginPanel.classList.add("hidden");dashboard.classList.remove("hidden");document.getElementById("adminWelcome").textContent="Connecté : "+user.email+" · rôle "+role.role;render();}
-async function render(){const cfg=config[active];content.innerHTML="<h2>"+cfg.title+"</h2><p>Chargement…</p>";const {data,error}=await supabase.from(cfg.table).select("*").order("created_at",{ascending:false}).limit(100);if(error){content.innerHTML="<p>Impossible de charger ces données. Vérifiez les droits du compte.</p>";return;}\nif(active==="bookings"){
+async function render(){if(active==="content"){await renderContentManager(content);return;}const cfg=config[active];content.innerHTML="<h2>"+cfg.title+"</h2><p>Chargement…</p>";const {data,error}=await supabase.from(cfg.table).select("*").order("created_at",{ascending:false}).limit(100);if(error){content.innerHTML="<p>Impossible de charger ces données. Vérifiez les droits du compte.</p>";return;}
+if(active==="bookings"){
  const {data:voiceRows,error:voiceError}=await supabase.from("booking_voice_notes").select("booking_reference,audio_path,audio_mime_type").order("created_at",{ascending:false});
  if(!voiceError&&voiceRows){for(const voice of voiceRows){const row=data.find(item=>item.reference===voice.booking_reference);if(!row)continue;const {data:signed}=await supabase.storage.from("afa-submissions").createSignedUrl(voice.audio_path,3600);row.audio_url=signed?.signedUrl||"";}}
 }
@@ -27,7 +58,7 @@ if(active==="media"){
  const no=data.filter(x=>x.consent_marketing===false).length;
  const missing=data.filter(x=>x.consent_marketing==null).length;
  const visible=data.filter(x=>mediaConsentFilter==="all"||(mediaConsentFilter==="yes"&&x.consent_marketing===true)||(mediaConsentFilter==="no"&&x.consent_marketing===false)||(mediaConsentFilter==="unknown"&&x.consent_marketing==null));
- content.innerHTML="<h2>"+cfg.title+"</h2>"+"<form id=\"adminMediaForm\" class=\"admin-grid\"><h3>Ajouter plusieurs photos ou vidéos</h3><label>Fichiers<input name=\"admin_media\" type=\"file\" accept=\"image/*,video/*\" multiple required></label><label><input name=\"admin_publication\" type=\"checkbox\"> Autorisation de publication</label><label><input name=\"admin_marketing\" type=\"checkbox\"> Autorisation marketing</label><button class=\"button\" type=\"submit\">Téléverser</button><p id=\"adminMediaFeedback\"></p></form>"+<div class='media-consent-summary'><button data-media-filter='all'>Tous ("+data.length+")</button><button data-media-filter='yes'>Marketing : oui ("+yes+")</button><button data-media-filter='no'>Marketing : non ("+no+")</button>"+(missing?"<button data-media-filter='unknown'>Non renseigné ("+missing+")</button>":"")+"</div><p>Les autorisations de publication sur le site et d’utilisation marketing sont distinctes. La publication est bloquée sans accord explicite.</p>"+table(visible,cfg.cols);
+ content.innerHTML="<h2>"+cfg.title+"</h2>"+"<form id=\"adminMediaForm\" class=\"admin-grid\"><h3>Ajouter plusieurs photos ou vidéos</h3><label>Fichiers<input name=\"admin_media\" type=\"file\" accept=\"image/*,video/*\" multiple required></label><label><input name=\"admin_publication\" type=\"checkbox\"> Autorisation de publication</label><label><input name=\"admin_marketing\" type=\"checkbox\"> Autorisation marketing</label><button class=\"button\" type=\"submit\">Téléverser</button><p id=\"adminMediaFeedback\"></p></form>"+"<div class='media-consent-summary'><button data-media-filter='all'>Tous ("+data.length+")</button><button data-media-filter='yes'>Marketing : oui ("+yes+")</button><button data-media-filter='no'>Marketing : non ("+no+")</button>"+(missing?"<button data-media-filter='unknown'>Non renseigné ("+missing+")</button>":"")+"</div><p>Les autorisations de publication sur le site et d’utilisation marketing sont distinctes. La publication est bloquée sans accord explicite.</p>"+table(visible,cfg.cols);
  content.querySelectorAll("[data-media-filter]").forEach(button=>button.addEventListener("click",()=>{mediaConsentFilter=button.dataset.mediaFilter;render();}));
  const adminForm=document.getElementById("adminMediaForm");
  if(adminForm)adminForm.addEventListener("submit",async event=>{
