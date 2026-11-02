@@ -133,5 +133,5 @@
 (() => {
   if (document.querySelector('script[data-afa-currency]')) return;
   const style=document.createElement("link");style.rel="stylesheet";style.href="currency-converter.css";style.dataset.afaCurrency="true";document.head.append(style);
-  const script=document.createElement("script");script.src="currency-converter.js";script.defer=true;script.dataset.afaCurrency="true";document.body.append(script);
+  const script=document.createElement("script");script.src="currency-converter.js";script.type="module";script.defer=true;script.dataset.afaCurrency="true";document.body.append(script);
 })();
