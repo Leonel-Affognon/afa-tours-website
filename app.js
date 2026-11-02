@@ -134,7 +134,7 @@ if(mediaForm)mediaForm.addEventListener("submit",async e=>{
   }
   await submitIntake({action:"media",full_name:f.get("full_name"),email:f.get("email"),caption:f.get("caption"),media_files:uploaded,consent_publication:f.get("consent_publication")==="true",consent_marketing:f.get("consent_marketing")==="true"});
   mediaForm.reset();if(mediaSelection)mediaSelection.textContent="";note.textContent=uploaded.length+" fichier(s) reçu(s). Les originaux sont conservés en attente de validation.";
- }catch(err){note.textContent=err.message||"Erreur pendant l'envoi.";}finally{button.disabled=false;button.textContent="Envoyer mes médias";}
+ }catch(err){if(uploaded.length){try{await supabase.storage.from("afa-submissions").remove(uploaded.map(x=>x.object_path));}catch(_){}}note.textContent=err.message||"Erreur pendant l’envoi.";}finally{button.disabled=false;button.textContent="Envoyer mes médias";}
 });
 async function loadReviews(){
   const target=document.getElementById("publishedReviews");if(!target)return;
