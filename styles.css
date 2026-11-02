@@ -318,3 +318,120 @@ html{scroll-behavior:smooth;scroll-padding-top:110px}body{overflow-x:clip}
 
 /* Shared catalog cards — synchronized homepage and circuit details */
 .tour-card-image-link{display:block;color:inherit}.tour-facts{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0 4px;font-size:12px;color:#75452e}.tour-facts strong{font-weight:800}.tour-facts span{font-weight:700}.all-tours-link{text-align:center;margin:30px 0 0}.all-tours-link .button{background:#fff;color:var(--brown);border-color:var(--orange)}.destination-card[id]{scroll-margin-top:110px}
+
+
+/* AFA RESPONSIVE PASS — phones, tablets, laptops and wide screens */
+img,video,iframe{max-width:100%}
+button,input,select,textarea{max-width:100%;font:inherit}
+input,select,textarea{min-width:0}
+main,section,footer{min-width:0}
+.hero,.inner-hero{background-size:cover}
+@media (min-width:901px) and (max-width:1200px){
+  .site-header{padding-left:3%;padding-right:3%;gap:14px}
+  .brand{gap:9px;flex-shrink:0}
+  .brand img{width:48px;height:48px}
+  .brand b{font-size:10px}
+  .brand small{font-size:8px;letter-spacing:.12em}
+  .main-nav{gap:clamp(8px,1vw,14px);font-size:11px}
+  .header-actions{gap:5px}
+  .header-actions select{max-width:82px;font-size:10px}
+  .header-actions .button{padding:10px 12px;font-size:10px}
+  .section,.booking-section{padding-left:6%;padding-right:6%}
+  .tour-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  .site-header{height:76px;padding:0 4%;gap:8px}
+  .menu-toggle{display:block;order:2;margin-left:auto;margin-right:4px;flex:0 0 auto}
+  .header-actions{order:3;flex:0 0 auto}
+  .main-nav{display:none;position:absolute;top:100%;left:0;right:0;max-height:calc(100svh - 76px);overflow-y:auto;background:var(--paper);padding:18px 6% 24px;box-shadow:0 16px 24px #102c2520;flex-direction:column;align-items:stretch;gap:4px}
+  .main-nav.open{display:flex}
+  .main-nav a{padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px}
+  .header-actions select{max-width:95px;min-width:78px}
+  .header-actions .button{display:none}
+  .brand{min-width:0}
+  .brand span{min-width:0}
+  .brand b{font-size:clamp(9px,1.5vw,12px)}
+  .section,.booking-section{padding-left:6%;padding-right:6%}
+  .tour-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .intro-grid{gap:28px}
+  .experience-copy{padding:48px 7%}
+  .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(170px,22vw))}
+  .booking-section{gap:28px}
+  .reviews-heading{gap:20px}
+}
+@media (max-width:600px){
+  html{scroll-padding-top:78px}
+  .site-header{height:70px;padding:0 12px;gap:5px}
+  .brand{gap:7px;max-width:calc(100% - 112px)}
+  .brand img{width:39px;height:39px;flex:0 0 39px}
+  .brand b{font-size:9px;letter-spacing:.035em;line-height:1.2}
+  .brand small{font-size:7px;letter-spacing:.09em;margin-top:3px}
+  .menu-toggle{font-size:24px;padding:7px 5px;margin:0 2px 0 auto}
+  .header-actions{gap:0}
+  .header-actions select{width:78px;min-width:0;max-width:78px;padding:7px 2px;font-size:10px}
+  .main-nav{max-height:calc(100svh - 70px);padding:12px 5% 20px}
+  .hero{min-height:min(690px,calc(100svh - 70px));padding:62px 6% 82px;background-position:58% center}
+  .hero h1{font-size:clamp(39px,10.5vw,56px);overflow-wrap:anywhere}
+  .hero-copy{font-size:15px;line-height:1.7}
+  .hero-buttons{gap:9px}
+  .hero-buttons .button{width:100%;min-height:46px;padding:12px 14px}
+  .hero-stamp{width:72px;height:72px;right:6%;bottom:12px}
+  .trust-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:18px 5%}
+  .trust-strip div{max-width:none;font-size:10px}
+  .section,.booking-section{padding:62px 5%}
+  .intro-grid,.booking-section,.experience-band{grid-template-columns:minmax(0,1fr)}
+  .intro-grid{gap:12px}
+  .section-heading{display:block;margin-bottom:26px}
+  .section-heading>p{max-width:none}
+  .tour-grid,.review-grid{grid-template-columns:minmax(0,1fr);gap:18px}
+  .tour-image{height:clamp(190px,58vw,270px)}
+  .tour-info{padding:21px}
+  .tour-info h3{font-size:23px}
+  .experience-band{min-height:0}
+  .experience-photo{min-height:230px}
+  .experience-copy{padding:42px 6%}
+  .gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2, minmax(125px,38vw));gap:8px}
+  .gallery-tile{min-height:125px}
+  .booking-section{gap:25px}
+  .booking-form{padding:20px 16px}
+  .form-row,.review-compose .form-row{grid-template-columns:minmax(0,1fr);gap:0}
+  .booking-form input,.booking-form select,.booking-form textarea,
+  .review-compose input,.review-compose textarea{font-size:16px}
+  .footer{padding:36px 5% 18px}
+  .footer-links{gap:12px 18px}
+  .footer-bottom{flex-direction:column;gap:8px}
+  .contact-page-grid,.destination-layout,.about-grid,.experience-grid{grid-template-columns:minmax(0,1fr)!important}
+  .circuit-selection-bar{width:calc(100% - 20px);bottom:10px}
+  .floating-whatsapp{right:14px;bottom:14px;width:48px;height:48px}
+  .admin-wrap{padding:22px 4%}
+  .admin-wrap h1{font-size:clamp(30px,8vw,42px)!important;line-height:1.15}
+  .admin-panel{padding:17px}
+  .admin-tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:7px}
+  .admin-tabs button{flex:0 0 auto}
+  .admin-table{display:block;max-width:100%;overflow-x:auto;white-space:normal}
+  .admin-table th,.admin-table td{min-width:110px;padding:9px}
+}
+@media (max-width:360px){
+  .brand{max-width:calc(100% - 104px)}
+  .brand img{width:34px;height:34px;flex-basis:34px}
+  .brand b{font-size:8px}
+  .brand small{font-size:6px}
+  .header-actions select{width:68px;max-width:68px;font-size:9px}
+  .hero h1{font-size:38px}
+  .section h2,.intro h2,.booking-intro h2{font-size:34px}
+}
+@media (min-width:1400px){
+  .site-header{padding-left:max(6vw,calc((100vw - 1500px)/2));padding-right:max(6vw,calc((100vw - 1500px)/2))}
+  .section,.booking-section{padding-left:max(9vw,calc((100vw - 1380px)/2));padding-right:max(9vw,calc((100vw - 1380px)/2))}
+}
+@media (orientation:landscape) and (max-height:500px) and (max-width:900px){
+  .hero{min-height:540px}
+  .main-nav{max-height:calc(100svh - 70px)}
+}
+@media (hover:none){
+  .tour-card:hover,.destination-card:hover,.gallery-tile:hover{transform:none}
+  .button:hover{transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .floating-whatsapp,.mobile-quick-nav{animation:none!important}
+}
