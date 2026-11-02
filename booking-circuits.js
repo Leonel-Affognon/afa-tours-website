@@ -18,6 +18,7 @@
  };
  const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(selected))}catch(e){}};
  render();
+ window.addEventListener("afa:booking-submitted",()=>{selected=[];persist();render();});
  const fieldset=group.closest("fieldset");
  if(fieldset&&!fieldset.querySelector(".selection-browse-links")){
   const links=document.createElement("p");links.className="selection-browse-links";links.innerHTML='<a class="text-link" href="destinations.html">Choisir depuis les destinations</a> · <a class="text-link" href="circuits.html">Parcourir tous les circuits</a>';
