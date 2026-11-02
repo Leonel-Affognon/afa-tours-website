@@ -28,7 +28,9 @@ export async function renderContentManager(root){
  '<label>Organisateur<input name="organizer"></label>'+
  '<label>Point de rencontre<input name="meeting_point"></label>'+
  '<label>Image couverture (URL)<input name="cover_image" type="url"></label>'+ 
- '<label>Galerie photos (URLs, une par ligne)<textarea name="gallery_urls" rows="3" placeholder="https://..."></textarea></label>'+\n '<label class="catalog-wide">Importer des photos ou vidéos (50 Mo maximum par fichier)<input name="media_files" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple></label>'+\n '<label class="catalog-wide"><input name="media_rights_confirmed" type="checkbox"> Je confirme que AFA TOURS dispose des droits ou autorisations nécessaires pour publier ces fichiers.</label>'+ 
+ '<label>Galerie photos (URLs, une par ligne)<textarea name="gallery_urls" rows="3" placeholder="https://..."></textarea></label>'+ 
+ '<label class="catalog-wide">Importer des photos ou vidéos (50 Mo maximum par fichier)<input name="media_files" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple></label>'+ 
+ '<label class="catalog-wide"><input name="media_rights_confirmed" type="checkbox"> Je confirme que AFA TOURS dispose des droits ou autorisations nécessaires pour publier ces fichiers.</label>'+ 
  '<label>Vidéo YouTube ou Vimeo (URL)<input name="video_url" type="url" placeholder="https://www.youtube.com/watch?v=..."></label>'+ 
  '<label class="catalog-wide">Formules et prix (JSON)<textarea name="pricing_options_text" rows="5" placeholder="Exemple de formule JSON"></textarea><small>Chaque formule : name, duration, price, currency, description. Laissez vide si sans formules.</small></label>'+
  '<label>Réservation<select name="booking_mode"><option value="request">Demande à AFA</option><option value="external">Lien externe</option><option value="information">Information seulement</option></select></label>'+
