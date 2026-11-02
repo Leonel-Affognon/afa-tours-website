@@ -17,7 +17,8 @@ export async function renderContentManager(root){
  '<label>Titre<input name="title" required maxlength="180"></label>'+
  '<label>Slug URL<input name="slug" required pattern="[a-z0-9-]+"></label>'+
  '<label>Pays<input name="country" value="Bénin" required></label>'+
- '<label>Destination liée<select name="destination_id"><option value="">Sans destination liée</option>'+destinations.map(d=>'<option value="'+d.id+'">'+esc(d.name)+(d.status==='published'?'':' (non publiée)')+'</option>').join('')+'</select></label>'+\n '<label>Ville / destination (précision)<input name="city"></label>'+
+ '<label>Destination liée<select name="destination_id"><option value="">Sans destination liée</option>'+destinations.map(d=>'<option value="'+d.id+'">'+esc(d.name)+(d.status==='published'?'':' (non publiée)')+'</option>').join('')+'</select></label>'+
+ '<label>Ville / destination (précision)<input name="city"></label>'+
  '<label>Lieu / zone<input name="location" value="Bénin"></label>'+
  '<label>Durée<input name="duration"></label>'+
  '<label>Prix à partir de<input name="price_from" type="number" min="0" step="0.01"></label>'+
