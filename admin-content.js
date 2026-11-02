@@ -28,7 +28,7 @@ export async function renderContentManager(root){
  '<label>Organisateur<input name="organizer"></label>'+
  '<label>Point de rencontre<input name="meeting_point"></label>'+
  '<label>Image couverture (URL)<input name="cover_image" type="url"></label>'+ 
- '<label>Galerie photos (URLs, une par ligne)<textarea name="gallery_urls" rows="3" placeholder="https://..."></textarea></label>'+ 
+ '<label>Galerie photos (URLs, une par ligne)<textarea name="gallery_urls" rows="3" placeholder="https://..."></textarea></label>'+\n '<label class="catalog-wide">Importer des photos ou vidéos (50 Mo maximum par fichier)<input name="media_files" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple></label>'+\n '<label class="catalog-wide"><input name="media_rights_confirmed" type="checkbox"> Je confirme que AFA TOURS dispose des droits ou autorisations nécessaires pour publier ces fichiers.</label>'+ 
  '<label>Vidéo YouTube ou Vimeo (URL)<input name="video_url" type="url" placeholder="https://www.youtube.com/watch?v=..."></label>'+ 
  '<label class="catalog-wide">Formules et prix (JSON)<textarea name="pricing_options_text" rows="5" placeholder="Exemple de formule JSON"></textarea><small>Chaque formule : name, duration, price, currency, description. Laissez vide si sans formules.</small></label>'+
  '<label>Réservation<select name="booking_mode"><option value="request">Demande à AFA</option><option value="external">Lien externe</option><option value="information">Information seulement</option></select></label>'+
@@ -59,6 +59,21 @@ export async function renderContentManager(root){
  try{const f=new FormData(form),id=String(f.get("id")||"");const p={content_type:f.get("content_type"),title:String(f.get("title")).trim(),slug:String(f.get("slug")).trim().toLowerCase(),country:String(f.get("country")).trim(),city:String(f.get("city")||"").trim()||null,location:String(f.get("location")||"").trim()||"Bénin",duration:String(f.get("duration")||"").trim()||null,price_from:f.get("price_from")?Number(f.get("price_from")):null,currency:f.get("currency")||"XOF",ticket_price:f.get("ticket_price")?Number(f.get("ticket_price")):null,event_start_date:f.get("event_start_date")||null,event_end_date:f.get("event_end_date")||null,max_capacity:f.get("max_capacity")?Number(f.get("max_capacity")):null,organizer:String(f.get("organizer")||"").trim()||null,meeting_point:String(f.get("meeting_point")||"").trim()||null,cover_image:safeHttpUrl(String(f.get("cover_image")||"").trim(),"Image de couverture"),gallery:String(f.get("gallery_urls")||"").split(/\r?\n/).map(x=>safeHttpUrl(x.trim(),"Galerie")).filter(Boolean),video_url:safeHttpUrl(String(f.get("video_url")||"").trim(),"Vidéo"),pricing_options:(()=>{const raw=String(f.get("pricing_options_text")||"").trim();if(!raw)return [];let items;try{items=JSON.parse(raw);}catch{throw new Error("Les formules doivent être au format JSON valide.");}if(!Array.isArray(items))throw new Error("Les formules doivent être une liste JSON.");return items;})(),booking_mode:f.get("booking_mode"),registration_url:safeHttpUrl(String(f.get("registration_url")||"").trim(),"Lien d’inscription"),contact_whatsapp:String(f.get("contact_whatsapp")||"").trim()||null,status:f.get("status"),sort_order:Number(f.get("sort_order")||0),summary:String(f.get("summary")||"").trim(),description:String(f.get("description")||"").trim(),itinerary:String(f.get("itinerary")||"").trim()||null,inclusions:String(f.get("inclusions")||"").trim()||null,exclusions:String(f.get("exclusions")||"").trim()||null,languages:String(f.get("languages")||"fr,en").split(",").map(x=>x.trim()).filter(Boolean),featured:f.get("featured")==="on",seo_title:String(f.get("seo_title")||"").trim()||null,seo_description:String(f.get("seo_description")||"").trim()||null};
  if(p.event_start_date&&p.event_end_date&&p.event_end_date<p.event_start_date)throw new Error("La date de fin doit être après la date de début.");
  if(p.booking_mode==="external"&&!p.registration_url)throw new Error("Le lien d'inscription externe est obligatoire.");
+ const uploads=[...(form.elements.media_files?.files||[])];
+ if(uploads.length){
+  if(!form.elements.media_rights_confirmed.checked)throw new Error("Confirmez les droits de publication des fichiers importés.");
+  const gallery=[...(p.gallery||[])];let video=p.video_url||null;
+  for(const file of uploads){
+   const allowed=["image/jpeg","image/png","image/webp","video/mp4","video/webm"];
+   if(!allowed.includes(file.type)||file.size>50*1024*1024)throw new Error("Fichier non accepté : JPEG, PNG, WebP, MP4 ou WebM de 50 Mo maximum.");
+   const ext=file.name.split(".").pop().toLowerCase(),path="events/"+p.slug+"/"+crypto.randomUUID()+"."+ext;
+   const uploaded=await supabase.storage.from("afa-public-media").upload(path,file,{contentType:file.type,upsert:false});
+   if(uploaded.error)throw uploaded.error;
+   const publicUrl=supabase.storage.from("afa-public-media").getPublicUrl(path).data.publicUrl;
+   if(file.type.startsWith("image/"))gallery.push(publicUrl);else if(!video)video=publicUrl;
+  }
+  p.gallery=gallery;p.video_url=video;
+ }
  const res=id?await supabase.from("tours").update(p).eq("id",id):await supabase.from("tours").insert(p);if(res.error)throw res.error;
  const reload=await supabase.from("tours").select("*").order("updated_at",{ascending:false}).limit(500);if(reload.error)throw reload.error;rows.splice(0,rows.length,...reload.data);reset();draw();feedback.textContent=id?"Contenu modifié.":"Contenu ajouté.";
  }catch(err){feedback.textContent=err.message||"Erreur d'enregistrement.";}finally{button.disabled=false;}});
