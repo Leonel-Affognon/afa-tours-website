@@ -28,6 +28,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          for file in *.js; do
+            echo "Checking $file"
+            node --check "$file"
+          done
       - name: Install Playwright
         run: |
           npm init -y
@@ -60,8 +66,8 @@ jobs:
             });
             const page = await context.newPage();
             const errors = [];
-            page.on('pageerror', error => errors.push(error.message));
-            page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+            page.on('pageerror', error => errors.push(error.stack || error.message));
+            page.on('console', message => { if (message.type() === 'error') errors.push(message.text() + ' @ ' + JSON.stringify(message.location())); });
             const pages = ['', 'circuits.html', 'destinations.html', 'experiences.html', 'agenda.html', 'admin.html', 'about.html', 'gallery.html', 'contact.html'];
             for (const path of pages) {
               const response = await page.goto(new URL(path, process.env.SITE_URL).href, { waitUntil: 'networkidle', timeout: 60000 });
