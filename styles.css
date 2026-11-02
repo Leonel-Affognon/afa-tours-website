@@ -436,3 +436,7 @@ main,section,footer{min-width:0}
 @media (prefers-reduced-motion:reduce){
   .floating-whatsapp,.mobile-quick-nav{animation:none!important}
 }
+
+/* Mobile language control inside the expanded navigation panel */
+.mobile-language-choice{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;margin:6px 0 10px;border:1px solid rgba(255,255,255,.18);border-radius:12px;color:inherit;font-size:13px}
+.mobile-language-choice select{max-width:145px;min-width:110px;padding:9px 10px;border:1px solid rgba(255,255,255,.3);border-radius:8px;background:#fff;color:#183c35;font:inherit}
