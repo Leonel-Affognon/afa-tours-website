@@ -48,7 +48,7 @@
   const languageWrap=document.createElement("label");languageWrap.className="mobile-language-choice";languageWrap.textContent="Langue du site";
   const languageSelect=document.createElement("select");languageSelect.setAttribute("aria-label","Choisir la langue du site");
   [["fr","Français"],["en","English"],["de","Deutsch"],["es","Español"],["pt","Português"]].forEach(([value,label])=>{const option=document.createElement("option");option.value=value;option.textContent=label;languageSelect.append(option);});
-  const currentLanguage=localStorage.getItem("afa-language")||document.documentElement.lang||"fr";languageSelect.value=currentLanguage;
+  let currentLanguage="fr";try{currentLanguage=localStorage.getItem("afa-language")||document.documentElement.lang||"fr";}catch(_){}languageSelect.value=currentLanguage;
   languageSelect.addEventListener("change",()=>{const headerSelect=document.getElementById("language");if(headerSelect){headerSelect.value=languageSelect.value;headerSelect.dispatchEvent(new Event("change"));}else{try{localStorage.setItem("afa-language",languageSelect.value)}catch(_){}location.reload();}});
   const panel=document.createElement("div");panel.className="mobile-more-panel";panel.id="mobileMorePanel";
   panel.setAttribute("aria-label","Toutes les rubriques");\n  panel.append(languageWrap);languageWrap.append(languageSelect);
