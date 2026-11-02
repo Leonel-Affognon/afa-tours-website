@@ -46,6 +46,7 @@ if (bookingForm) {
         if (noteError) throw new Error("Demande enregistrée, mais le rattachement du message vocal a échoué. Contactez AFA avec la référence " + result.reference + ".");
       }
       form.reset();
+      try { localStorage.removeItem("afa-selected-circuits"); } catch (_) {}
       const note = document.getElementById("bookingFeedback");
       note.textContent = "Demande enregistrée. Référence : " + result.reference + ". Notre équipe vous contactera.";
       note.hidden = false;
