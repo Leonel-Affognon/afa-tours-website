@@ -27,12 +27,12 @@
       const output = widget.querySelector('[data-currency-output="'+code+'"]');
       if (!output) return;
       if (!Number.isFinite(amount) || !rates[base] || !rates[code]) { output.textContent = "Indisponible"; return; }
-      output.textContent = "≈ " + fmt(amount / rates[base] * rates[code], code);
+      output.textContent = code + " : ≈ " + fmt(amount / rates[base] * rates[code], code);
     };
     calculate("EUR"); calculate("USD");
     const custom = widget.querySelector("[data-currency-custom]");
     if (select.value) {
-      if (custom) { custom.hidden = false; custom.textContent = "≈ " + fmt(amount / rates[base] * rates[select.value], select.value); }
+      if (custom) { custom.hidden = false; custom.textContent = select.value + " : ≈ " + fmt(amount / rates[base] * rates[select.value], select.value); }
     } else if (custom) { custom.hidden = true; custom.textContent = ""; }
     const date = widget.querySelector("[data-currency-date]");
     if (date) date.textContent = updated ? "Taux indicatifs du " + updated : "Taux indicatifs";
