@@ -25,6 +25,8 @@ if (bookingForm) {
     const original = button.textContent;
     const data = new FormData(form);
     let uploadedAudioPath = null;
+    let bookingSaved = false;
+    let voiceNoteWarning = "";
     button.disabled = true; button.textContent = "Envoi en cours…";
     try {
       if (voiceBlob) {
@@ -41,21 +43,23 @@ if (bookingForm) {
         preferred_date: data.get("date"), party_size: Number(data.get("people") || 1),
         tour_name: [...data.getAll("tours"), data.get("tour")].filter(Boolean).join(" | "), message: data.get("message")
       });
+      bookingSaved = true;
       if (uploadedAudioPath) {
         const { error: noteError } = await supabase.from("booking_voice_notes").insert({ booking_reference: result.reference, audio_path: uploadedAudioPath, audio_mime_type: voiceMime });
-        if (noteError) throw new Error("Demande enregistrée, mais le rattachement du message vocal a échoué. Contactez AFA avec la référence " + result.reference + ".");
+        if (noteError) voiceNoteWarning = " La demande est bien enregistrée, mais le message vocal n'a pas pu être rattaché. Communiquez ce fichier à AFA en indiquant la référence " + result.reference + ".";
       }
       form.reset();
       try { localStorage.removeItem("afa-selected-circuits"); } catch (_) {}
       window.dispatchEvent(new CustomEvent("afa:booking-submitted", { detail: { reference: result.reference } }));
       const note = document.getElementById("bookingFeedback");
-      note.textContent = "Demande enregistrée. Référence : " + result.reference + ". Notre équipe vous contactera.";
+      note.textContent = "Demande enregistrée. Référence : " + result.reference + ". Notre équipe vous contactera." + voiceNoteWarning;
       note.hidden = false;
       const shareArea=document.getElementById("whatsappShareArea");
       const shareButton=document.getElementById("shareBookingWhatsApp");
       const downloadLink=document.getElementById("downloadVoiceAudio");
       if(shareArea&&shareButton){shareArea.hidden=false;const shareText="Bonjour AFA TOURS, ma demande vient d’être envoyée sur votre site. Référence : "+result.reference+".\nNom : "+(data.get("name")||"")+"\nTéléphone : "+(data.get("phone")||"")+"\nMessage : "+(data.get("message")||"Aucun message écrit.");shareButton.onclick=async()=>{const waUrl="https://wa.me/2290197165646?text="+encodeURIComponent(shareText);if(voiceBlob&&navigator.share&&navigator.canShare){const ext=voiceMime.includes("mp4")?"m4a":voiceMime.includes("ogg")?"ogg":"webm";const file=new File([voiceBlob],"message-vocal-afa."+ext,{type:voiceMime});if(navigator.canShare({files:[file]})){try{await navigator.share({title:"Message vocal AFA TOURS",text:shareText,files:[file]});return;}catch(err){if(err.name==="AbortError")return;}}}if(voiceBlob&&downloadLink){downloadLink.href=voiceUrl;downloadLink.hidden=false;}window.open(waUrl,"_blank","noopener");};}
     } catch (error) {
+      if (uploadedAudioPath && !bookingSaved) { try { await supabase.storage.from("afa-submissions").remove([uploadedAudioPath]); } catch (_) {} }
       const note = document.getElementById("bookingFeedback");
       note.textContent = error.message + " Vous pouvez aussi nous joindre sur WhatsApp.";
       note.hidden = false;
