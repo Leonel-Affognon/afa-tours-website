@@ -11,10 +11,39 @@ const config={
 const statuses={bookings:["new","contacted","quoted","confirmed","cancelled","completed"],messages:["new","read","replied","closed"],reviews:["pending","approved","rejected"],media:["pending","approved","rejected"],tours:["draft","published","archived"]};
 let active="bookings";
 let mediaConsentFilter="all";
-document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);msg.textContent="Connexion…";const {error}=await supabase.auth.signInWithPassword({email:f.get("email"),password:f.get("password")});if(error){msg.textContent="Connexion refusée. Vérifiez vos identifiants et vos droits.";return;}await init();});
+document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget),button=e.currentTarget.querySelector('button[type="submit"],button:not([type])');if(button)button.disabled=true;msg.textContent="Connexion…";try{const {error}=await supabase.auth.signInWithPassword({email:f.get("email"),password:f.get("password")});if(error)throw error;await completeMfa();}catch(error){msg.textContent="Connexion refusée : "+(error.message||"vérifiez vos identifiants.");}finally{if(button)button.disabled=false;}});
+
+async function completeMfa(){
+ const {data:aal,error:aalError}=await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+ if(aalError)throw aalError;
+ if(aal?.currentLevel==="aal2"){await init();return;}
+ const {data:factors,error:factorError}=await supabase.auth.mfa.listFactors();
+ if(factorError)throw factorError;
+ const verified=(factors?.totp||[]).find(f=>f.status==="verified");
+ let factorId=verified?.id,qrCode="",secret="";
+ if(!factorId){
+  const {data:enrollment,error:enrollError}=await supabase.auth.mfa.enroll({factorType:"totp",friendlyName:"AFA TOURS Administration"});
+  if(enrollError)throw enrollError;
+  factorId=enrollment.id;qrCode=enrollment.totp?.qr_code||"";secret=enrollment.totp?.secret||"";
+ }
+ showMfaPanel({factorId,qrCode,secret});
+}
+
+function showMfaPanel({factorId,qrCode,secret}){
+ document.getElementById("mfaPanel")?.remove();
+ const panel=document.createElement("section");panel.id="mfaPanel";panel.className="admin-panel";
+ const title=document.createElement("h3");title.textContent=qrCode?"Sécuriser votre compte administrateur":"Vérification en deux étapes";
+ const instruction=document.createElement("p");instruction.textContent=qrCode?"Scannez ce QR code avec Google Authenticator, Microsoft Authenticator ou une application TOTP, puis saisissez le code à 6 chiffres.":"Saisissez le code à 6 chiffres affiché dans votre application d’authentification.";
+ panel.append(title,instruction);
+ if(qrCode){const image=document.createElement("img");image.alt="QR code de configuration MFA";image.src=qrCode;image.style.cssText="display:block;width:210px;max-width:100%;height:auto;background:white;padding:12px;border:1px solid #ddd";panel.append(image);if(secret){const label=document.createElement("p");label.textContent="Clé de configuration manuelle :";const key=document.createElement("code");key.textContent=secret;key.style.cssText="display:block;overflow-wrap:anywhere;padding:10px;background:white";panel.append(label,key);}}
+ const form=document.createElement("form");form.innerHTML='<label>Code de vérification<input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required></label><button class="button" type="submit">Vérifier et continuer</button><p class="admin-status" aria-live="polite"></p>';
+ form.addEventListener("submit",async event=>{event.preventDefault();const button=form.querySelector("button"),feedback=form.querySelector(".admin-status"),code=form.elements.code.value.trim();button.disabled=true;feedback.textContent="Vérification…";try{const {data:challenge,error:challengeError}=await supabase.auth.mfa.challenge({factorId});if(challengeError)throw challengeError;const {error:verifyError}=await supabase.auth.mfa.verify({factorId,challengeId:challenge.id,code});if(verifyError)throw verifyError;panel.remove();msg.textContent="Vérification MFA réussie.";await init();}catch(error){feedback.textContent=error.message||"Code invalide. Réessayez.";}finally{button.disabled=false;}});
+ panel.append(form);loginPanel.append(panel);
+}
+
 
 document.getElementById("signupForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);msg.textContent="Création du compte…";const {data,error}=await supabase.auth.signUp({email:f.get("email"),password:f.get("password")});if(error){msg.textContent=error.message;return;}msg.textContent=data.session?"Compte créé. Activez-le avec le code propriétaire.":"Compte créé. Vérifiez votre email, puis connectez-vous avant l'activation.";});
-document.getElementById("bootstrapForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);msg.textContent="Activation…";const {data:{session}}=await supabase.auth.getSession();if(!session){msg.textContent="Connectez-vous d'abord après avoir vérifié votre email.";return;}const {data,error}=await supabase.functions.invoke("bootstrap-owner",{body:{token:f.get("token")}});if(error||!data?.success){msg.textContent=data?.error||error?.message||"Activation impossible.";return;}msg.textContent="Compte propriétaire activé. Vous pouvez administrer le site.";await init();});
+document.getElementById("bootstrapForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget);msg.textContent="Activation…";const {data:{session}}=await supabase.auth.getSession();if(!session){msg.textContent="Connectez-vous d'abord après avoir vérifié votre email.";return;}const {data,error}=await supabase.functions.invoke("bootstrap-owner",{body:{token:f.get("token")}});if(error||!data?.success){msg.textContent=data?.error||error?.message||"Activation impossible.";return;}msg.textContent="Compte propriétaire activé. Configurez maintenant la vérification en deux étapes.";await completeMfa();});
 
 document.getElementById("logoutButton").addEventListener("click",async()=>{await supabase.auth.signOut();dashboard.classList.add("hidden");loginPanel.classList.remove("hidden");});
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{active=b.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));render();}));
