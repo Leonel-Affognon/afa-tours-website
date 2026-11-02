@@ -51,7 +51,8 @@
   let currentLanguage="fr";try{currentLanguage=localStorage.getItem("afa-language")||document.documentElement.lang||"fr";}catch(_){}languageSelect.value=currentLanguage;
   languageSelect.addEventListener("change",()=>{const headerSelect=document.getElementById("language");if(headerSelect){headerSelect.value=languageSelect.value;headerSelect.dispatchEvent(new Event("change"));}else{try{localStorage.setItem("afa-language",languageSelect.value)}catch(_){}location.reload();}});
   const panel=document.createElement("div");panel.className="mobile-more-panel";panel.id="mobileMorePanel";
-  panel.setAttribute("aria-label","Toutes les rubriques");\n  panel.append(languageWrap);languageWrap.append(languageSelect);
+  panel.setAttribute("aria-label","Toutes les rubriques");
+  panel.append(languageWrap);languageWrap.append(languageSelect);
   [["experiences.html","Expériences"],["agenda.html","Festivals & événements"],["about.html","Notre agence"],["gallery.html","Galerie"],["confidentialite.html","Confidentialité"]].forEach(([href,label])=>{
     const a=document.createElement("a");a.href=href;a.textContent=label;panel.append(a);
   });
