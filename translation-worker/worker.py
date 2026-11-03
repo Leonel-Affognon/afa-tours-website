@@ -86,8 +86,33 @@ def process(table:str):
     field_meta[field]={"origin":"argos","source_hash":source_hash,"target_hash":digest(translated),"updated_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())}
     changed=True
   if changed:
-   payload={"translations":translations}
-   response=SESSION.patch(f"{BASE}/rest/v1/{table}",headers=HEADERS,params={"id":f"eq.{row['id']}"},json=payload,timeout=45)
+   # Re-read immediately before writing so admin corrections made while translation
+   # was running are merged and never lost to a stale JSONB snapshot.
+   latest_response=SESSION.get(f"{BASE}/rest/v1/{table}",headers=HEADERS,params={"select":"id,translations","id":f"eq.{row['id']}","limit":"1"},timeout=45)
+   latest_response.raise_for_status()
+   latest_rows=latest_response.json()
+   if not latest_rows:
+    print(f"{table} {row['id']}: row disappeared; skipped")
+    continue
+   latest=latest_rows[0].get("translations") or {}
+   if not isinstance(latest,dict): latest={}
+   for lang in LANGS:
+    latest_lang=latest.setdefault(lang,{})
+    latest_meta=latest.get("_meta",{}).get("languages",{}).get(lang,{}).get("fields",{})
+    local_lang=translations.get(lang,{})
+    local_meta=meta.get(lang,{}).get("fields",{})
+    for field,value in local_lang.items():
+     if field not in FIELDS[table]: continue
+     latest_value=latest_lang.get(field)
+     latest_field_meta=latest_meta.get(field,{})
+     if latest_value and latest_field_meta.get("origin")=="manual":
+      continue
+     local_field_meta=local_meta.get(field,{})
+     if latest_value and latest_field_meta.get("origin")=="argos" and latest_field_meta.get("target_hash")!=digest(latest_value):
+      continue
+     latest_lang[field]=value
+     latest.setdefault("_meta",{}).setdefault("languages",{}).setdefault(lang,{"fields":{}}).setdefault("fields",{})[field]=local_field_meta
+   response=SESSION.patch(f"{BASE}/rest/v1/{table}",headers=HEADERS,params={"id":f"eq.{row['id']}"},json={"translations":latest},timeout=45)
    response.raise_for_status();count+=1
  print(f"{table}: {count} record(s) updated")
  return count
