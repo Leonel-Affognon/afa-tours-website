@@ -57,3 +57,11 @@ jobs:
             exit 1
           fi
           python translation-worker/worker.py
+      - name: Upload translation preview
+        if: always() && env.DRY_RUN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: afa-translation-preview
+          path: translation-preview.json
+          if-no-files-found: ignore
+          retention-days: 7
