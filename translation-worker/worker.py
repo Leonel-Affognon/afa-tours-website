@@ -20,6 +20,55 @@ if KEY and not KEY.startswith("sb_secret_"):
 SESSION=requests.Session()
 PREVIEW=[]
 
+# Names and cultural terms that must remain stable across languages.
+# Keys are source-language spellings; values are the official forms to restore.
+PROTECTED_TERMS = {
+ "Vodun Days":"Vodun Days",
+ "AFA TOURS":"AFA TOURS",
+ "Bouche du Roy":"Bouche du Roy",
+ "Porto-Novo":"Porto-Novo",
+ "Porto Novo":"Porto-Novo",
+ "Ouidah":"Ouidah",
+ "Adjarra":"Adjarra",
+ "Ganvié":"Ganvié",
+ "Ganvie":"Ganvié",
+ "Cotonou":"Cotonou",
+ "Abomey":"Abomey",
+ "Grand-Popo":"Grand-Popo",
+ "Grand Popo":"Grand-Popo",
+ "Black River":"Black River",
+ "Rivière noire":"Black River",
+ "Riviere noire":"Black River",
+ "Zangbeto":"Zangbeto",
+ "Honmè":"Honmè",
+ "Hôgbonou":"Hôgbonou",
+ "Hogbonou":"Hôgbonou",
+ "Kpassè":"Kpassè",
+ "Kpasse":"Kpassè",
+ "Sodabi":"Sodabi",
+ "Vodun":"Vodun",
+}
+
+def protect_terms(text:str):
+ """Replace Beninese proper names with opaque tokens before machine translation."""
+ replacements={}
+ protected=text
+ for index, (source, official) in enumerate(sorted(PROTECTED_TERMS.items(), key=lambda item: len(item[0]), reverse=True)):
+  import re
+  pattern=re.compile(re.escape(source), re.IGNORECASE)
+  if pattern.search(protected):
+   token=f"ZZZAFATERM{index:03d}ZZZ"
+   protected=pattern.sub(token, protected)
+   replacements[token]=official
+ return protected, replacements
+
+def restore_terms(text:str, replacements:dict)->str:
+ for token, official in replacements.items():
+  text=text.replace(token, official)
+  text=text.replace(token.lower(), official)
+ return text
+
+
 def digest(value:str)->str:
  return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
@@ -68,13 +117,15 @@ def install_pair(source:str,target:str)->None:
 
 def translate(text:str,lang:str)->str:
  if not text.strip(): return text
+ protected_text, replacements=protect_terms(text)
  installed=argostranslate.translate.get_installed_languages()
  fr=next((x for x in installed if x.code=="fr"),None)
  en=next((x for x in installed if x.code=="en"),None)
  dst=next((x for x in installed if x.code==lang),None)
  if not fr or not en or not dst: raise RuntimeError(f"Missing Argos language model for fr/en/{lang}")
- english=text if lang=="en" else fr.get_translation(en).translate(text)
+ english=protected_text if lang=="en" else fr.get_translation(en).translate(protected_text)
  result=english if lang=="en" else en.get_translation(dst).translate(english)
+ result=restore_terms(result,replacements)
  if not result or not result.strip(): raise RuntimeError(f"Empty translation for {lang}")
  return result
 
