@@ -12,7 +12,11 @@ FIELDS={
  "tours":("title","summary","description","itinerary","inclusions","exclusions","seo_title","seo_description"),
  "destinations":("name","summary","description","seo_title","seo_description"),
 }
-HEADERS={"apikey":KEY,"Authorization":f"Bearer {KEY}","Content-Type":"application/json","Prefer":"return=minimal"}
+# Modern Supabase secret keys (sb_secret_...) are API keys, not JWTs.
+# Send them only via apikey; legacy service_role keys are JWTs and also use Bearer auth.
+HEADERS={"apikey":KEY,"Content-Type":"application/json","Prefer":"return=minimal"}
+if KEY and not KEY.startswith("sb_secret_"):
+ HEADERS["Authorization"]=f"Bearer {KEY}"
 SESSION=requests.Session()
 
 def digest(value:str)->str:
