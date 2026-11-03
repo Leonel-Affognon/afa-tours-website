@@ -5,8 +5,8 @@ import requests
 import argostranslate.package
 import argostranslate.translate
 
-BASE=os.environ["SUPABASE_URL"].rstrip("/")
-KEY=os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+BASE=os.getenv("SUPABASE_URL","").rstrip("/")
+KEY=os.getenv("SUPABASE_SERVICE_ROLE_KEY","")
 LANGS=("en","de","es","pt")
 FIELDS={
  "tours":("title","summary","description","itinerary","inclusions","exclusions","seo_title","seo_description"),
@@ -120,7 +120,13 @@ def process(table:str):
 def main():
  if os.getenv("DRY_RUN","true").lower()!="false":
   print("DRY_RUN enabled: no Supabase writes. Set DRY_RUN=false to publish translations.")
+  if not BASE or not KEY:
+   print("Supabase secrets absent: syntax and safety checks only.")
+   return
+  print("Dry-run does not connect to or modify Supabase. Use the unit tests for deterministic safety checks.")
   return
+ if not BASE or not KEY:
+  raise RuntimeError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in write mode.")
  for pair in (("fr","en"),("en","de"),("en","es"),("en","pt")): install_pair(*pair)
  total=sum(process(table) for table in FIELDS)
  print(f"Completed: {total} records updated")
