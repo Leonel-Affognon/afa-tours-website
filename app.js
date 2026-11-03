@@ -71,15 +71,18 @@ const currencyButton=(amount,currency="XOF")=>'<span class="afa-price-currency" 
 async function loadPublishedTours() {
   const grid = document.querySelector(".tour-grid");
   if (!grid) return;
-  const { data, error } = await supabase.from("tours").select("id,slug,title,summary,location,duration,price_from,currency,cover_image,featured").eq("status","published").in("content_type",["tour","excursion","experience"]).order("sort_order");
+  const { data, error } = await supabase.from("tours").select("id,slug,title,summary,location,duration,price_from,currency,cover_image,featured,translations").eq("status","published").in("content_type",["tour","excursion","experience"]).order("sort_order");
   if (error || !data?.length) return; // Keep editorial fallback cards until tours are added in the admin.
-  grid.innerHTML = data.map(t => `
+  grid.innerHTML = data.map(t => {
+    const translated = window.AFA_TRANSLATE ? window.AFA_TRANSLATE(t, ["title", "summary"]) : t;
+    return `
     <article class="tour-card">
       <div class="tour-image" style="${safeImageStyle(t.cover_image)}"><span class="image-label">${escapeHtml(t.location || "BÉNIN")}</span></div>
       <div class="tour-info"><div class="tour-meta">${escapeHtml(t.duration || "CIRCUIT AFA")}</div>
-      <h3>${escapeHtml(t.title)}</h3><p>${escapeHtml(t.summary)}</p>
+      <h3>${escapeHtml(translated.title)}</h3><p>${escapeHtml(translated.summary)}</p>
       ${t.price_from ? `<p class="tour-price">À partir de ${Number(t.price_from).toLocaleString("fr-FR")} ${escapeHtml(t.currency)} ${currencyButton(t.price_from,t.currency||"XOF")}</p>` : ""}
-      <a href="#booking" class="text-link dynamic-tour" data-tour="${escapeHtml(t.title)}">Demander les détails <span>↗</span></a></div></article>`).join("");
+      <a href="#booking" class="text-link dynamic-tour" data-tour="${escapeHtml(t.title)}">Demander les détails <span>↗</span></a></div></article>`;
+  }).join("");
   grid.querySelectorAll(".dynamic-tour").forEach(a => a.addEventListener("click", () => {
     const select = document.getElementById("tourSelect");
     if (select && ![...select.options].some(o => o.value === a.dataset.tour)) {
