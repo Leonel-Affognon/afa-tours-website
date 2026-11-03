@@ -1,5 +1,8 @@
 name: Automatic catalogue translations
 on:
+  push:
+    branches:
+      - work/multilingual-safety-2026-11-03
   workflow_dispatch:
     inputs:
       dry_run:
@@ -35,7 +38,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+          DRY_RUN: ${{ github.event_name == 'push' && 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false') }}
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
             echo "Supabase secrets are not configured; safely skipping database access."
