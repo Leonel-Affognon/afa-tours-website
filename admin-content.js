@@ -69,6 +69,7 @@ export async function renderContentManager(root){
   const fieldMeta=translations._meta?.languages?.[lang]?.fields||{};
   for(const field of new Set([...Object.keys(oldFields),...Object.keys(newFields)])){
    if(oldFields[field]!==newFields[field]){
+    if(!(field in newFields))newFields[field]="";
     translations._meta=translations._meta||{};
     translations._meta.languages=translations._meta.languages||{};
     translations._meta.languages[lang]=translations._meta.languages[lang]||{fields:{}};
