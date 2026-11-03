@@ -42,7 +42,7 @@ export async function renderContentManager(root){
  '<label>Ordre affichage<input name="sort_order" type="number" value="0"></label>'+
  '<label class="catalog-wide">Résumé<textarea name="summary" required maxlength="500"></textarea></label>'+
  '<label class="catalog-wide">Description complète<textarea name="description" rows="4"></textarea></label>'+
- '<label class="catalog-wide">Traductions (JSON : en, de, es, pt)<textarea name="translations_json" rows="8" placeholder="{&quot;en&quot;:{&quot;title&quot;:&quot;...&quot;,&quot;summary&quot;:&quot;...&quot;,&quot;description&quot;:&quot;...&quot;}}"></textarea><small>Le français reste la version principale. Renseignez les champs title, summary et description pour chaque langue.</small></label>'+
+ '<label class="catalog-wide">Traductions (JSON : en, de, es, pt)<textarea name="translations_json" rows="12" placeholder="{&quot;en&quot;:{&quot;title&quot;:&quot;...&quot;,&quot;summary&quot;:&quot;...&quot;,&quot;description&quot;:&quot;...&quot;}}"></textarea><small>Les traductions automatiques apparaîtront ici. Tu peux corriger librement chaque texte. Les corrections manuelles seront protégées et ne seront pas remplacées par le moteur automatique. Conserve la structure JSON et les clés _meta lors de l’édition.</small></label>'+
  '<label class="catalog-wide">Programme / itinéraire<textarea name="itinerary" rows="4"></textarea></label>'+
  '<label class="catalog-wide">Inclus<textarea name="inclusions" rows="2"></textarea></label>'+
  '<label class="catalog-wide">Non inclus<textarea name="exclusions" rows="2"></textarea></label>'+
