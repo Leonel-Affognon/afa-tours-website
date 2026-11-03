@@ -30,6 +30,18 @@ worker = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(worker)
 
 class TranslationWorkerSafetyTests(unittest.TestCase):
+    def test_beninese_proper_names_are_protected_and_restored(self):
+        source = "Découvrez Vodun Days à Ganvie et la Bouche du Roy avec AFA TOURS."
+        protected, replacements = worker.protect_terms(source)
+        self.assertNotIn("Vodun Days", protected)
+        self.assertNotIn("Ganvie", protected)
+        self.assertIn("ZZZAFATERM", protected)
+        restored = worker.restore_terms(protected, replacements)
+        self.assertIn("Vodun Days", restored)
+        self.assertIn("Ganvié", restored)
+        self.assertIn("Bouche du Roy", restored)
+        self.assertIn("AFA TOURS", restored)
+
     def test_digest_is_deterministic(self):
         self.assertEqual(worker.digest("Bonjour"), worker.digest("Bonjour"))
         self.assertNotEqual(worker.digest("Bonjour"), worker.digest("Bonsoir"))
