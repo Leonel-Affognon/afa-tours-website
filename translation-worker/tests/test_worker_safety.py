@@ -42,6 +42,11 @@ class TranslationWorkerSafetyTests(unittest.TestCase):
         self.assertIn("Bouche du Roy", restored)
         self.assertIn("AFA TOURS", restored)
 
+    def test_tourism_glossary_normalizes_common_errors(self):
+        self.assertEqual(worker.normalize_translation("Vodun Dias em Ganvia", "pt"), "Vodun Days em Ganvié")
+        self.assertEqual(worker.normalize_translation("catering y canasta", "es"), "servicio de comidas y cestería")
+        self.assertEqual(worker.normalize_translation("Catering in Punjari", "de"), "Verpflegung in Pendjari")
+
     def test_digest_is_deterministic(self):
         self.assertEqual(worker.digest("Bonjour"), worker.digest("Bonjour"))
         self.assertNotEqual(worker.digest("Bonjour"), worker.digest("Bonsoir"))
