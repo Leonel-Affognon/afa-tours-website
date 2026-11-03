@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Translate French catalogue fields into EN/DE/ES/PT without overwriting manual edits."""
 import hashlib, json, os, sys, time
-from typing import Any
 import requests
 import argostranslate.package
 import argostranslate.translate
@@ -21,8 +20,14 @@ def digest(value:str)->str:
 
 def install_pair(source:str,target:str)->None:
  installed=argostranslate.translate.get_installed_languages()
- if any(x.code==source and any(y.code==target for y in x.get_translation(target_lang=None)) for x in installed):
-  return
+ src=next((x for x in installed if x.code==source),None)
+ dst=next((x for x in installed if x.code==target),None)
+ if src and dst:
+  try:
+   src.get_translation(dst)
+   return
+  except Exception:
+   pass
  argostranslate.package.update_package_index()
  packages=argostranslate.package.get_available_packages()
  pkg=next((p for p in packages if p.from_code==source and p.to_code==target),None)
@@ -33,10 +38,12 @@ def install_pair(source:str,target:str)->None:
 def translate(text:str,lang:str)->str:
  if not text.strip(): return text
  installed=argostranslate.translate.get_installed_languages()
- src=next((x for x in installed if x.code=="fr"),None)
+ fr=next((x for x in installed if x.code=="fr"),None)
+ en=next((x for x in installed if x.code=="en"),None)
  dst=next((x for x in installed if x.code==lang),None)
- if not src or not dst: raise RuntimeError(f"Missing language model fr->{lang}")
- result=src.get_translation(dst).translate(text)
+ if not fr or not en or not dst: raise RuntimeError(f"Missing Argos language model for fr/en/{lang}")
+ english=text if lang=="en" else fr.get_translation(en).translate(text)
+ result=english if lang=="en" else en.get_translation(dst).translate(english)
  if not result or not result.strip(): raise RuntimeError(f"Empty translation for {lang}")
  return result
 
