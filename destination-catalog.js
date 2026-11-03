@@ -24,15 +24,15 @@ async function loadDestinations() {
     const imageUrl = safeUrl(item.cover_image);
     if (imageUrl) { const image = document.createElement("img"); image.src = imageUrl; image.alt = title + " — " + (item.country || "Bénin"); image.loading = "lazy"; image.decoding = "async"; image.style.cssText = "width:100%;height:100%;object-fit:cover;position:absolute;inset:0"; link.append(image); }
     const copy = document.createElement("div"); copy.className = "destination-copy";
-    copy.append(text("p", item.region || item.country || "Bénin")); copy.lastChild.className = "eyebrow";
+    copy.append(text("p", window.AFA_TEXT ? window.AFA_TEXT(item.region || item.country || "Bénin") : (item.region || item.country || "Bénin"))); copy.lastChild.className = "eyebrow";
     copy.append(text("h2", title));
-    copy.append(text("p", translated.summary || translated.description || "Découvrez cette destination avec AFA TOURS."));
+    copy.append(text("p", translated.summary || translated.description || (window.AFA_TEXT ? window.AFA_TEXT("Découvrez cette destination avec AFA TOURS.") : "Découvrez cette destination avec AFA TOURS.")));
     if (Array.isArray(item.gallery) && item.gallery.length) {
       const gallery = document.createElement("div"); gallery.className = "destination-mini-gallery"; gallery.setAttribute("aria-label", "Galerie de " + title);
       item.gallery.slice(0, 4).forEach((url, index) => { const src = safeUrl(url); if (!src) return; const img = document.createElement("img"); img.src = src; img.alt = title + " — photo " + (index + 1); img.loading = "lazy"; img.decoding = "async"; gallery.append(img); });
       copy.append(gallery);
     }
-    const action = text("a", "Préparer cette découverte ↗"); action.className = "text-link"; action.href = link.href; copy.append(action);
+    const action = text("a", (window.AFA_TEXT ? window.AFA_TEXT("Préparer cette découverte") : "Préparer cette découverte") + " ↗"); action.className = "text-link"; action.href = link.href; copy.append(action);
     article.append(link, copy); grid.append(article);
   }
 }
