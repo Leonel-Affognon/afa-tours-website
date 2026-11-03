@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: work/multilingual-safety-2026-11-03
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -40,5 +40,9 @@ jobs:
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
             echo "Supabase secrets are not configured; safely skipping database access."
             exit 0
+          fi
+          if [ "$GITHUB_REF_NAME" != "main" ] && [ "$DRY_RUN" = "false" ]; then
+            echo "Write mode is disabled outside main; no database changes were made."
+            exit 1
           fi
           python translation-worker/worker.py
