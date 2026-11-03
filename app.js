@@ -74,7 +74,7 @@ async function loadPublishedTours() {
   const { data, error } = await supabase.from("tours").select("id,slug,title,summary,location,duration,price_from,currency,cover_image,featured,translations").eq("status","published").in("content_type",["tour","excursion","experience"]).order("sort_order");
   if (error || !data?.length) return; // Keep editorial fallback cards until tours are added in the admin.
   grid.innerHTML = data.map(t => {
-    const translated = window.AFA_TRANSLATE ? window.AFA_TRANSLATE(t, ["title", "summary"]) : t;
+    const translated = window.AFA_TRANSLATE ? window.AFA_TRANSLATE(t, ["title", "summary", "description"]) : t;
     return `
     <article class="tour-card">
       <div class="tour-image" style="${safeImageStyle(t.cover_image)}"><span class="image-label">${escapeHtml(t.location || "BÉNIN")}</span></div>
