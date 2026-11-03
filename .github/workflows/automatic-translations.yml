@@ -34,6 +34,8 @@ jobs:
         run: pip install -r translation-worker/requirements.txt
       - name: Verify Python worker syntax
         run: python -m py_compile translation-worker/worker.py
+      - name: Run translation safety tests
+        run: python -m unittest discover -s translation-worker/tests -v
       - name: Verify modified JavaScript syntax
         shell: bash
         run: |
