@@ -33,6 +33,7 @@ def merge_translations(latest:dict, proposed:dict, table:str)->dict:
    current=latest_lang.get(field)
    current_meta=latest_fields.get(field,{})
    # Preserve anything that is not positively identified as worker-generated.
+   if current_meta.get("origin")=="manual": continue
    if current and current_meta.get("origin")!="argos": continue
    # A generated value edited outside the worker becomes human-owned.
    if current and current_meta.get("target_hash")!=digest(current):
@@ -100,6 +101,7 @@ def process(table:str, dry_run:bool=False):
     old_value=target.get(field)
     # Values without Argos provenance are manual. If an Argos value was edited in admin,
     # its current hash no longer matches target_hash: protect that manual correction forever.
+    if old_meta.get("origin")=="manual": continue
     if old_value and old_meta.get("origin")!="argos": continue
     if old_value and old_meta.get("origin")=="argos" and old_meta.get("target_hash")!=digest(old_value):
      field_meta[field]={"origin":"manual","updated_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())}
