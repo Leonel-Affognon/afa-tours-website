@@ -68,7 +68,7 @@ async function renderDestinations(){
  for(const lang of ["en","de","es","pt"]){
   const oldFields=previous[lang]||{},newFields=translations[lang]||{};
   for(const field of new Set([...Object.keys(oldFields),...Object.keys(newFields)])){
-   if(oldFields[field]!==newFields[field]&&newFields[field]){
+   if(oldFields[field]!==newFields[field]){
     translations._meta=translations._meta||{};
     translations._meta.languages=translations._meta.languages||{};
     translations._meta.languages[lang]=translations._meta.languages[lang]||{fields:{}};
