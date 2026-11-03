@@ -73,8 +73,13 @@ def process(table:str):
     source_hash=digest(source)
     old_meta=field_meta.get(field,{})
     old_value=target.get(field)
-    # Existing values without Argos provenance are treated as manual and never replaced.
+    # Values without Argos provenance are manual. If an Argos value was edited in admin,
+    # its current hash no longer matches target_hash: protect that manual correction forever.
     if old_value and old_meta.get("origin")!="argos": continue
+    if old_value and old_meta.get("origin")=="argos" and old_meta.get("target_hash")!=digest(old_value):
+     field_meta[field]={"origin":"manual","updated_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())}
+     changed=True
+     continue
     if old_value and old_meta.get("source_hash")==source_hash: continue
     translated=translate(source,lang)
     target[field]=translated
