@@ -15,7 +15,8 @@ async function loadExperiences() {
     const exists = Array.from(grid.querySelectorAll(".destination-copy h2"))
       .some(heading => heading.textContent.trim().toLocaleLowerCase() === title.toLocaleLowerCase());
     if (exists) continue;
-    const place = item.destination?.name || item.location || "Bénin";
+    const destinationText = item.destination && window.AFA_TRANSLATE ? window.AFA_TRANSLATE(item.destination, ["name"]) : item.destination;
+    const place = destinationText?.name || item.location || "Bénin";
     const article = document.createElement("article"); article.className = "destination-card reveal";
     const link = document.createElement("a"); link.className = "destination-image"; link.href = "contact.html?content=" + encodeURIComponent(item.slug || title) + "#booking";
     link.append(text("span", String(grid.children.length + 1).padStart(2, "0")));
