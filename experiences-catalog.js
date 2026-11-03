@@ -5,7 +5,7 @@ const safeUrl = value => { try { const url = new URL(value); return ["https:", "
 async function loadExperiences() {
   if (!grid) return;
   const { data, error } = await supabase.from("tours")
-    .select("id,slug,title,summary,description,location,duration,price_from,currency,cover_image,gallery,itinerary,translations,destination:destinations(name)")
+    .select("id,slug,title,summary,description,location,duration,price_from,currency,cover_image,gallery,itinerary,translations,destination:destinations(name,translations)")
     .eq("status", "published").eq("content_type", "experience").order("sort_order");
   if (error) { console.error("AFA experiences:", error); return; }
   for (const item of data || []) {
