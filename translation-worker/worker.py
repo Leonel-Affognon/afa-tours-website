@@ -18,6 +18,31 @@ SESSION=requests.Session()
 def digest(value:str)->str:
  return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
+def merge_translations(latest:dict, proposed:dict, table:str)->dict:
+ """Merge generated fields while preserving every human-owned value."""
+ if not isinstance(latest,dict): latest={}
+ merged=json.loads(json.dumps(latest))
+ proposed_meta=proposed.get("_meta",{}).get("languages",{})
+ for lang in LANGS:
+  latest_lang=merged.setdefault(lang,{})
+  latest_fields=merged.get("_meta",{}).get("languages",{}).get(lang,{}).get("fields",{})
+  proposed_lang=proposed.get(lang,{})
+  proposed_fields=proposed_meta.get(lang,{}).get("fields",{})
+  for field,value in proposed_lang.items():
+   if field not in FIELDS[table]: continue
+   current=latest_lang.get(field)
+   current_meta=latest_fields.get(field,{})
+   # Preserve anything that is not positively identified as worker-generated.
+   if current and current_meta.get("origin")!="argos": continue
+   # A generated value edited outside the worker becomes human-owned.
+   if current and current_meta.get("target_hash")!=digest(current):
+    merged.setdefault("_meta",{}).setdefault("languages",{}).setdefault(lang,{"fields":{}}).setdefault("fields",{})[field]={"origin":"manual","updated_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())}
+    continue
+   merged_lang_meta=merged.setdefault("_meta",{}).setdefault("languages",{}).setdefault(lang,{"fields":{}}).setdefault("fields",{})
+   merged_lang_meta[field]=proposed_fields.get(field,{})
+   latest_lang[field]=value
+ return merged
+
 def install_pair(source:str,target:str)->None:
  installed=argostranslate.translate.get_installed_languages()
  src=next((x for x in installed if x.code==source),None)
@@ -99,25 +124,7 @@ def process(table:str, dry_run:bool=False):
     print(f"{table} {row['id']}: row disappeared; skipped")
     continue
    latest=latest_rows[0].get("translations") or {}
-   if not isinstance(latest,dict): latest={}
-   for lang in LANGS:
-    latest_lang=latest.setdefault(lang,{})
-    latest_meta=latest.get("_meta",{}).get("languages",{}).get(lang,{}).get("fields",{})
-    local_lang=translations.get(lang,{})
-    local_meta=meta.get(lang,{}).get("fields",{})
-    for field,value in local_lang.items():
-     if field not in FIELDS[table]: continue
-     latest_value=latest_lang.get(field)
-     latest_field_meta=latest_meta.get(field,{})
-     # Any pre-existing value without explicit Argos provenance is human-owned.
-     # This also protects translations added by older admin versions.
-     if latest_value and latest_field_meta.get("origin")!="argos":
-      continue
-     local_field_meta=local_meta.get(field,{})
-     if latest_value and latest_field_meta.get("origin")=="argos" and latest_field_meta.get("target_hash")!=digest(latest_value):
-      continue
-     latest_lang[field]=value
-     latest.setdefault("_meta",{}).setdefault("languages",{}).setdefault(lang,{"fields":{}}).setdefault("fields",{})[field]=local_field_meta
+   latest=merge_translations(latest,translations,table)
    response=SESSION.patch(f"{BASE}/rest/v1/{table}",headers=HEADERS,params={"id":f"eq.{row['id']}"},json={"translations":latest},timeout=45)
    response.raise_for_status();count+=1
  print(f"{table}: {count} record(s) updated")
