@@ -66,6 +66,13 @@ class TranslationWorkerSafetyTests(unittest.TestCase):
         merged = worker.merge_translations(latest, proposed, "tours")
         self.assertEqual(merged["en"]["title"], new)
 
+    def test_manual_blank_translation_is_not_regenerated(self):
+        translations = {"en": {"title": ""}, "_meta": {"languages": {"en": {"fields": {"title": {"origin": "manual"}}}}}}
+        proposed = {"en": {"title": "Generated title"}, "_meta": {"languages": {"en": {"fields": {"title": {"origin": "argos", "target_hash": worker.digest("Generated title")}}}}}}
+        merged = worker.merge_translations(translations, proposed, "tours")
+        self.assertEqual(merged["en"]["title"], "")
+        self.assertEqual(merged["_meta"]["languages"]["en"]["fields"]["title"]["origin"], "manual")
+
     def test_merge_detects_human_edit_of_argos_value(self):
         latest = {"en": {"title": "Human correction"},"_meta": {"languages": {"en": {"fields": {"title": {"origin": "argos", "target_hash": worker.digest("Original Argos")}}}}}}
         proposed = {"en": {"title": "New Argos"},"_meta": {"languages": {"en": {"fields": {"title": {"origin": "argos", "target_hash": worker.digest("New Argos")}}}}}}
