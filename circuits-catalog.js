@@ -27,10 +27,10 @@ async function loadCircuits() {
     const eyebrow = text("p", place.toUpperCase() + " · CIRCUIT AFA"); eyebrow.className = "eyebrow"; copy.append(eyebrow);
     copy.append(text("h2", title), text("p", translated.description || translated.summary || ""));
     if (Array.isArray(item.gallery) && item.gallery.length) { const gallery = document.createElement("div"); gallery.className = "destination-mini-gallery"; gallery.setAttribute("aria-label", "Photos de " + title); item.gallery.slice(0, 4).forEach((url, index) => { const src = safeUrl(url); if (!src) return; const img = document.createElement("img"); img.src = src; img.alt = title + " — photo " + (index + 1); img.loading = "lazy"; img.decoding = "async"; gallery.append(img); }); copy.append(gallery); }
-    if (translated.itinerary || item.itinerary) { const stops = text("p", "Étapes : " + (translated.itinerary || item.itinerary)); copy.append(stops); }
-    copy.append(text("p", "Durée indicative : " + (item.duration || "À confirmer")));
-    copy.append(text("p", "Tarif : " + (item.price_from ? Number(item.price_from).toLocaleString("fr-FR") + " " + (item.currency || "XOF") : "Sur demande")));
-    const action = text("a", "Demander ce circuit ↗"); action.className = "text-link"; action.href = link.href; copy.append(action);
+    if (translated.itinerary || item.itinerary) { const stops = text("p", (window.AFA_TEXT ? window.AFA_TEXT("Étapes :") : "Étapes :") + " " + (translated.itinerary || item.itinerary)); copy.append(stops); }
+    copy.append(text("p", (window.AFA_TEXT ? window.AFA_TEXT("Durée indicative :") : "Durée indicative :") + " " + (item.duration || (window.AFA_TEXT ? window.AFA_TEXT("À confirmer") : "À confirmer"))));
+    copy.append(text("p", (window.AFA_TEXT ? window.AFA_TEXT("Tarif :") : "Tarif :") + " " + (item.price_from ? Number(item.price_from).toLocaleString("fr-FR") + " " + (item.currency || "XOF") : (window.AFA_TEXT ? window.AFA_TEXT("Sur demande") : "Sur demande"))));
+    const action = text("a", (window.AFA_TEXT ? window.AFA_TEXT("Demander ce circuit") : "Demander ce circuit") + " ↗"); action.className = "text-link"; action.href = link.href; copy.append(action);
     article.append(link, copy); grid.append(article);
   }
 }
