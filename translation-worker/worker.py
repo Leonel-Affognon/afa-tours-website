@@ -47,7 +47,7 @@ def translate(text:str,lang:str)->str:
  if not result or not result.strip(): raise RuntimeError(f"Empty translation for {lang}")
  return result
 
-def rest_get(table:str):
+def rest_get(table:str, dry_run:bool=False):
  rows=[]; offset=0
  while True:
   r=SESSION.get(f"{BASE}/rest/v1/{table}",headers={**HEADERS,"Range":f"{offset}-{offset+99}"},params={"select":"id,translations,"+",".join(FIELDS[table]),"limit":"100"},timeout=45)
@@ -56,7 +56,7 @@ def rest_get(table:str):
   offset+=100
  return rows
 
-def process(table:str):
+def process(table:str, dry_run:bool=False):
  count=0
  for row in rest_get(table):
   translations=row.get("translations") or {}
@@ -85,6 +85,10 @@ def process(table:str):
     target[field]=translated
     field_meta[field]={"origin":"argos","source_hash":source_hash,"target_hash":digest(translated),"updated_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())}
     changed=True
+  if changed and dry_run:
+   print(f"{table} {row['id']}: would update translations (dry-run)")
+   count+=1
+   continue
   if changed:
    # Re-read immediately before writing so admin corrections made while translation
    # was running are merged and never lost to a stale JSONB snapshot.
@@ -118,18 +122,15 @@ def process(table:str):
  return count
 
 def main():
- if os.getenv("DRY_RUN","true").lower()!="false":
-  print("DRY_RUN enabled: no Supabase writes. Set DRY_RUN=false to publish translations.")
-  if not BASE or not KEY:
-   print("Supabase secrets absent: syntax and safety checks only.")
-   return
-  print("Dry-run does not connect to or modify Supabase. Use the unit tests for deterministic safety checks.")
-  return
+ dry_run=os.getenv("DRY_RUN","true").lower()!="false"
  if not BASE or not KEY:
+  if dry_run:
+   print("Supabase secrets absent: syntax and unit tests only.")
+   return
   raise RuntimeError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in write mode.")
  for pair in (("fr","en"),("en","de"),("en","es"),("en","pt")): install_pair(*pair)
- total=sum(process(table) for table in FIELDS)
- print(f"Completed: {total} records updated")
+ total=sum(process(table,dry_run=dry_run) for table in FIELDS)
+ print(f"Completed: {total} records {'would be updated' if dry_run else 'updated'}")
 
 if __name__=="__main__":
  try: main()
