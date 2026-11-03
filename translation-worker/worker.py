@@ -109,7 +109,9 @@ def process(table:str, dry_run:bool=False):
      if field not in FIELDS[table]: continue
      latest_value=latest_lang.get(field)
      latest_field_meta=latest_meta.get(field,{})
-     if latest_value and latest_field_meta.get("origin")=="manual":
+     # Any pre-existing value without explicit Argos provenance is human-owned.
+     # This also protects translations added by older admin versions.
+     if latest_value and latest_field_meta.get("origin")!="argos":
       continue
      local_field_meta=local_meta.get(field,{})
      if latest_value and latest_field_meta.get("origin")=="argos" and latest_field_meta.get("target_hash")!=digest(latest_value):
