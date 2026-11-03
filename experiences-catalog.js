@@ -23,12 +23,12 @@ async function loadExperiences() {
     const imageUrl = safeUrl(item.cover_image);
     if (imageUrl) { const image = document.createElement("img"); image.src = imageUrl; image.alt = title + " — " + place; image.loading = "lazy"; image.decoding = "async"; image.style.cssText = "width:100%;height:100%;object-fit:cover;position:absolute;inset:0"; link.append(image); }
     const copy = document.createElement("div"); copy.className = "destination-copy";
-    const eyebrow = text("p", place.toUpperCase() + " · EXPÉRIENCE AFA"); eyebrow.className = "eyebrow"; copy.append(eyebrow);
+    const eyebrow = text("p", (window.AFA_TEXT ? window.AFA_TEXT(place.toUpperCase()) : place.toUpperCase()) + " · " + (window.AFA_TEXT ? window.AFA_TEXT("EXPÉRIENCE AFA") : "EXPÉRIENCE AFA")); eyebrow.className = "eyebrow"; copy.append(eyebrow);
     copy.append(text("h2", title), text("p", translated.description || translated.summary || ""));
     if (Array.isArray(item.gallery) && item.gallery.length) { const gallery = document.createElement("div"); gallery.className = "destination-mini-gallery"; gallery.setAttribute("aria-label", "Photos de " + title); item.gallery.slice(0, 4).forEach((url, index) => { const src = safeUrl(url); if (!src) return; const img = document.createElement("img"); img.src = src; img.alt = title + " — photo " + (index + 1); img.loading = "lazy"; img.decoding = "async"; gallery.append(img); }); copy.append(gallery); }
     if (translated.itinerary || item.itinerary) copy.append(text("p", translated.itinerary || item.itinerary));
-    copy.append(text("p", "Durée : " + (item.duration || "À confirmer") + " · Tarif : " + (item.price_from ? Number(item.price_from).toLocaleString("fr-FR") + " " + (item.currency || "XOF") : "Sur demande")));
-    const action = text("a", "Demander cette expérience ↗"); action.className = "text-link"; action.href = link.href; copy.append(action);
+    copy.append(text("p", (window.AFA_TEXT ? window.AFA_TEXT("Durée :") : "Durée :") + " " + (item.duration || (window.AFA_TEXT ? window.AFA_TEXT("À confirmer") : "À confirmer")) + " · " + (window.AFA_TEXT ? window.AFA_TEXT("Tarif :") : "Tarif :") + " " + (item.price_from ? Number(item.price_from).toLocaleString("fr-FR") + " " + (item.currency || "XOF") : (window.AFA_TEXT ? window.AFA_TEXT("Sur demande") : "Sur demande"))));
+    const action = text("a", (window.AFA_TEXT ? window.AFA_TEXT("Demander cette expérience") : "Demander cette expérience") + " ↗"); action.className = "text-link"; action.href = link.href; copy.append(action);
     article.append(link, copy); grid.append(article);
   }
 }
