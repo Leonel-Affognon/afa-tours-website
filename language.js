@@ -2,8 +2,7 @@
 (() => {
  const supported=["fr","en","de","es","pt"];
  const get=k=>{try{return localStorage.getItem(k)}catch(_){return null}};
- const browser=[...(navigator.languages||[]),navigator.language||"fr"].map(x=>String(x).slice(0,2).toLowerCase()).find(x=>supported.includes(x))||"fr";
- let selected=supported.includes(get("afa-language"))?get("afa-language"):browser;
+ let selected=supported.includes(get("afa-language"))?get("afa-language"):"fr";
  const select=document.getElementById("language");
  const isHome=["","index.html"].includes(location.pathname.split("/").pop());
  const set=value=>{selected=value;try{localStorage.setItem("afa-language",value)}catch(_){}document.documentElement.lang=value;if(select)select.value=value;};
