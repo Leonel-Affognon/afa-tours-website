@@ -31,7 +31,7 @@ async function loadAgenda(){
  let data=[];
  try{
   const result=await Promise.race([
-   supabase.from("tours").select("id,slug,title,summary,description,location,country,city,duration,price_from,ticket_price,currency,cover_image,gallery,video_url,pricing_options,event_start_date,event_end_date,organizer,booking_mode,content_type,itinerary,inclusions,exclusions,meeting_point").eq("status","published").in("content_type",["festival","event"]).order("event_start_date",{ascending:true,nullsFirst:false}),
+   supabase.from("tours").select("id,slug,title,summary,description,location,country,city,duration,price_from,ticket_price,currency,cover_image,gallery,video_url,pricing_options,event_start_date,event_end_date,organizer,booking_mode,content_type,itinerary,inclusions,exclusions,meeting_point,translations").eq("status","published").in("content_type",["festival","event"]).order("event_start_date",{ascending:true,nullsFirst:false}),
    new Promise((_,reject)=>setTimeout(()=>reject(new Error("timeout")),8000))
   ]);
   if(result.error)throw result.error;
@@ -40,8 +40,8 @@ async function loadAgenda(){
  if(!data.length)data=[fallbackVodun];
  root.innerHTML=data.map(item=>{
   const tr=window.AFA_TRANSLATE?window.AFA_TRANSLATE(item,["title","summary","description","itinerary","inclusions","exclusions"]):item;const title=esc(tr.title),slug=encodeURIComponent(item.slug||"festival");
-  const date=item.event_start_date?new Date(item.event_start_date+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}):"Dates à confirmer";
-  const end=item.event_end_date?new Date(item.event_end_date+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}):"";
+  const date=item.event_start_date?new Date(item.event_start_date+"T12:00:00").toLocaleDateString(({fr:"fr-FR",en:"en-GB",de:"de-DE",es:"es-ES",pt:"pt-PT"})[window.AFA_LANGUAGE]||"fr-FR",{day:"numeric",month:"long",year:"numeric"}):"Dates à confirmer";
+  const end=item.event_end_date?new Date(item.event_end_date+"T12:00:00").toLocaleDateString(({fr:"fr-FR",en:"en-GB",de:"de-DE",es:"es-ES",pt:"pt-PT"})[window.AFA_LANGUAGE]||"fr-FR",{day:"numeric",month:"long",year:"numeric"}):"";
   const cover=safeHttpUrl(item.cover_image||"");
   const photos=Array.isArray(item.gallery)?item.gallery.filter(x=>safeHttpUrl(x)).slice(0,6):[];
   const video=safeHttpUrl(item.video_url||"");
