@@ -32,8 +32,14 @@ jobs:
           cache-dependency-path: translation-worker/requirements.txt
       - name: Install dependencies
         run: pip install -r translation-worker/requirements.txt
-      - name: Verify worker syntax
+      - name: Verify Python worker syntax
         run: python -m py_compile translation-worker/worker.py
+      - name: Verify modified JavaScript syntax
+        shell: bash
+        run: |
+          for file in language.js app.js agenda.js site-locales.js tour-catalog-render.js gallery-catalog.js destination-catalog.js experiences-catalog.js circuits-catalog.js admin.js admin-content.js; do
+            node --input-type=module --check < "$file"
+          done
       - name: Run translation worker
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
