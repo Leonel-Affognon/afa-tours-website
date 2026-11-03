@@ -1,0 +1,37 @@
+name: Automatic catalogue translations
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Run without writing to Supabase"
+        required: true
+        type: boolean
+        default: true
+  schedule:
+    - cron: "*/15 * * * *"
+permissions:
+  contents: read
+concurrency:
+  group: afa-catalogue-translations
+  cancel-in-progress: false
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/multilingual-safety-2026-11-03
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: translation-worker/requirements.txt
+      - name: Install dependencies
+        run: pip install -r translation-worker/requirements.txt
+      - name: Run translation worker
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+        run: python translation-worker/worker.py
