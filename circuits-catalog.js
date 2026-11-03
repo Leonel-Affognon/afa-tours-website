@@ -5,7 +5,7 @@ const safeUrl = value => { try { const url = new URL(value); return ["https:", "
 async function loadCircuits() {
   if (!grid) return;
   const { data, error } = await supabase.from("tours")
-    .select("id,slug,title,summary,description,location,country,duration,price_from,currency,cover_image,gallery,itinerary,translations,destination:destinations(name)")
+    .select("id,slug,title,summary,description,location,country,duration,price_from,currency,cover_image,gallery,itinerary,translations,destination:destinations(name,translations)")
     .eq("status", "published").eq("content_type", "tour")
     .not("slug", "in", '("porto-novo-patrimoine","adjarra-au-fil-de-leau")').order("sort_order");
   if (error) { console.error("AFA circuits:", error); return; }
