@@ -29,9 +29,16 @@ jobs:
           cache-dependency-path: translation-worker/requirements.txt
       - name: Install dependencies
         run: pip install -r translation-worker/requirements.txt
+      - name: Verify worker syntax
+        run: python -m py_compile translation-worker/worker.py
       - name: Run translation worker
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
-        run: python translation-worker/worker.py
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "Supabase secrets are not configured; safely skipping database access."
+            exit 0
+          fi
+          python translation-worker/worker.py
