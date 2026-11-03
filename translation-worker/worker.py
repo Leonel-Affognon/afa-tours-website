@@ -62,7 +62,7 @@ def install_pair(source:str,target:str)->None:
  packages=argostranslate.package.get_available_packages()
  pkg=next((p for p in packages if p.from_code==source and p.to_code==target),None)
  if not pkg: raise RuntimeError(f"Argos package unavailable: {source}->{target}")
- path=argostranslate.package.download_package(pkg)
+ path=pkg.download()
  argostranslate.package.install_from_path(path)
 
 def translate(text:str,lang:str)->str:
