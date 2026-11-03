@@ -75,6 +75,19 @@ def restore_terms(text:str, replacements:dict)->str:
   text=text.replace(token.lower(), official)
  return text
 
+# Small post-translation glossary for recurring tourism vocabulary errors.
+LANGUAGE_FIXES = {
+ "de": (("catering","Verpflegung"),("Punjari","Pendjari"),("Großpopo","Grand-Popo"),("Ganvia","Ganvié")),
+ "es": (("catering","servicio de comidas"),("canasta","cestería"),("Punjari","Pendjari"),("Ganvia","Ganvié"),("Río Negro","Black River")),
+ "pt": (("catering","serviço de refeições"),("Vodun Dias","Vodun Days"),("Dias de Vodun","Vodun Days"),("cestinha","cestaria"),("Punjari","Pendjari"),("Grande Popo","Grand-Popo"),("Ganvia","Ganvié"),("Rio Negro","Black River")),
+}
+
+def normalize_translation(text:str, lang:str)->str:
+ for wrong, right in LANGUAGE_FIXES.get(lang, ()):
+  import re
+  text=re.sub(re.escape(wrong), right, text, flags=re.IGNORECASE)
+ return text
+
 
 def digest(value:str)->str:
  return hashlib.sha256(value.encode("utf-8")).hexdigest()
@@ -132,7 +145,7 @@ def translate(text:str,lang:str)->str:
  if not fr or not en or not dst: raise RuntimeError(f"Missing Argos language model for fr/en/{lang}")
  english=protected_text if lang=="en" else fr.get_translation(en).translate(protected_text)
  result=english if lang=="en" else en.get_translation(dst).translate(english)
- result=restore_terms(result,replacements)
+ result=normalize_translation(restore_terms(result,replacements),lang)
  if not result or not result.strip(): raise RuntimeError(f"Empty translation for {lang}")
  return result
 
