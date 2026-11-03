@@ -18,6 +18,7 @@ HEADERS={"apikey":KEY,"Content-Type":"application/json","Prefer":"return=minimal
 if KEY and not KEY.startswith("sb_secret_"):
  HEADERS["Authorization"]=f"Bearer {KEY}"
 SESSION=requests.Session()
+PREVIEW=[]
 
 def digest(value:str)->str:
  return hashlib.sha256(value.encode("utf-8")).hexdigest()
@@ -117,6 +118,12 @@ def process(table:str, dry_run:bool=False):
     field_meta[field]={"origin":"argos","source_hash":source_hash,"target_hash":digest(translated),"updated_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())}
     changed=True
   if changed and dry_run:
+   preview_fields={}
+   for lang in LANGS:
+    generated={field:translations.get(lang,{}).get(field) for field in FIELDS[table]
+               if translations.get(lang,{}).get(field) and translations.get("_meta",{}).get("languages",{}).get(lang,{}).get("fields",{}).get(field,{}).get("origin")=="argos"}
+    if generated: preview_fields[lang]=generated
+   PREVIEW.append({"table":table,"id":row["id"],"translations":preview_fields})
    print(f"{table} {row['id']}: would update translations (dry-run)")
    count+=1
    continue
@@ -145,6 +152,10 @@ def main():
   raise RuntimeError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required in write mode.")
  for pair in (("fr","en"),("en","de"),("en","es"),("en","pt")): install_pair(*pair)
  total=sum(process(table,dry_run=dry_run) for table in FIELDS)
+ if dry_run:
+  with open("translation-preview.json","w",encoding="utf-8") as preview_file:
+   json.dump({"mode":"dry-run","records":PREVIEW},preview_file,ensure_ascii=False,indent=2)
+  print(f"Preview saved: {len(PREVIEW)} records in translation-preview.json")
  print(f"Completed: {total} records {'would be updated' if dry_run else 'updated'}")
 
 if __name__=="__main__":
