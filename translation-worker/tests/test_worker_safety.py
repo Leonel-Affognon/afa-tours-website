@@ -5,7 +5,7 @@ import types
 import unittest
 from unittest.mock import Mock
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 worker_path = ROOT / "translation-worker" / "worker.py"
 
 # Stub third-party imports so the safety tests run without downloading language models.
