@@ -72,7 +72,10 @@
  });
 
  for(const lang of ["en","de","es","pt"])Object.assign(L[lang],EXTRA[lang]);
+
  const lang=window.AFA_LANGUAGE||"fr";const dict=L[lang];if(!dict)return;
+ window.AFA_TEXT=(value)=>{const key=String(value??"");return dict[key]||key;};
+
  const translate=node=>{if(node.nodeType!==Node.TEXT_NODE)return;const raw=node.nodeValue;const key=raw.trim();if(!key||!dict[key])return;const start=raw.indexOf(key);node.nodeValue=raw.slice(0,start)+dict[key]+raw.slice(start+key.length);};
  const run=root=>{const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=walker.nextNode()))translate(n);root.querySelectorAll?.("input[placeholder],textarea[placeholder],option,[aria-label],[title]").forEach(el=>{if(el.tagName==="OPTION"&&dict[el.textContent.trim()])el.textContent=dict[el.textContent.trim()];if(el.placeholder&&dict[el.placeholder])el.placeholder=dict[el.placeholder];for(const attr of ["aria-label","title"])if(el.hasAttribute(attr)&&dict[el.getAttribute(attr)])el.setAttribute(attr,dict[el.getAttribute(attr)]);});};
  const apply=()=>{run(document.body);document.title=dict[document.title]||document.title;};
