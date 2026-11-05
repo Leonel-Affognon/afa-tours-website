@@ -75,7 +75,7 @@ export async function renderContentManager(root){
    const uploaded=await supabase.storage.from("afa-public-media").upload(path,file,{contentType:file.type,upsert:false});
    if(uploaded.error)throw uploaded.error;
    const publicUrl=supabase.storage.from("afa-public-media").getPublicUrl(path).data.publicUrl;
-   if(file.type.startsWith("image/"))gallery.push(publicUrl);else if(!video)video=publicUrl;
+   if(file.type.startsWith("image/")){if(!p.cover_image)p.cover_image=publicUrl;gallery.push(publicUrl);}else if(!video)video=publicUrl;
   }
   p.gallery=gallery;p.video_url=video;
  }
