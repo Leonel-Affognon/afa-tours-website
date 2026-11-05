@@ -93,7 +93,7 @@ if(active==="media"){
  });
  return;
 }
-if(active==="tours"){content.innerHTML=tourForm()+table(data,cfg.cols);document.getElementById("tourForm").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.currentTarget),p=Object.fromEntries(f);p.price_from=p.price_from?Number(p.price_from):null;const {error}=await supabase.from("tours").insert(p);if(error)alert(error.message);else render();});return;}
+if(active==="tours"){await renderContentManager(content);return;}
 content.innerHTML="<h2>"+cfg.title+"</h2>"+table(data,cfg.cols);}
 
 async function renderCurrencySettings(){
