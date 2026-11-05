@@ -4,6 +4,21 @@ const STATES=[["draft","Brouillon"],["published","Publié"],["archived","Archiv�
 const safeHttpUrl=(value,label)=>{if(!value)return null;let url;try{url=new URL(value);}catch{throw new Error(label+" : URL invalide.");}if(!["https:","http:"].includes(url.protocol))throw new Error(label+" : utilisez une adresse HTTPS ou HTTP.");return url.href;};
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const opts=(a,s)=>a.map(x=>'<option value="'+x[0]+'" '+(x[0]===s?'selected':'')+'>'+x[1]+'</option>').join("");
+async function prepareMediaFile(file){
+ const isHeic=/\.(heic|heif)$/i.test(file.name)||["image/heic","image/heif","image/heic-sequence","image/heif-sequence"].includes((file.type||"").toLowerCase());
+ if(!isHeic)return file;
+ const objectUrl=URL.createObjectURL(file);
+ try{
+  const image=new Image();
+  await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error("Safari ne peut pas lire cette photo HEIC. Sur iPhone, partage-la en JPEG ou règle Appareil photo > Formats > Le plus compatible."));image.src=objectUrl;});
+  const scale=Math.min(1,2400/Math.max(image.naturalWidth,image.naturalHeight));
+  const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+  const context=canvas.getContext("2d");if(!context)throw new Error("Conversion d’image indisponible sur cet appareil.");
+  context.drawImage(image,0,0,canvas.width,canvas.height);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.88));if(!blob)throw new Error("La conversion de la photo HEIC en JPEG a échoué.");
+  const name=file.name.replace(/\.(heic|heif)$/i,".jpg");return new File([blob],name,{type:"image/jpeg",lastModified:Date.now()});
+ }finally{URL.revokeObjectURL(objectUrl);}
+}
 export async function renderContentManager(root){
  const [loaded,destinationResult]=await Promise.all([supabase.from("tours").select("*").order("updated_at",{ascending:false}).limit(500),supabase.from("destinations").select("id,name,slug,status").order("sort_order")]);
  if(loaded.error){root.innerHTML="<h2>Catalogue complet</h2><p>"+esc(loaded.error.message)+"</p>";return;}
@@ -29,9 +44,10 @@ export async function renderContentManager(root){
  '<label>Capacité<input name="max_capacity" type="number" min="0"></label>'+
  '<label>Organisateur<input name="organizer"></label>'+
  '<label>Point de rencontre<input name="meeting_point"></label>'+
- '<label>Image couverture (URL)<input name="cover_image" type="url"></label>'+ 
+ '<label>Image de couverture (URL)<input name="cover_image" type="url" placeholder="https://..."></label>'+
+ '<div class="catalog-wide afa-cover-preview" id="catalogCoverPreviewBox" style="padding:12px;border:1px solid var(--line);background:white"><strong>Aperçu de la couverture</strong><div style="margin-top:10px"><img id="catalogCoverPreview" alt="Aperçu de l’image de couverture" hidden style="display:block;max-width:100%;max-height:240px;object-fit:cover;border-radius:8px"><span id="catalogCoverPreviewEmpty">Aucune image sélectionnée.</span></div></div>'+ 
  '<label>Galerie photos (URLs, une par ligne)<textarea name="gallery_urls" rows="3" placeholder="https://..."></textarea></label>'+ 
- '<label class="catalog-wide">Importer des photos et des vidéos MP4 / WebM (50 Mo maximum par fichier)<input name="media_files" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple></label><label class="catalog-wide"><input name="replace_cover_with_first_upload" type="checkbox"> Remplacer l’image de couverture par la première photo importée</label>'+ 
+ '<label class="catalog-wide">Ajouter des photos ou vidéos (50 Mo maximum par fichier)<input name="media_files" type="file" accept="image/*,video/mp4,video/webm" multiple><small>Sur iPhone, les photos HEIC sont converties en JPEG lorsque le navigateur peut les lire. La première photo choisie peut devenir la couverture.</small></label><label class="catalog-wide"><input name="replace_cover_with_first_upload" type="checkbox"> Utiliser la première photo importée comme nouvelle couverture</label>'+ 
  '<label class="catalog-wide"><input name="media_rights_confirmed" type="checkbox"> Je confirme que AFA TOURS dispose des droits ou autorisations nécessaires pour publier ces fichiers.</label>'+ 
  '<label>Vidéo hébergée sur le site (URL MP4 / WebM)<input name="video_url" type="url" placeholder="Laissez vide si vous importez une vidéo ci-dessus"><small>Pour afficher une vraie vidéo directement sur AFA TOURS, importez un fichier MP4 ou WebM. Les liens YouTube/Vimeo ne sont pas utilisés dans la fiche du festival.</small></label>'+ 
  '<label class="catalog-wide">Formules et prix (JSON)<textarea name="pricing_options_text" rows="5" placeholder="Exemple de formule JSON"></textarea><small>Chaque formule : name, duration, price, currency, description. Laissez vide si sans formules.</small></label>'+
@@ -53,8 +69,14 @@ export async function renderContentManager(root){
  '<div class="catalog-wide"><button class="button" type="submit">Enregistrer</button> <button class="button" type="button" id="catalogReset">Nouveau / Réinitialiser</button> <span id="catalogFeedback" aria-live="polite"></span></div></form></div>'+
  '<div class="admin-panel"><h3>Contenus enregistrés</h3><label>Recherche<input id="catalogSearch" placeholder="Titre, destination, pays..."></label><div id="catalogRows"></div></div>';
  const form=root.querySelector("#catalogForm"),feedback=root.querySelector("#catalogFeedback"),list=root.querySelector("#catalogRows"),search=root.querySelector("#catalogSearch");
+ const coverPreview=root.querySelector("#catalogCoverPreview"),coverPreviewEmpty=root.querySelector("#catalogCoverPreviewEmpty");
+ let coverPreviewObjectUrl=null;
+ function showCoverPreview(source){if(coverPreviewObjectUrl){URL.revokeObjectURL(coverPreviewObjectUrl);coverPreviewObjectUrl=null;}if(source){coverPreview.src=source;coverPreview.hidden=false;coverPreviewEmpty.hidden=true;}else{coverPreview.removeAttribute("src");coverPreview.hidden=true;coverPreviewEmpty.hidden=false;}}
+ function refreshCoverPreview(){const files=[...(form.elements.media_files?.files||[])];const firstImage=files.find(file=>file.type.startsWith("image/")||/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name));if(firstImage){coverPreviewObjectUrl=URL.createObjectURL(firstImage);showCoverPreview(coverPreviewObjectUrl);form.elements.replace_cover_with_first_upload.checked=true;return;}const current=String(form.elements.cover_image.value||"").trim();showCoverPreview(current||null);}
+ form.elements.cover_image.addEventListener("input",()=>{if(!(form.elements.media_files?.files?.length))refreshCoverPreview();});
+ form.elements.media_files.addEventListener("change",refreshCoverPreview);
  let kind="tour";
- function reset(){form.reset();form.elements.id.value="";form.elements.country.value="Bénin";form.elements.location.value="Bénin";form.elements.currency.value="XOF";form.elements.languages.value="fr,en";form.elements.status.value="draft";form.elements.booking_mode.value="request";form.elements.sort_order.value="0";root.querySelector("#editorTitle").textContent="Ajouter un contenu";feedback.textContent="";}
+ function reset(){form.reset();form.elements.id.value="";form.elements.country.value="Bénin";form.elements.location.value="Bénin";form.elements.currency.value="XOF";form.elements.languages.value="fr,en";form.elements.status.value="draft";form.elements.booking_mode.value="request";form.elements.sort_order.value="0";root.querySelector("#editorTitle").textContent="Ajouter un contenu";feedback.textContent="";refreshCoverPreview();}
  function draw(){const q=search.value.toLowerCase().trim();const visible=rows.filter(r=>(kind==="all"||(r.content_type||"tour")===kind)&&(!q||[r.title,r.country,r.city,r.location,r.slug].some(v=>String(v||"").toLowerCase().includes(q))));
  list.innerHTML=visible.length?'<div style="overflow:auto"><table class="admin-table"><thead><tr><th>Type</th><th>Titre</th><th>Destination</th><th>Dates</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'+visible.map(r=>'<tr><td>'+esc((TYPES.find(t=>t[0]===(r.content_type||"tour"))||[])[1]||r.content_type)+'</td><td><b>'+esc(r.title)+'</b><br><small>'+esc(r.slug)+'</small></td><td>'+esc(r.city||r.location)+' · '+esc(r.country)+'</td><td>'+esc(r.event_start_date||"—")+(r.event_end_date&&r.event_end_date!==r.event_start_date?" → "+esc(r.event_end_date):"")+'</td><td>'+esc(r.status)+'</td><td><button type="button" data-edit="'+r.id+'">Modifier</button><button type="button" data-archive="'+r.id+'">Archiver</button><button type="button" data-delete="'+r.id+'">Supprimer</button></td></tr>').join("")+'</tbody></table></div>':'<p>Aucun contenu trouvé.</p>';
  }
@@ -65,25 +87,31 @@ export async function renderContentManager(root){
  if(p.event_start_date&&p.event_end_date&&p.event_end_date<p.event_start_date)throw new Error("La date de fin doit être après la date de début.");
  if(p.booking_mode==="external"&&!p.registration_url)throw new Error("Le lien d'inscription externe est obligatoire.");
  const uploads=[...(form.elements.media_files?.files||[])];
+ const uploadedPaths=[];let databaseSaved=false;
  let firstUploadedImage=true;
  if(uploads.length){
   if(!form.elements.media_rights_confirmed.checked)throw new Error("Confirmez les droits de publication des fichiers importés.");
   const gallery=[...(p.gallery||[])];let video=p.video_url||null;
-  for(const file of uploads){
+  for(let index=0;index<uploads.length;index++){
+   const originalFile=uploads[index];
+   feedback.textContent="Préparation du fichier "+(index+1)+"/"+uploads.length+"…";
+   const file=await prepareMediaFile(originalFile);
    const allowed=["image/jpeg","image/png","image/webp","video/mp4","video/webm"];
-   if(!allowed.includes(file.type)||file.size>50*1024*1024)throw new Error("Fichier non accepté : JPEG, PNG, WebP, MP4 ou WebM de 50 Mo maximum.");
+   if(!allowed.includes(file.type)||file.size>50*1024*1024)throw new Error("Fichier non accepté : JPEG, PNG, WebP, MP4 ou WebM de 50 Mo maximum. Les photos HEIC sont converties en JPEG si possible.");
    const ext=file.name.split(".").pop().toLowerCase(),path="events/"+p.slug+"/"+crypto.randomUUID()+"."+ext;
+   feedback.textContent="Envoi du fichier "+(index+1)+"/"+uploads.length+"…";
    const uploaded=await supabase.storage.from("afa-public-media").upload(path,file,{contentType:file.type,upsert:false});
    if(uploaded.error)throw uploaded.error;
+   uploadedPaths.push(path);
    const publicUrl=supabase.storage.from("afa-public-media").getPublicUrl(path).data.publicUrl;
    if(file.type.startsWith("image/")){if(firstUploadedImage&&(!p.cover_image||form.elements.replace_cover_with_first_upload.checked))p.cover_image=publicUrl;firstUploadedImage=false;gallery.push(publicUrl);}else if(!video)video=publicUrl;
   }
   p.gallery=gallery;p.video_url=video;
  }
- const res=id?await supabase.from("tours").update(p).eq("id",id):await supabase.from("tours").insert(p);if(res.error)throw res.error;
+ const res=id?await supabase.from("tours").update(p).eq("id",id):await supabase.from("tours").insert(p);if(res.error)throw res.error;databaseSaved=true;
  const reload=await supabase.from("tours").select("*").order("updated_at",{ascending:false}).limit(500);if(reload.error)throw reload.error;rows.splice(0,rows.length,...reload.data);reset();draw();feedback.textContent=id?"Contenu modifié.":"Contenu ajouté.";
- }catch(err){feedback.textContent=err.message||"Erreur d'enregistrement.";}finally{button.disabled=false;}});
- list.addEventListener("click",async e=>{const edit=e.target.closest("[data-edit]");if(edit){const r=rows.find(x=>x.id===edit.dataset.edit);if(!r)return;reset();Object.entries(r).forEach(([k,v])=>{const el=form.elements.namedItem(k);if(!el)return;if(el.type==="checkbox")el.checked=Boolean(v);else if(k==="languages")el.value=(v||["fr","en"]).join(",");else if(k==="gallery_urls")el.value=(r.gallery||[]).join("\n");else if(k==="pricing_options_text")el.value=JSON.stringify(r.pricing_options||[],null,2);else if(k==="translations_json")el.value=JSON.stringify(r.translations||{},null,2);else el.value=v??"";});form.elements.gallery_urls.value=(r.gallery||[]).join("\n");form.elements.translations_json.value=JSON.stringify(r.translations||{},null,2);form.elements.pricing_options_text.value=JSON.stringify(r.pricing_options||[],null,2);root.querySelector("#editorTitle").textContent="Modifier : "+r.title;form.scrollIntoView({behavior:"smooth"});return;}
+ }catch(err){if(!databaseSaved&&uploadedPaths.length){const cleanup=await supabase.storage.from("afa-public-media").remove(uploadedPaths);feedback.textContent=(err.message||"Erreur d’enregistrement.")+(cleanup.error?" · Nettoyage des fichiers incomplet : "+cleanup.error.message:" · Les fichiers envoyés ont été nettoyés.");}else{feedback.textContent=err.message||"Erreur d’enregistrement.";}}finally{button.disabled=false;}});
+ list.addEventListener("click",async e=>{const edit=e.target.closest("[data-edit]");if(edit){const r=rows.find(x=>x.id===edit.dataset.edit);if(!r)return;reset();Object.entries(r).forEach(([k,v])=>{const el=form.elements.namedItem(k);if(!el)return;if(el.type==="checkbox")el.checked=Boolean(v);else if(k==="languages")el.value=(v||["fr","en"]).join(",");else if(k==="gallery_urls")el.value=(r.gallery||[]).join("\n");else if(k==="pricing_options_text")el.value=JSON.stringify(r.pricing_options||[],null,2);else if(k==="translations_json")el.value=JSON.stringify(r.translations||{},null,2);else el.value=v??"";});form.elements.gallery_urls.value=(r.gallery||[]).join("\n");form.elements.translations_json.value=JSON.stringify(r.translations||{},null,2);form.elements.pricing_options_text.value=JSON.stringify(r.pricing_options||[],null,2);root.querySelector("#editorTitle").textContent="Modifier : "+r.title;refreshCoverPreview();form.scrollIntoView({behavior:"smooth"});return;}
  const arch=e.target.closest("[data-archive]");if(arch){const r=rows.find(x=>x.id===arch.dataset.archive);if(!r||!confirm("Archiver « "+r.title+" » ?"))return;const result=await supabase.from("tours").update({status:"archived"}).eq("id",r.id);if(result.error){feedback.textContent=result.error.message;return;}r.status="archived";draw();feedback.textContent="Contenu archivé.";return;}
  const del=e.target.closest("[data-delete]");if(del){const r=rows.find(x=>x.id===del.dataset.delete);if(!r||!confirm("Supprimer définitivement « "+r.title+" » ? Cette action est irréversible. Si une réservation y est liée, la base peut refuser la suppression."))return;const result=await supabase.from("tours").delete().eq("id",r.id);if(result.error){feedback.textContent="Suppression refusée : "+result.error.message+" Archivez plutôt ce contenu.";return;}rows.splice(rows.findIndex(x=>x.id===r.id),1);reset();draw();feedback.textContent="Contenu supprimé.";}}); 
  draw();
