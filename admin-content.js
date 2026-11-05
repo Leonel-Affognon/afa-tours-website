@@ -65,6 +65,7 @@ export async function renderContentManager(root){
  if(p.event_start_date&&p.event_end_date&&p.event_end_date<p.event_start_date)throw new Error("La date de fin doit être après la date de début.");
  if(p.booking_mode==="external"&&!p.registration_url)throw new Error("Le lien d'inscription externe est obligatoire.");
  const uploads=[...(form.elements.media_files?.files||[])];
+ let firstUploadedImage=true;
  if(uploads.length){
   if(!form.elements.media_rights_confirmed.checked)throw new Error("Confirmez les droits de publication des fichiers importés.");
   const gallery=[...(p.gallery||[])];let video=p.video_url||null;
@@ -75,7 +76,7 @@ export async function renderContentManager(root){
    const uploaded=await supabase.storage.from("afa-public-media").upload(path,file,{contentType:file.type,upsert:false});
    if(uploaded.error)throw uploaded.error;
    const publicUrl=supabase.storage.from("afa-public-media").getPublicUrl(path).data.publicUrl;
-   if(file.type.startsWith("image/")){if(!p.cover_image||(!gallery.length&&form.elements.replace_cover_with_first_upload.checked))p.cover_image=publicUrl;gallery.push(publicUrl);}else if(!video)video=publicUrl;
+   if(file.type.startsWith("image/")){if(firstUploadedImage&&(!p.cover_image||form.elements.replace_cover_with_first_upload.checked))p.cover_image=publicUrl;firstUploadedImage=false;gallery.push(publicUrl);}else if(!video)video=publicUrl;
   }
   p.gallery=gallery;p.video_url=video;
  }
