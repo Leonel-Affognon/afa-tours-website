@@ -31,7 +31,7 @@ export async function renderContentManager(root){
  '<label>Point de rencontre<input name="meeting_point"></label>'+
  '<label>Image couverture (URL)<input name="cover_image" type="url"></label>'+ 
  '<label>Galerie photos (URLs, une par ligne)<textarea name="gallery_urls" rows="3" placeholder="https://..."></textarea></label>'+ 
- '<label class="catalog-wide">Importer des photos et des vidéos MP4 / WebM (50 Mo maximum par fichier)<input name="media_files" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple></label>'+ 
+ '<label class="catalog-wide">Importer des photos et des vidéos MP4 / WebM (50 Mo maximum par fichier)<input name="media_files" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple></label><label class="catalog-wide"><input name="replace_cover_with_first_upload" type="checkbox"> Remplacer l’image de couverture par la première photo importée</label>'+ 
  '<label class="catalog-wide"><input name="media_rights_confirmed" type="checkbox"> Je confirme que AFA TOURS dispose des droits ou autorisations nécessaires pour publier ces fichiers.</label>'+ 
  '<label>Vidéo hébergée sur le site (URL MP4 / WebM)<input name="video_url" type="url" placeholder="Laissez vide si vous importez une vidéo ci-dessus"><small>Pour afficher une vraie vidéo directement sur AFA TOURS, importez un fichier MP4 ou WebM. Les liens YouTube/Vimeo ne sont pas utilisés dans la fiche du festival.</small></label>'+ 
  '<label class="catalog-wide">Formules et prix (JSON)<textarea name="pricing_options_text" rows="5" placeholder="Exemple de formule JSON"></textarea><small>Chaque formule : name, duration, price, currency, description. Laissez vide si sans formules.</small></label>'+
@@ -75,7 +75,7 @@ export async function renderContentManager(root){
    const uploaded=await supabase.storage.from("afa-public-media").upload(path,file,{contentType:file.type,upsert:false});
    if(uploaded.error)throw uploaded.error;
    const publicUrl=supabase.storage.from("afa-public-media").getPublicUrl(path).data.publicUrl;
-   if(file.type.startsWith("image/")){if(!p.cover_image)p.cover_image=publicUrl;gallery.push(publicUrl);}else if(!video)video=publicUrl;
+   if(file.type.startsWith("image/")){if(!p.cover_image||(!gallery.length&&form.elements.replace_cover_with_first_upload.checked))p.cover_image=publicUrl;gallery.push(publicUrl);}else if(!video)video=publicUrl;
   }
   p.gallery=gallery;p.video_url=video;
  }
