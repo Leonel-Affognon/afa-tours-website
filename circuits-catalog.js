@@ -13,9 +13,23 @@ async function loadCircuits() {
     const translated = window.AFA_TRANSLATE ? window.AFA_TRANSLATE(item, ["title", "summary", "description", "itinerary"]) : item;
     const title = String(translated.title || item.title || "").trim();
     if (!title) continue;
-    const exists = Array.from(grid.querySelectorAll(".destination-copy h2"))
-      .some(heading => heading.textContent.trim().toLocaleLowerCase() === title.toLocaleLowerCase());
-    if (exists) continue;
+    const existingCard = Array.from(grid.querySelectorAll(".destination-card"))
+      .find(card => card.querySelector(".destination-copy h2")?.textContent.trim().toLocaleLowerCase() === title.toLocaleLowerCase());
+    if (existingCard) {
+      const cover = safeUrl(item.cover_image);
+      const imageLink = existingCard.querySelector(".destination-image");
+      if (cover && imageLink) {
+        let image = imageLink.querySelector("img");
+        if (!image) { image = document.createElement("img"); image.style.cssText = "width:100%;height:100%;object-fit:cover;position:absolute;inset:0"; imageLink.append(image); }
+        image.src = cover; image.alt = title + " — " + (item.destination?.name || item.location || "Bénin"); image.loading = "lazy"; image.decoding = "async";
+      }
+      if (Array.isArray(item.gallery) && item.gallery.length) {
+        let gallery = existingCard.querySelector(".destination-mini-gallery");
+        if (!gallery) { gallery = document.createElement("div"); gallery.className = "destination-mini-gallery"; gallery.setAttribute("aria-label", "Photos de " + title); existingCard.querySelector(".destination-copy")?.append(gallery); }
+        gallery.replaceChildren(); item.gallery.slice(0, 6).forEach((url, index) => { const src = safeUrl(url); if (!src) return; const img = document.createElement("img"); img.src = src; img.alt = title + " — photo " + (index + 1); img.loading = "lazy"; img.decoding = "async"; gallery.append(img); });
+      }
+      continue;
+    }
     const place = item.destination?.name || item.location || "Bénin";
     const article = document.createElement("article"); article.className = "destination-card reveal"; article.id = item.slug || "";
     const link = document.createElement("a"); link.className = "destination-image"; link.href = "contact.html?content=" + encodeURIComponent(item.slug || title) + "#booking";
