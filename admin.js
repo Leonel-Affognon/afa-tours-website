@@ -1,5 +1,5 @@
 import { supabase } from "./backend.js";
-import { renderContentManager } from "./admin-content.js";
+import { renderContentManager } from "./admin-content.js?v=20261105-image-editor-2";
 const loginPanel=document.getElementById("loginPanel"), dashboard=document.getElementById("dashboard"), content=document.getElementById("adminContent"), msg=document.getElementById("loginMessage");
 const config={
  bookings:{table:"bookings",cols:["reference","full_name","email","tour_name","preferred_date","party_size","status","created_at","audio_path"],title:"Demandes de réservation"},
@@ -111,7 +111,7 @@ function table(rows,cols){if(!rows.length)return "<p>Aucun élément pour le mom
 function esc(v){if(v===true)return "Oui";if(v===false)return "Non";return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 content.addEventListener("click",async e=>{
  const edit=e.target.closest("[data-edit-tour]");
- if(edit){const id=edit.dataset.editTour;const {data,error}=await supabase.from("tours").select("*").eq("id",id).single();if(error){alert(error.message);return;}const title=prompt("Titre",data.title);if(title===null)return;const summary=prompt("Résumé",data.summary);if(summary===null)return;const price=prompt("Prix de départ en FCFA (vide = sur devis)",data.price_from??"");if(price===null)return;const image=prompt("URL de l'image",data.cover_image??"");if(image===null)return;const {error:updateError}=await supabase.from("tours").update({title,summary,price_from:price===""?null:Number(price),cover_image:image||null}).eq("id",id);if(updateError)alert(updateError.message);else render();return;}
+ if(edit){await renderContentManager(content);return;}
  const b=e.target.closest("[data-save]");if(!b)return;const id=b.dataset.save,status=content.querySelector('[data-status="'+id+'"]').value;let extra={};
  if(active==="media"&&status==="rejected"){
   const {data:row,error:readError}=await supabase.from("media_submissions").select("id,object_path").eq("id",id).single();
