@@ -96,7 +96,7 @@ async function renderMediaManager(rows){
     feedback.textContent="Envoi "+(i+1)+"/"+files.length;
     const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"")||"bin",path="incoming/admin-"+crypto.randomUUID()+"."+ext;
     const {error}=await supabase.storage.from("afa-submissions").upload(path,file,{contentType:file.type||"application/octet-stream"});if(error)throw error;paths.push(path);
-    records.push({display_name:form.elements.name.value.trim(),email:user?.email||"",caption:file.name,object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:form.elements.publication.checked,consent_marketing:form.elements.marketing.checked,status:"pending"});
+    records.push({display_name:form.elements.name.value.trim(),email:user?.email||"",caption:"",object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:form.elements.publication.checked,consent_marketing:form.elements.marketing.checked,status:"pending"});
    }
    const {error}=await supabase.from("media_submissions").insert(records);if(error)throw error;
    await render();
