@@ -108,7 +108,7 @@ function mediaCard(r,url,legacy){
  const id=esc(r.id),type=r.media_type||"image",status=legacy?"PUBLIÉ SUR LE SITE":({pending:"EN ATTENTE DE VALIDATION",approved:"PUBLIÉ SUR LE SITE",rejected:"REJETÉ — NON VISIBLE"}[r.status]||String(r.status||"STATUT INCONNU").toUpperCase());
  const preview=url?(type==="video"?'<video controls playsinline preload="metadata" src="'+esc(url)+'"></video>':'<img loading="lazy" src="'+esc(url)+'" alt="'+esc(r.display_name||"Média AFA")+'">'):'<div>Aperçu indisponible</div>';
  return '<article class="admin-panel media-edit-card" data-id="'+id+'" data-legacy="'+legacy+'"><style>.media-edit-card{padding:12px;min-width:0}.media-edit-card .preview{aspect-ratio:16/10;background:#eee;margin-bottom:10px;overflow:hidden}.media-edit-card .preview img,.media-edit-card .preview video{width:100%;height:100%;object-fit:cover}.media-edit-card label{display:block;margin:8px 0;font-weight:600}.media-edit-card input,.media-edit-card textarea{width:100%;box-sizing:border-box;padding:9px}.media-edit-card .actions{display:flex;flex-wrap:wrap;gap:7px}.media-edit-card button{padding:9px;border:1px solid #ccc;background:#fff}.media-edit-card button[data-action=approve]{background:#245c3b;color:#fff}.media-edit-card .status{display:inline-block;padding:5px 8px;background:#eee;margin:6px 0}</style><div class="preview">'+preview+'</div><span class="status" data-media-status style="font-weight:700;border-radius:4px;padding:7px 10px;background:'+(legacy||r.status==="approved"?"#e5f4e9":r.status==="rejected"?"#fde8e7":"#fff3d6")+' ;color:'+(legacy||r.status==="approved"?"#176536":r.status==="rejected"?"#a12622":"#805400")+'">'+esc(status)+'</span><label>Nom / titre<input data-name maxlength="120" value="'+esc(r.display_name||"")+'"></label><label>Légende / description<textarea data-caption rows="2" maxlength="500">'+esc(r.caption||"")+'</textarea></label>'+
- (legacy?'<div class="actions"><button data-action="save-legacy">Enregistrer</button><button data-action="delete-legacy">Supprimer</button></div>':
+ (legacy?'<label>Remplacer la photo (JPEG, PNG ou WebP — 15 Mo maximum)<input data-replacement-file type="file" accept="image/jpeg,image/png,image/webp"></label><div class="actions"><button data-action="save-legacy">Enregistrer</button><button data-action="delete-legacy">Supprimer</button></div>':
  '<label><input data-publication type="checkbox" '+(r.consent_publication===true?"checked":"")+'> Autorisation de publication</label><label><input data-marketing type="checkbox" '+(r.consent_marketing===true?"checked":"")+'> Autorisation marketing</label><div class="actions"><button data-action="save">Enregistrer</button><button data-action="approve">Approuver et publier</button><button data-action="reject">Rejeter</button><button data-action="delete">Supprimer</button></div>')+
  '<p data-feedback aria-live="polite"></p></article>';
 }
@@ -125,7 +125,22 @@ async function handleMediaAction(e){
  if(!name){feedback.textContent="Le nom est obligatoire.";return true;}b.disabled=true;feedback.textContent="Traitement…";
  try{
   if(legacy){
-   if(action==="save-legacy"){const {error}=await supabase.from("public_media").update({display_name:name,caption}).eq("id",id);if(error)throw error;feedback.textContent="Modifications enregistrées.";}
+   if(action==="save-legacy"){
+    const file=card.querySelector("[data-replacement-file]")?.files?.[0];
+    const patch={display_name:name,caption};
+    if(file){
+     if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>15*1024*1024)throw new Error("Photo non acceptée : JPEG, PNG ou WebP de 15 Mo maximum.");
+     const ext=({"image/jpeg":"jpg","image/png":"png","image/webp":"webp"})[file.type];
+     const path="gallery/legacy-"+id+"-"+crypto.randomUUID()+"."+ext;
+     feedback.textContent="Téléversement de la nouvelle photo…";
+     const {error:uploadError}=await supabase.storage.from("afa-public-media").upload(path,file,{contentType:file.type,upsert:false});
+     if(uploadError)throw uploadError;
+     patch.public_url=supabase.storage.from("afa-public-media").getPublicUrl(path).data.publicUrl;
+    }
+    const {error}=await supabase.from("public_media").update(patch).eq("id",id);if(error)throw error;
+    if(file){const image=card.querySelector(".preview img");if(image)image.src=patch.public_url;card.querySelector("[data-replacement-file]").value="";}
+    feedback.textContent=file?"Informations et photo enregistrées.":"Informations enregistrées.";
+   }
    if(action==="delete-legacy"){if(!confirm("Supprimer définitivement ce média ?"))return true;const {data:p,error}=await supabase.from("public_media").select("public_url").eq("id",id).single();if(error)throw error;const path=publicObjectPath(p.public_url);if(path){const {error:rm}=await supabase.storage.from("afa-public-media").remove([path]);if(rm)throw rm;}const {error:del}=await supabase.from("public_media").delete().eq("id",id);if(del)throw del;card.remove();updateMediaCount();}
    return true;
   }
