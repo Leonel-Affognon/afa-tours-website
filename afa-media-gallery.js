@@ -13,7 +13,7 @@ if(root){
    if(mode==="experiences"){
     const {data,error}=await supabase.from("tours").select("id,title,summary,description,location,cover_image,gallery,content_type").eq("status","published").eq("content_type","experience").order("sort_order");
     if(error)throw error;
-    (data||[]).forEach(t=>{const items=[asMedia(t.cover_image,t.title,"image"),...(Array.isArray(t.gallery)?t.gallery.map((u,i)=>asMedia(u,t.title+" — "+(i+1)):[])];album(t.title,t.summary||t.description||t.location,items,"Expérience");});
+    (data||[]).forEach(t=>{const items=[asMedia(t.cover_image,t.title,"image"),...(Array.isArray(t.gallery)?t.gallery.map((u,i)=>asMedia(u,t.title+" — "+(i+1))):[])];album(t.title,t.summary||t.description||t.location,items,"Expérience");});
    }else{
     const [media,tours,destinations]=await Promise.all([
      supabase.from("public_media").select("id,display_name,caption,media_type,public_url,published_at").order("published_at",{ascending:false}).limit(150),
