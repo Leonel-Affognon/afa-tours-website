@@ -72,29 +72,80 @@ if(active==="bookings"){
  const {data:voiceRows,error:voiceError}=await supabase.from("booking_voice_notes").select("booking_reference,audio_path,audio_mime_type").order("created_at",{ascending:false});
  if(!voiceError&&voiceRows){for(const voice of voiceRows){const row=data.find(item=>item.reference===voice.booking_reference);if(!row)continue;const {data:signed}=await supabase.storage.from("afa-submissions").createSignedUrl(voice.audio_path,3600);row.audio_url=signed?.signedUrl||"";}}
 }
-if(active==="media"){
- const yes=data.filter(x=>x.consent_marketing===true).length;
- const no=data.filter(x=>x.consent_marketing===false).length;
- const missing=data.filter(x=>x.consent_marketing==null).length;
- const visible=data.filter(x=>mediaConsentFilter==="all"||(mediaConsentFilter==="yes"&&x.consent_marketing===true)||(mediaConsentFilter==="no"&&x.consent_marketing===false)||(mediaConsentFilter==="unknown"&&x.consent_marketing==null));
- content.innerHTML="<h2>"+cfg.title+"</h2>"+"<form id=\"adminMediaForm\" class=\"admin-grid\"><h3>Ajouter plusieurs photos ou vidéos</h3><label>Fichiers<input name=\"admin_media\" type=\"file\" accept=\"image/*,video/*\" multiple required></label><label><input name=\"admin_publication\" type=\"checkbox\"> Autorisation de publication</label><label><input name=\"admin_marketing\" type=\"checkbox\"> Autorisation marketing</label><button class=\"button\" type=\"submit\">Téléverser</button><p id=\"adminMediaFeedback\"></p></form>"+"<div class='media-consent-summary'><button data-media-filter='all'>Tous ("+data.length+")</button><button data-media-filter='yes'>Marketing : oui ("+yes+")</button><button data-media-filter='no'>Marketing : non ("+no+")</button>"+(missing?"<button data-media-filter='unknown'>Non renseigné ("+missing+")</button>":"")+"</div><p>Les autorisations de publication sur le site et d’utilisation marketing sont distinctes. La publication est bloquée sans accord explicite.</p>"+table(visible,cfg.cols);
- content.querySelectorAll("[data-media-filter]").forEach(button=>button.addEventListener("click",()=>{mediaConsentFilter=button.dataset.mediaFilter;render();}));
- const adminForm=document.getElementById("adminMediaForm");
- if(adminForm)adminForm.addEventListener("submit",async event=>{
-  event.preventDefault();const form=event.currentTarget,files=[...form.elements.admin_media.files],feedback=document.getElementById("adminMediaFeedback"),button=form.querySelector("button");button.disabled=true;
-  try{const {data:{user}}=await supabase.auth.getUser();const rows=[];
-   for(let i=0;i<files.length;i++){const file=files[i];if(!file.type.startsWith("image/")&&!file.type.startsWith("video/"))throw new Error("Type de fichier non pris en charge.");
-    feedback.textContent="Envoi "+(i+1)+"/"+files.length;const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"")||"bin",path="incoming/admin-"+crypto.randomUUID()+"."+ext;
-    const {error}=await supabase.storage.from("afa-submissions").upload(path,file,{contentType:file.type||"application/octet-stream"});if(error)throw error;
-    rows.push({display_name:"Équipe AFA",email:user?.email||"",caption:file.name,object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:form.elements.admin_publication.checked,consent_marketing:form.elements.admin_marketing.checked,status:"pending"});
-   }
-   const {error}=await supabase.from("media_submissions").insert(rows);if(error)throw error;feedback.textContent=rows.length+" média(s) ajouté(s).";form.reset();render();
-  }catch(error){feedback.textContent=error.message||"Erreur d’envoi.";}finally{button.disabled=false;}
- });
- return;
-}
+if(active==="media"){await renderMediaManager(data);return;}
 if(active==="tours"){await renderContentManager(content);return;}
 content.innerHTML="<h2>"+cfg.title+"</h2>"+table(data,cfg.cols);}
+
+
+async function renderMediaManager(rows){
+ const {data:pub,error:pubError}=await supabase.from("public_media").select("*").order("published_at",{ascending:false}).limit(100);
+ if(pubError){content.innerHTML="<h2>Médias</h2><p>"+esc(pubError.message)+"</p>";return;}
+ const cards=await Promise.all(rows.map(async r=>{
+  let url="";
+  if(r.object_path?.startsWith("visitor/")) url=supabase.storage.from("afa-public-media").getPublicUrl(r.object_path).data.publicUrl;
+  else {const {data}=await supabase.storage.from("afa-submissions").createSignedUrl(r.object_path,3600);url=data?.signedUrl||"";}
+  return mediaCard(r,url,false);
+ }));
+ const legacy=(pub||[]).filter(p=>!p.source_submission_id).map(p=>mediaCard(p,p.public_url||"",true));
+ content.innerHTML='<h2>Gestion des médias</h2><p>Modifie le titre et la légende, puis approuve, rejette ou supprime chaque photo ou vidéo.</p><form id="adminMediaForm" class="admin-grid"><h3>Ajouter des médias</h3><label>Photos / vidéos<input name="files" type="file" accept="image/*,video/*" multiple required></label><label>Nom affiché par défaut<input name="name" value="AFA TOURS INNOVANT" required maxlength="120"></label><label><input name="publication" type="checkbox"> Autorisation de publication</label><label><input name="marketing" type="checkbox"> Autorisation marketing</label><button class="button" type="submit">Téléverser</button><p id="mediaUploadFeedback" aria-live="polite"></p></form><h3>Médias enregistrés ('+rows.length+')</h3><div class="admin-grid">'+(cards.join("")||"<p>Aucun média.</p>")+'</div>'+(legacy.length?'<h3>Anciennes publications</h3><div class="admin-grid">'+legacy.join("")+'</div>':"");
+ document.getElementById("adminMediaForm").addEventListener("submit",async e=>{
+  e.preventDefault();const form=e.currentTarget,btn=form.querySelector("button"),feedback=document.getElementById("mediaUploadFeedback"),files=[...form.elements.files.files],paths=[];btn.disabled=true;
+  try{
+   const {data:{user}}=await supabase.auth.getUser();const records=[];
+   for(let i=0;i<files.length;i++){const file=files[i];if(!file.type.startsWith("image/")&&!file.type.startsWith("video/"))throw new Error("Format non pris en charge : "+file.name);
+    feedback.textContent="Envoi "+(i+1)+"/"+files.length;
+    const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"")||"bin",path="incoming/admin-"+crypto.randomUUID()+"."+ext;
+    const {error}=await supabase.storage.from("afa-submissions").upload(path,file,{contentType:file.type||"application/octet-stream"});if(error)throw error;paths.push(path);
+    records.push({display_name:form.elements.name.value.trim(),email:user?.email||"",caption:file.name,object_path:path,media_type:file.type.startsWith("video/")?"video":"image",consent_publication:form.elements.publication.checked,consent_marketing:form.elements.marketing.checked,status:"pending"});
+   }
+   const {error}=await supabase.from("media_submissions").insert(records);if(error)throw error;
+   await render();
+  }catch(err){if(paths.length)await supabase.storage.from("afa-submissions").remove(paths);feedback.textContent=err.message||"Erreur de téléversement.";}
+  finally{btn.disabled=false;}
+ });
+}
+function mediaCard(r,url,legacy){
+ const id=esc(r.id),type=r.media_type||"image",status=legacy?"Publié":({pending:"En attente",approved:"Approuvé / publié",rejected:"Rejeté"}[r.status]||r.status);
+ const preview=url?(type==="video"?'<video controls playsinline preload="metadata" src="'+esc(url)+'"></video>':'<img loading="lazy" src="'+esc(url)+'" alt="'+esc(r.display_name||"Média AFA")+'">'):'<div>Aperçu indisponible</div>';
+ return '<article class="admin-panel media-edit-card" data-id="'+id+'" data-legacy="'+legacy+'"><style>.media-edit-card{padding:12px;min-width:0}.media-edit-card .preview{aspect-ratio:16/10;background:#eee;margin-bottom:10px;overflow:hidden}.media-edit-card .preview img,.media-edit-card .preview video{width:100%;height:100%;object-fit:cover}.media-edit-card label{display:block;margin:8px 0;font-weight:600}.media-edit-card input,.media-edit-card textarea{width:100%;box-sizing:border-box;padding:9px}.media-edit-card .actions{display:flex;flex-wrap:wrap;gap:7px}.media-edit-card button{padding:9px;border:1px solid #ccc;background:#fff}.media-edit-card button[data-action=approve]{background:#245c3b;color:#fff}.media-edit-card .status{display:inline-block;padding:5px 8px;background:#eee;margin:6px 0}</style><div class="preview">'+preview+'</div><span class="status">'+esc(status)+'</span><label>Nom / titre<input data-name maxlength="120" value="'+esc(r.display_name||"")+'"></label><label>Légende / description<textarea data-caption rows="2" maxlength="500">'+esc(r.caption||"")+'</textarea></label>'+
+ (legacy?'<div class="actions"><button data-action="save-legacy">Enregistrer</button><button data-action="delete-legacy">Supprimer</button></div>':
+ '<label><input data-publication type="checkbox" '+(r.consent_publication===true?"checked":"")+'> Autorisation de publication</label><label><input data-marketing type="checkbox" '+(r.consent_marketing===true?"checked":"")+'> Autorisation marketing</label><div class="actions"><button data-action="save">Enregistrer</button><button data-action="approve">Approuver et publier</button><button data-action="reject">Rejeter</button><button data-action="delete">Supprimer</button></div>')+
+ '<p data-feedback aria-live="polite"></p></article>';
+}
+async function removePublicEntry(id){
+ const {data:p,error}=await supabase.from("public_media").select("id,public_url").eq("source_submission_id",id).maybeSingle();if(error)throw error;
+ if(p){const {error:del}=await supabase.from("public_media").delete().eq("id",p.id);if(del)throw del;}
+}
+function publicObjectPath(url){try{const marker="/storage/v1/object/public/afa-public-media/";const p=new URL(url).pathname;const i=p.indexOf(marker);return i<0?null:decodeURIComponent(p.slice(i+marker.length));}catch{return null;}}
+async function handleMediaAction(e){
+ const b=e.target.closest("[data-action]");if(!b)return false;const card=b.closest("[data-id]");if(!card)return false;
+ const id=card.dataset.id,legacy=card.dataset.legacy==="true",action=b.dataset.action,feedback=card.querySelector("[data-feedback]"),name=card.querySelector("[data-name]").value.trim(),caption=card.querySelector("[data-caption]").value.trim();
+ if(!name){feedback.textContent="Le nom est obligatoire.";return true;}b.disabled=true;feedback.textContent="Traitement…";
+ try{
+  if(legacy){
+   if(action==="save-legacy"){const {error}=await supabase.from("public_media").update({display_name:name,caption}).eq("id",id);if(error)throw error;feedback.textContent="Modifications enregistrées.";}
+   if(action==="delete-legacy"){if(!confirm("Supprimer définitivement ce média ?"))return true;const {data:p,error}=await supabase.from("public_media").select("public_url").eq("id",id).single();if(error)throw error;const path=publicObjectPath(p.public_url);if(path){const {error:rm}=await supabase.storage.from("afa-public-media").remove([path]);if(rm)throw rm;}const {error:del}=await supabase.from("public_media").delete().eq("id",id);if(del)throw del;await render();}
+   return true;
+  }
+  const {data:r,error:read}=await supabase.from("media_submissions").select("*").eq("id",id).single();if(read)throw read;
+  const patch={display_name:name,caption,consent_publication:card.querySelector("[data-publication]").checked,consent_marketing:card.querySelector("[data-marketing]").checked};
+  if(action==="save"){const {error}=await supabase.from("media_submissions").update(patch).eq("id",id);if(error)throw error;const {error:pe}=await supabase.from("public_media").update({display_name:name,caption}).eq("source_submission_id",id);if(pe)throw pe;feedback.textContent="Informations enregistrées.";return true;}
+  if(action==="approve"){
+   if(!patch.consent_publication)throw new Error("Coche d'abord l'autorisation de publication, puis enregistre.");
+   let publicPath="visitor/"+id+"."+(r.object_path.split(".").pop()||"jpg");
+   if(r.object_path.startsWith("visitor/")) publicPath=r.object_path;
+   else {const {data:file,error:dl}=await supabase.storage.from("afa-submissions").download(r.object_path);if(dl)throw dl;const {error:up}=await supabase.storage.from("afa-public-media").upload(publicPath,file,{upsert:true,contentType:file.type||undefined});if(up)throw up;}
+   const url=supabase.storage.from("afa-public-media").getPublicUrl(publicPath).data.publicUrl;
+   const record={source_submission_id:id,display_name:name,caption,media_type:r.media_type,public_url:url};
+   const {data:old,error:oe}=await supabase.from("public_media").select("id").eq("source_submission_id",id).maybeSingle();if(oe)throw oe;
+   const result=old?await supabase.from("public_media").update(record).eq("id",old.id):await supabase.from("public_media").insert(record);if(result.error)throw result.error;
+   const {error:up2}=await supabase.from("media_submissions").update({...patch,status:"approved"}).eq("id",id);if(up2)throw up2;await render();return true;
+  }
+  if(action==="reject"){if(!confirm("Rejeter ce média ? Il sera retiré de la galerie publique."))return true;await removePublicEntry(id);const {error}=await supabase.from("media_submissions").update({...patch,status:"rejected"}).eq("id",id);if(error)throw error;await render();return true;}
+  if(action==="delete"){if(!confirm("Supprimer définitivement ce média et son fichier ?"))return true;await removePublicEntry(id);if(r.object_path.startsWith("incoming/")){const {error}=await supabase.storage.from("afa-submissions").remove([r.object_path]);if(error)throw error;}if(r.object_path.startsWith("visitor/")){const {error}=await supabase.storage.from("afa-public-media").remove([r.object_path]);if(error)throw error;}const {error}=await supabase.from("media_submissions").delete().eq("id",id);if(error)throw error;await render();return true;}
+ }catch(err){feedback.textContent=err.message||"Erreur.";}finally{b.disabled=false;}
+ return true;
+}
 
 async function renderCurrencySettings(){
  if(currentAdminRole!=="owner"){content.innerHTML="<p>Seul le propriétaire peut modifier les paramètres de change.</p>";return;}
@@ -110,6 +161,7 @@ function tourForm(){return '<h2>Circuits</h2><form id="tourForm" class="admin-gr
 function table(rows,cols){if(!rows.length)return "<p>Aucun élément pour le moment.</p>";return '<div style="overflow:auto"><table class="admin-table"><thead><tr>'+cols.map(c=>"<th>"+esc(c)+"</th>").join("")+"<th>Actions</th></tr></thead><tbody>"+rows.map(row=>"<tr>"+cols.map(c=>c==="audio_path"?(row.audio_url?`<td><audio controls preload="none" src="${esc(row.audio_url)}"></audio></td>`:"<td>—</td>"):"<td>"+esc(row[c]??"—")+"</td>").join("")+"<td>"+(active==="tours"?'<button data-edit-tour="'+row.id+'">Modifier</button>':"")+(row.status?'<select data-status="'+row.id+'">'+(statuses[active]||[]).map(s=>'<option value="'+s+'" '+(row.status===s?"selected":"")+'>'+s+"</option>").join("")+' </select><button data-save="'+row.id+'">Enregistrer</button>':"")+"</td></tr>").join("")+"</tbody></table></div>";}
 function esc(v){if(v===true)return "Oui";if(v===false)return "Non";return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 content.addEventListener("click",async e=>{
+ if(await handleMediaAction(e))return;
  const edit=e.target.closest("[data-edit-tour]");
  if(edit){const id=edit.dataset.editTour;const {data,error}=await supabase.from("tours").select("*").eq("id",id).single();if(error){alert(error.message);return;}const title=prompt("Titre",data.title);if(title===null)return;const summary=prompt("Résumé",data.summary);if(summary===null)return;const price=prompt("Prix de départ en FCFA (vide = sur devis)",data.price_from??"");if(price===null)return;const image=prompt("URL de l'image",data.cover_image??"");if(image===null)return;const {error:updateError}=await supabase.from("tours").update({title,summary,price_from:price===""?null:Number(price),cover_image:image||null}).eq("id",id);if(updateError)alert(updateError.message);else render();return;}
  const b=e.target.closest("[data-save]");if(!b)return;const id=b.dataset.save,status=content.querySelector('[data-status="'+id+'"]').value;let extra={};
