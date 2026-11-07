@@ -42,3 +42,50 @@
 @media(max-width:900px){.afa-album-grid{gap:16px}.afa-album-cover{height:230px}}
 @media(max-width:600px){.afa-media-section{padding:58px 5%}.afa-album-grid{gap:16px}.afa-album-cover{height:250px}.afa-lightbox-top{height:56px;padding:0 10px}.afa-lightbox-btn{width:36px;height:36px}.afa-lightbox-nav{width:40px;height:40px}.afa-lightbox-prev{left:8px}.afa-lightbox-next{right:8px}.afa-lightbox-thumbs{justify-content:flex-start}}
 @media(prefers-reduced-motion:reduce){.afa-album-card,.afa-album-cover img{transition:none}.afa-lightbox.is-open{animation:none}}
+
+
+/* Photos-inspired presentation — scoped strictly to the public gallery */
+.afa-media-section{padding:34px 0 70px;background:#f7f7f5}
+.afa-media-heading{max-width:760px;margin:0 auto 24px;padding:0 22px;text-align:center}
+.afa-media-heading h2{margin:8px 0;color:#2f0e09}
+.afa-media-heading>p:last-child{font-size:14px}
+.afa-gallery-tabs{display:flex;justify-content:center;gap:4px;width:max-content;max-width:calc(100% - 28px);margin:0 auto 22px;padding:5px;background:#e9e9e7;border-radius:999px}
+.afa-gallery-tabs button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 22px;border:0;border-radius:999px;background:transparent;color:#55463f;font:600 13px 'DM Sans',Arial;cursor:pointer}
+.afa-gallery-tabs button[aria-selected=true]{background:#fff;color:#a94b25;box-shadow:0 1px 5px #00000012}
+.afa-photo-toolbar{padding:0 14px}
+.afa-photo-toolbar .afa-media-toolbar{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;max-width:100%;padding:2px 0 12px;margin:0 auto 8px;scrollbar-width:none}
+.afa-photo-toolbar .afa-media-toolbar::-webkit-scrollbar{display:none}
+.afa-photo-toolbar .afa-media-filter{white-space:nowrap;padding:8px 14px;font-size:11px}
+.afa-photo-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;width:100%;max-width:1600px;margin:0 auto}
+.afa-photo-cell{position:relative;display:block;min-width:0;aspect-ratio:1/1;padding:0;border:0;overflow:hidden;background:#e9e4de;cursor:pointer}
+.afa-photo-cell img,.afa-photo-cell video{display:block;width:100%;height:100%;object-fit:cover}
+.afa-photo-cell.is-video:after{content:"";position:absolute;right:7px;bottom:7px;width:7px;height:7px;border:1.5px solid white;border-radius:50%;box-shadow:0 1px 5px #000}
+.afa-photo-play{position:absolute;right:8px;bottom:6px;color:white;font-size:12px;text-shadow:0 1px 5px #000}
+.afa-collections-view{max-width:1500px;margin:0 auto;padding:0 24px}
+.afa-collection-shelf{margin:0 0 34px}
+.afa-collection-shelf h3{margin:0 0 14px;color:#241b18;font:700 clamp(22px,3vw,30px)/1.2 'DM Sans',Arial}
+.afa-collection-row{display:flex;gap:14px;overflow-x:auto;padding:2px 0 12px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.afa-collection-row::-webkit-scrollbar{display:none}
+.afa-collection-card{position:relative;flex:0 0 clamp(190px,31vw,300px);height:clamp(210px,34vw,300px);overflow:hidden;border:0;border-radius:22px;background:#ded8d1;cursor:pointer;scroll-snap-align:start}
+.afa-collection-cover,.afa-collection-cover img,.afa-collection-cover video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.afa-collection-card:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#0009)}
+.afa-collection-label{position:absolute;z-index:1;left:16px;right:12px;bottom:15px;color:white}
+.afa-collection-label strong{display:block;font:700 19px/1.2 'DM Sans',Arial}
+.afa-collection-label span{display:block;margin-top:5px;font:500 11px 'DM Sans',Arial;opacity:.9}
+.afa-lightbox-counter{display:none!important}
+.afa-album-count{display:none!important}
+@media(max-width:900px){.afa-photo-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.afa-collections-view{padding:0 18px}}
+@media(max-width:600px){
+ .afa-media-section{padding:28px 0 52px}
+ .afa-media-heading{margin-bottom:18px}
+ .afa-gallery-tabs{margin-bottom:16px}
+ .afa-gallery-tabs button{padding:0 16px;font-size:12px}
+ .afa-photo-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+ .afa-collection-row{gap:12px}
+ .afa-collection-card{flex-basis:72vw;height:58vw;max-height:310px;border-radius:20px}
+ .afa-collections-view{padding:0 14px}
+ .afa-collection-shelf{margin-bottom:27px}
+ .afa-collection-shelf h3{font-size:22px}
+ .afa-photo-toolbar .afa-media-toolbar{padding-left:10px;padding-right:10px}
+}
+@media(min-width:1200px){.afa-photo-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
