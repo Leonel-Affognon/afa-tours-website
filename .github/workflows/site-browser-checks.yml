@@ -75,6 +75,25 @@ jobs:
               const response = await page.goto(new URL(path, process.env.SITE_URL).href, { waitUntil: 'networkidle', timeout: 60000 });
               if (!response || !response.ok()) throw new Error(path + ': HTTP ' + (response && response.status()));
               await page.waitForTimeout(700);
+              if (path === 'gallery.html' || path === 'experiences.html') {
+                await page.locator('#afa-media-gallery').scrollIntoViewIfNeeded();
+                await page.waitForFunction(() => document.querySelectorAll('#afa-media-gallery .afa-album-card').length > 0, null, { timeout: 15000 });
+                await page.waitForFunction(() => [...document.querySelectorAll('#afa-media-gallery .afa-album-cover img')].some(img => img.complete && img.naturalWidth > 0), null, { timeout: 20000 });
+                const mediaState = await page.evaluate(() => {
+                  const images = [...document.querySelectorAll('#afa-media-gallery .afa-album-cover img')];
+                  return { albums: document.querySelectorAll('#afa-media-gallery .afa-album-card').length,
+                    images: images.length, loadedImages: images.filter(img => img.complete && img.naturalWidth > 0).length };
+                });
+                if (!mediaState.albums) throw new Error(path + ': no album cards rendered: ' + JSON.stringify(mediaState));
+                if (!mediaState.loadedImages) throw new Error(path + ': no album cover image loaded: ' + JSON.stringify(mediaState));
+                const firstAlbum = page.locator('#afa-media-gallery .afa-album-card').first();
+                await firstAlbum.click();
+                await page.locator('.afa-lightbox.is-open').waitFor({ state: 'visible', timeout: 5000 });
+                if (await page.locator('.afa-lightbox-media').count() !== 1) throw new Error(path + ': lightbox media missing');
+                if (await page.locator('.afa-lightbox-media').evaluate(el => el.tagName === 'IMG' ? el.complete && el.naturalWidth > 0 : true) === false) throw new Error(path + ': lightbox image did not load');
+                await page.locator('.afa-lightbox [data-close]').click();
+                console.log('PASS media gallery', path, JSON.stringify(mediaState));
+              }
               const state = await page.evaluate(() => ({
                 title: document.title,
                 bodyReady: document.body.classList.contains('page-ready'),
