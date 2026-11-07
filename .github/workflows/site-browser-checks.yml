@@ -78,25 +78,23 @@ jobs:
               if (path === 'gallery.html' || path === 'experiences.html') {
                 await page.locator('#afa-media-gallery').scrollIntoViewIfNeeded();
                 await page.waitForFunction(() => document.querySelectorAll('#afa-media-gallery .afa-photo-cell').length > 0, null, { timeout: 15000 });
-        await page.waitForFunction(() => [...document.querySelectorAll('#afa-media-gallery .afa-photo-cell img')].some(img => img.complete && img.naturalWidth > 0), null, { timeout: 20000 });
-        const mediaState = await page.evaluate(() => {
-          const cells = [...document.querySelectorAll('#afa-media-gallery .afa-photo-cell')];
-          const images = [...document.querySelectorAll('#afa-media-gallery .afa-photo-cell img')];
-          return { photos: cells.length, images: images.length,
-            loadedImages: images.filter(img => img.complete && img.naturalWidth > 0).length,
-            viewTabs: document.querySelectorAll('#afa-media-gallery [data-view]').length };
-        });
-        if (!mediaState.photos) throw new Error(path + ': no photo/video thumbnails rendered: ' + JSON.stringify(mediaState));
-        if (!mediaState.loadedImages) throw new Error(path + ': no photo thumbnail loaded: ' + JSON.stringify(mediaState));
-        if (mediaState.viewTabs !== 2) throw new Error(path + ': Photothèque/Collections tabs missing: ' + JSON.stringify(mediaState));
-        await page.locator('#afa-media-gallery .afa-photo-cell').first().click();
-        await page.locator('.afa-lightbox.is-open').waitFor({ state: 'visible', timeout: 5000 });
-        if (await page.locator('.afa-lightbox-media').count() !== 1) throw new Error(path + ': lightbox media missing');
-        await page.waitForFunction(() => {
-          const el = document.querySelector('.afa-lightbox-media');
-          return !!el && (el.tagName !== 'IMG' || (el.complete && el.naturalWidth > 0));
-        }, null, { timeout: 15000 });
-        await page.locator('.afa-lightbox [data-close]').click();
+                await page.waitForFunction(() => [...document.querySelectorAll('#afa-media-gallery .afa-photo-cell img')].some(img => img.complete && img.naturalWidth > 0), null, { timeout: 20000 });
+                const mediaState = await page.evaluate(() => {
+                  const cells = [...document.querySelectorAll('#afa-media-gallery .afa-photo-cell')];
+                  const images = [...document.querySelectorAll('#afa-media-gallery .afa-photo-cell img')];
+                  return { photos: cells.length, images: images.length, loadedImages: images.filter(img => img.complete && img.naturalWidth > 0).length, viewTabs: document.querySelectorAll('#afa-media-gallery [data-view]').length };
+                });
+                if (!mediaState.photos) throw new Error(path + ': no photo/video thumbnails rendered: ' + JSON.stringify(mediaState));
+                if (!mediaState.loadedImages) throw new Error(path + ': no photo thumbnail loaded: ' + JSON.stringify(mediaState));
+                if (mediaState.viewTabs !== 2) throw new Error(path + ': Photothèque/Collections tabs missing: ' + JSON.stringify(mediaState));
+                await page.locator('#afa-media-gallery .afa-photo-cell').first().click();
+                await page.locator('.afa-lightbox.is-open').waitFor({ state: 'visible', timeout: 5000 });
+                if (await page.locator('.afa-lightbox-media').count() !== 1) throw new Error(path + ': lightbox media missing');
+                await page.waitForFunction(() => {
+                  const el = document.querySelector('.afa-lightbox-media');
+                  return !!el && (el.tagName !== 'IMG' || (el.complete && el.naturalWidth > 0));
+                }, null, { timeout: 15000 });
+                await page.locator('.afa-lightbox [data-close]').click();
                 console.log('PASS media gallery', path, JSON.stringify(mediaState));
               }
               const state = await page.evaluate(() => ({
