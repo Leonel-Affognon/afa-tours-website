@@ -43,7 +43,7 @@ if(root){
   const grid=root.querySelector(".afa-album-grid");
   let gridPinchStart=0,gridPinchColumns=gridColumns;
   grid?.addEventListener("touchstart",e=>{if(e.touches.length===2){gridPinchStart=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);gridPinchColumns=gridColumns;}},{passive:true});
-  grid?.addEventListener("touchmove",e=>{if(e.touches.length===2&&gridPinchStart){const distance=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(Math.abs(distance-gridPinchStart)>55){changeGrid(distance>gridPinchStart?-1:1,filter);gridPinchStart=0;}}},{passive:true});
+  grid?.addEventListener("touchmove",e=>{if(e.touches.length===2&&gridPinchStart){e.preventDefault();const distance=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(Math.abs(distance-gridPinchStart)>55){changeGrid(distance>gridPinchStart?-1:1,filter);gridPinchStart=0;} }},{passive:false});
   grid?.addEventListener("touchend",()=>{gridPinchStart=0;},{passive:true});
   root.querySelectorAll("[data-album]").forEach(card=>{const open=()=>openAlbum(filtered[Number(card.dataset.album)]);card.addEventListener("click",open);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});});
  }
