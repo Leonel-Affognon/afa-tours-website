@@ -74,7 +74,28 @@ if(active==="bookings"){
 }
 if(active==="media"){await renderMediaManager(data);return;}
 if(active==="tours"){await renderContentManager(content);return;}
+if(active==="bookings"){renderBookings(data);return;}
 content.innerHTML="<h2>"+cfg.title+"</h2>"+table(data,cfg.cols);}
+
+function renderBookings(rows){
+ const labels={new:"Nouvelle",contacted:"Contactée",quoted:"Devis envoyé",confirmed:"Confirmée",cancelled:"Annulée",completed:"Terminée"};
+ const dateValue=value=>{if(!value)return "Date non précisée";const d=new Date(value+"T00:00:00");return Number.isNaN(d.getTime())?esc(value):d.toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});};
+ const dateTime=value=>{if(!value)return "—";const d=new Date(value);return Number.isNaN(d.getTime())?esc(value):d.toLocaleString("fr-FR",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});};
+ const count=status=>rows.filter(r=>r.status===status).length;
+ const card=row=>{
+  const id=esc(row.id),status=row.status||"new";
+  const audio=row.audio_url?'<div class="booking-audio"><span>Message vocal</span><audio controls preload="none" src="'+esc(row.audio_url)+'"></audio></div>':"";
+  const optional=[["E-mail",row.email],["Téléphone",row.phone||row.phone_number],["Nombre de voyageurs",row.party_size],["Référence",row.reference],["Reçue le",dateTime(row.created_at)]].filter(x=>x[1]!==undefined&&x[1]!==null&&x[1]!=="");
+  return '<article class="booking-card" data-booking-card data-search="'+esc([row.reference,row.full_name,row.email,row.phone,row.tour_name].filter(Boolean).join(" ").toLowerCase())+'" data-current-status="'+esc(status)+'"><div class="booking-card-top"><span class="booking-reference">#'+esc(row.reference||"Sans référence")+'</span><span class="booking-status status-'+esc(status)+'">'+esc(labels[status]||status)+'</span></div><h3>'+esc(row.full_name||"Client sans nom")+'</h3><p class="booking-tour">'+esc(row.tour_name||"Circuit non précisé")+'</p><div class="booking-facts"><div><small>Date souhaitée</small><strong>'+dateValue(row.preferred_date)+'</strong></div><div><small>Voyageurs</small><strong>'+esc(row.party_size??"—")+'</strong></div></div><details class="booking-details"><summary>Voir les détails et coordonnées</summary><dl>'+optional.map(x=>'<div><dt>'+esc(x[0])+'</dt><dd>'+esc(x[1])+'</dd></div>').join("")+'</dl>'+audio+'</details><div class="booking-actions"><label>Statut<select data-status="'+id+'">'+statuses.bookings.map(s=>'<option value="'+s+'" '+(status===s?"selected":"")+'>'+esc(labels[s]||s)+'</option>').join("")+'</select></label><button class="booking-save" data-save="'+id+'" type="button">Enregistrer le statut</button></div></article>';
+ };
+ content.innerHTML='<div class="booking-heading"><div><p class="booking-eyebrow">ESPACE CLIENTS</p><h2>Réservations</h2><p>Retrouve les demandes, consulte les détails et mets à jour leur suivi.</p></div><button class="booking-refresh" type="button" id="bookingRefresh">↻ Actualiser</button></div><div class="booking-stats"><div><span>Total</span><strong>'+rows.length+'</strong></div><div><span>Nouvelles</span><strong>'+count("new")+'</strong></div><div><span>Confirmées</span><strong>'+count("confirmed")+'</strong></div><div><span>À traiter</span><strong>'+count("contacted")+count("quoted")+'</strong></div></div><div class="booking-tools"><input id="bookingSearch" type="search" placeholder="Rechercher un client, une référence, un circuit…" aria-label="Rechercher une réservation"><div class="booking-filters">'+[['all','Toutes'],['new','Nouvelles'],['contacted','Contactées'],['quoted','Devis envoyés'],['confirmed','Confirmées'],['cancelled','Annulées'],['completed','Terminées']].map(x=>'<button type="button" data-booking-filter="'+x[0]+'" class="'+(x[0]==="all"?"active":"")+'">'+x[1]+'</button>').join("")+'</div></div><div class="booking-list">'+(rows.map(card).join("")||'<div class="booking-empty">Aucune réservation pour le moment.</div>')+'</div><p class="booking-feedback" id="bookingFeedback" aria-live="polite"></p>';
+ const search=content.querySelector("#bookingSearch");
+ let filter="all";
+ const apply=()=>{const q=search.value.trim().toLowerCase();content.querySelectorAll("[data-booking-card]").forEach(el=>{el.hidden=(filter!=="all"&&el.dataset.currentStatus!==filter)||!!q&&!el.dataset.search.includes(q);});};
+ search.addEventListener("input",apply);
+ content.querySelectorAll("[data-booking-filter]").forEach(btn=>btn.addEventListener("click",()=>{filter=btn.dataset.bookingFilter;content.querySelectorAll("[data-booking-filter]").forEach(x=>x.classList.toggle("active",x===btn));apply();}));
+ content.querySelector("#bookingRefresh").addEventListener("click",()=>render());
+}
 
 
 async function renderMediaManager(rows){
