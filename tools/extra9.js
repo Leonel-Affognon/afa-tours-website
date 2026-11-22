@@ -178,6 +178,13 @@ function dbkSync(){var k=document.getElementById('dbk');if(!k)return;try{var inn
 setInterval(dbkSync,400);
 document.addEventListener('contextmenu',function(e){if(e.target.closest('img,.ph,.cimg,.ig,.gimg,#lb'))e.preventDefault()});
 document.addEventListener('dragstart',function(e){if(e.target.tagName==='IMG')e.preventDefault()});
+var bb0=document.getElementById('bqw');
+if(bb0)new MutationObserver(function(){var ok=bb0.querySelector('.okb .ck'),en=EN();if(!ok||ok.textContent.indexOf('✓')<0||bb0.querySelector('[data-again]'))return;
+ try{var ids=Array.from(sel);if(ids.length){sel.clear();renderSel()}}catch(e){}hide();
+ var bqa=bb0.querySelector('.bqa');if(!bqa)return;var mb=document.createElement('button');mb.type='button';mb.className='btn btn-out';mb.setAttribute('data-again','more');mb.textContent=en?'Book another tour':'Réserver un autre circuit';bqa.appendChild(mb);var nb=bqa.querySelector('[data-bqagain]');if(nb)nb.textContent=en?'New booking for other people':'Nouvelle réservation pour d’autres personnes'
+ }).observe(bb0,{childList:true,subtree:true});
+document.addEventListener('click',function(e){var a=e.target.closest('[data-again]');if(!a)return;var d=document.getElementById('bq');
+ if(d&&d.open)d.close();var g=document.getElementById('circuits');if(g)g.scrollIntoView({behavior:'smooth'})});
 function hide(){var o=document.getElementById('rmd');if(o)o.remove()}
 function show(added){if(!sel.size)return;hide();var n=sel.size,en=EN(),nm=names(),last=added?nm[nm.length-1]:'';
  var box=document.createElement('div');box.id='rmd';box.setAttribute('role','status');
