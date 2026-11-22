@@ -44,6 +44,7 @@ let H=ld(),busy=false,lastLang=null;
 const TK='<svg viewBox="0 0 16 11"><path class="tk RD" d="M1 5.8 4.2 9 10.6 1.4M6 8.6l.6.4L13 1.4"/></svg>';
 const SEND='<svg viewBox="0 0 24 24"><path d="M3.4 20.4 20.85 12.9a1 1 0 0 0 0-1.8L3.4 3.6a1 1 0 0 0-1.4 1.2L4 11l9 1-9 1-2 6.2a1 1 0 0 0 1.4 1.2z"/></svg>';
 const ICON={chat:'<svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6 2 11c0 2.5 1.2 4.8 3.2 6.4L4 22l4.8-2.3c1 .2 2 .3 3.2.3 5.5 0 10-4 10-9s-4.5-9-10-9z"/></svg>',x:'<svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>',more:'<svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>',emo:'<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm-3.5-9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM12 17.5c2.3 0 4.3-1.5 5-3.5H7c.7 2 2.7 3.5 5 3.5z"/></svg>',clip:'<svg viewBox="0 0 24 24"><path d="M16.5 6.5v9.7a4.5 4.5 0 0 1-9 0V5.8a3 3 0 0 1 6 0v9.9a1.5 1.5 0 0 1-3 0V6.5H9.5v9.2a3 3 0 0 0 6 0V5.8a4.5 4.5 0 0 0-9 0v10.4a6 6 0 0 0 12 0V6.5z"/></svg>',pin:'<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>'};
+window.__ICON=ICON;
 const EM='😀😊😍🙏👍🎉🌍🌴🦁🐘🛶🏨🍽️🚐✈️📍🔥✨❤️👏😉🤝🙌🌅'.match(/\p{Extended_Pictographic}️?/gu);
 const T={fr:{name:'AFA Tours — Assistant',st:'assistant virtuel · répond tout de suite',online:'en ligne',typing:'écrit…',ph:'Écrivez un message',today:'Aujourd’hui',intro:'Les réponses viennent de l’assistant virtuel d’AFA Tours. Pour parler à un membre de l’équipe, utilisez le bouton WhatsApp.',hello:'Bonjour 👋 Je suis l’assistant virtuel d’AFA Tours. Je peux vous renseigner sur les circuits, les séjours, le transport, les hôtels et vos réservations. Que cherchez-vous ?',launch:'Discuter',menu:{clear:'Effacer la conversation',wa:'Continuer sur WhatsApp',call:'Appeler l’agence'},qr:['Les circuits','Les séjours','Le transport','Vodun Days','Réserver','Parler à l’équipe'],pos:'Ma position',photo:'Photo',sentpos:'📍 Ma position',photoNote:'Photo ajoutée à cette conversation. Pour l’envoyer à l’équipe, passez par WhatsApp.',wabtn:'Continuer sur WhatsApp',bookbtn:'Réserver maintenant',seeb:'Voir les circuits'},en:{name:'AFA Tours — Assistant',st:'virtual assistant · replies instantly',online:'online',typing:'typing…',ph:'Type a message',today:'Today',intro:'Replies come from AFA Tours’ virtual assistant. To speak with a team member, use the WhatsApp button.',hello:'Hello 👋 I’m AFA Tours’ virtual assistant. I can help with tours, longer stays, transport, hotels and your bookings. What are you looking for?',launch:'Chat',menu:{clear:'Clear chat',wa:'Continue on WhatsApp',call:'Call the agency'},qr:['Tours','Longer stays','Transport','Vodun Days','Book','Talk to the team'],pos:'My location',photo:'Photo',sentpos:'📍 My location',photoNote:'Photo added to this chat. To send it to the team, use WhatsApp.',wabtn:'Continue on WhatsApp',bookbtn:'Book now',seeb:'See the tours'}};
 const t=()=>T[L()];
@@ -104,7 +105,21 @@ if(m.act)h+='<div class="act">'+m.act.map(a=>a.wa?'<a class="wa" href="'+wa()+'"
 return '<div class="b '+(mine?'out':'in')+'">'+h+tm+'</div>'}
 function draw(){let h='<div class="day">'+t().today+'</div><div class="sys">'+esc(t().intro)+'</div>';H.forEach(m=>{h+=m.k==='sys'?'<div class="sys">'+esc(m.x)+'</div>':bubble(m)});M.innerHTML=h+(typing?'<div class="typ"><i></i><i></i><i></i></div>':'');M.scrollTop=M.scrollHeight;lab()}
 function push(m){m.at=Date.now();H.push(m);sv();draw()}
-function reply(txt){const k=intent(txt),en=L()==='en'||looksEN(txt);const kb=KB[en?'en':'fr'][k]();const parts=kb.filter(x=>typeof x==='string'),act=(kb.find(x=>x.act)||{}).act;
+
+function smart(txt,en){const s=' '+norm(txt).replace(/[^a-z0-9 ]/g,' ')+' ';const T=window.TRIPS||[];const m=window.money||(n=>n+' FCFA');
+const num=(s.match(/\b(\d{1,3})\s*(personnes?|pers|adultes?|people|persons|travell?ers|voyageurs|pax)\b/)||[])[1];
+const hit=T.filter(x=>{const d=norm(x.destination).split(/[ \-]/).filter(w=>w.length>3);const t=norm(x.title).split(/[ \-]/).filter(w=>w.length>4);return d.some(w=>s.includes(' '+w))||t.some(w=>s.includes(' '+w))});
+const ask=/prix|tarif|cout|combien|price|cost|how much/.test(s);
+if(hit.length&&hit.length<=3){const o=[];hit.forEach(x=>{let l=x.destination+' — '+x.title+' : '+x.description.split('. ')[0]+'.';if(x.priceValue){l+=en?' Price: '+m(x.priceValue)+' per person':' Prix : '+m(x.priceValue)+' par personne';if(num)l+=' → '+m(x.priceValue*num)+(en?' for ':' pour ')+num;l+='.'}else l+=en?' Price on request.':' Prix sur devis.';o.push(l)});o.push({act:[{l:en?'Compose my stay':'Composer mon séjour',kind:'plan'}]});o.push(en?'You can add it to your own stay with “Composer mon séjour”, or I can pass you to the team.':'Vous pouvez l’ajouter à votre séjour avec « Composer mon séjour », ou je vous mets en relation avec l’équipe.');return o}
+if(/meilleure saison|quand partir|quelle periode|best time|when to (go|visit)|saison/.test(s))return[en?'The dry seasons are the easiest: November to March and a shorter window in July–August. Vodun Days (Ouidah) are on 2–9 January 2027.':'Les saisons sèches sont les plus agréables : de novembre à mars, et une courte période en juillet-août. Les Vodun Days (Ouidah) ont lieu du 2 au 9 janvier 2027.'];
+if(/visa|passeport|passport|entree|entry/.test(s))return[en?'Most visitors need a visa or e-visa for Benin. Check the official site before travelling; we can help you prepare your documents.':'La plupart des visiteurs ont besoin d’un visa ou e-visa pour le Bénin. Vérifiez le site officiel avant de partir ; nous pouvons vous aider à préparer vos documents.'];
+if(/monnaie|devise|franc|euro|dollar|currency|cfa/.test(s)&&!ask)return[en?'Prices are in FCFA. The site converts to your currency (with a 7% margin) using the selector at the top.':'Les prix sont en FCFA. Le site convertit dans votre devise (marge de 7 %) avec le sélecteur en haut de page.'];
+if(/sante|vaccin|fievre|health|vaccine|malaria|paludisme/.test(s))return[en?'A yellow-fever vaccination certificate is usually required, and malaria prevention is advised. Please check with your doctor before travelling.':'Le certificat de vaccination contre la fièvre jaune est généralement exigé et une prévention du paludisme est conseillée. Parlez-en à votre médecin avant de partir.'];
+if(/securite|danger|safe|security/.test(s))return[en?'The areas we visit are well known to our local guides, who stay with you the whole time. Ask us about the Pendjari region before booking.':'Les zones que nous visitons sont bien connues de nos guides locaux, qui restent avec vous tout au long. Demandez-nous conseil pour la Pendjari avant de réserver.'];
+if(/sejour|semaine|jours|organiser|composer|plan my|itinerar|stay/.test(s)&&/composer|organiser|construire|moi meme|build|plan my|itinerar|choisir/.test(s))return[en?'You can build your whole stay yourself: pick circuits, hotels and transport day by day, and the price is calculated for you.':'Vous pouvez construire tout votre séjour vous-même : circuits, hôtels et transport jour par jour, avec le prix calculé automatiquement.',{act:[{l:en?'Compose my stay':'Composer mon séjour',kind:'plan'}]}];
+if(ask&&num&&!hit.length)return[(en?'Prices per person: ':'Prix par personne : ')+T.filter(x=>x.priceValue).slice(0,6).map(x=>x.destination+' '+m(x.priceValue)+' (×'+num+' = '+m(x.priceValue*num)+')').join(' ; ')+'.'];
+return null}
+function reply(txt){const k=intent(txt),en=L()==='en'||looksEN(txt);const kb=smart(txt,en)||KB[en?'en':'fr'][k]();const parts=kb.filter(x=>typeof x==='string'),act=(kb.find(x=>x.act)||{}).act;
 const last=H.filter(m=>m.w==='out').pop();if(last)last.rd=1;typing=true;draw();
 const delay=Math.min(2400,700+parts.join('').length*9);
 setTimeout(()=>{typing=false;const cu=window.AFA_CHAT_URL;
@@ -112,8 +127,8 @@ const fin=(p,a)=>{push({w:'in',p:p,x:p.join(' '),act:a});busy=false};
 if(cu){fetch(cu,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({lang:en?'en':'fr',messages:H.filter(m=>m.k!=='sys'&&m.x).slice(-12).map(m=>({role:m.w==='out'?'user':'assistant',content:m.x}))})}).then(r=>r.json()).then(j=>j.reply?fin(String(j.reply).split(/\n\n+/),j.handoff?[{wa:1,l:t().wabtn}]:undefined):fin(parts,act)).catch(()=>fin(parts,act))}else fin(parts,act)},delay)}
 function send(x,kind){x=(x||'').trim();if(!x||busy)return;busy=true;push({w:'out',x:x,k:kind});reply(x)}
 /* ---- événements ---- */
-function open(){P.classList.add('on');$('#cwl').style.display='none';$('#cwl').classList.remove('has');if(!H.length){setTimeout(()=>push({w:'in',x:t().hello,p:[t().hello]}),300)}draw();setTimeout(()=>$('#cwt').focus({preventScroll:true}),350);try{history.replaceState(null,'',location.href)}catch(e){}}
-function close(){P.classList.remove('on');$('#cwl').style.display='';$('#cwmenu').classList.remove('on');$('#cwe').classList.remove('on')}
+function open(){P.classList.add('on');$$('[data-chat]').forEach(x=>x.classList.remove('has'));if(!H.length){setTimeout(()=>push({w:'in',x:t().hello,p:[t().hello]}),300)}draw();setTimeout(()=>$('#cwt').focus({preventScroll:true}),350);try{history.replaceState(null,'',location.href)}catch(e){}}
+function close(){P.classList.remove('on');$('#cwmenu').classList.remove('on');$('#cwe').classList.remove('on')}
 $('#cwl').onclick=open;$('#cwx').onclick=close;$('#cws2').onclick=()=>{const v=$('#cwt').value;$('#cwt').value='';$('#cwt').style.height='';send(v)};
 $('#cwt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!/Mobi|Android|iPhone/i.test(navigator.userAgent)){e.preventDefault();$('#cws2').click()}});
 $('#cwt').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(110,e.target.scrollHeight)+'px'});
@@ -130,8 +145,26 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&P.classList.contain
 if(typeof applyLang==='function'){const o=applyLang;applyLang=function(){o.apply(this,arguments);lab();if(P.classList.contains('on'))draw()}}
 lab();
 /* petite invitation discrète : pastille sur le bouton après 40 s, sans popup */
-setTimeout(()=>{if(!P.classList.contains('on')&&!H.length)$('#cwl').classList.add('has')},40000);
+
 document.addEventListener('click',e=>{if(e.target.closest('[data-chat]')){e.preventDefault();open()}});
+})();
+
+/* ===== intégration chat + avis dans les boutons flottants ===== */
+(function(){const ICON=window.__ICON||{chat:''};
+const mini=document.querySelector('.fabs .mini');
+if(mini){const b=document.createElement('button');b.type='button';b.className='mb mc';b.setAttribute('data-chat','');b.setAttribute('aria-label','Discuter avec nous');b.title='Discuter';b.innerHTML=ICON.chat;mini.insertBefore(b,mini.firstChild);
+const a=document.createElement('a');a.className='mb mr';a.href='#avis';a.setAttribute('data-rvgo','');a.setAttribute('aria-label','Laisser un avis');a.title='Laisser un avis';a.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg>';mini.appendChild(a)}
+const mb=document.querySelector('.mbar');
+if(mb){const w=mb.querySelector('#mwa');const c=document.createElement('button');c.type='button';c.className='rb rch';c.setAttribute('data-chat','');c.setAttribute('aria-label','Discuter avec nous');c.innerHTML=ICON.chat;mb.insertBefore(c,w);}
+setTimeout(()=>{if(!document.querySelector('#cw.on')&&!H.length)$$('[data-chat]').forEach(x=>x.classList.add('has'))},40000);
+/* bandeau avis, visible dès l'arrivée */
+const tr=document.querySelector('.trust');
+if(tr&&!document.querySelector('.rvs')){const sec=document.createElement('section');sec.className='rvs';sec.setAttribute('aria-label','Votre avis');
+sec.innerHTML='<div class="wrap"><div class="l"><div class="stars2" role="group" aria-label="Noter AFA Tours">'+[1,2,3,4,5].map(n=>'<button type="button" data-rate="'+n+'" aria-label="'+n+' étoile'+(n>1?'s':'')+'">★</button>').join('')+'</div><div><b>Vous avez voyagé avec nous ? Votre avis compte.</b><small>Notez en un clic, écrivez en 30 secondes : cela aide d’autres voyageurs.</small></div></div><a class="btn btn-red" href="#avis" data-rvgo>Laisser un avis</a></div>';
+tr.insertAdjacentElement('afterend',sec)}
+function goReview(n){const f=document.querySelector('#rvf'),sect=document.querySelector('#avis');if(!sect)return;if(n&&f){const r=f.querySelector('input[name=r][value="'+n+'"]');if(r){r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}));r.dispatchEvent(new Event('click',{bubbles:true}))}}
+const y=(f||sect).getBoundingClientRect().top+scrollY-90;scrollTo({top:y,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});setTimeout(()=>{const t=f&&f.querySelector('textarea');t&&t.focus({preventScroll:true})},700)}
+document.addEventListener('click',e=>{const s=e.target.closest('[data-rate]');if(s){e.preventDefault();goReview(+s.dataset.rate);return}const g=e.target.closest('[data-rvgo]');if(g){e.preventDefault();goReview(0)}});
 })();
 `;
 module.exports={css,js};
