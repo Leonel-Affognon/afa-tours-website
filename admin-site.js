@@ -108,3 +108,15 @@ export function reminderLink(b,kind){
  const phone=String(b.phone||"").replace(/\D/g,"");
  return (phone?"https://wa.me/"+phone:"https://wa.me/")+"?text="+encodeURIComponent(T[kind]);
 }
+
+export async function renderTeamAdmin(content,supabase){
+ const call=async body=>{const {data,error}=await supabase.functions.invoke("manage-team",{body});if(error){let m=error.message;try{m=(await error.context.json()).error||m}catch(e){}throw new Error(m)}return data};
+ content.innerHTML="<h2>Comptes administrateurs</h2><p>Chargement…</p>";
+ let members=[];
+ try{members=(await call({action:"list"})).members||[]}catch(e){content.innerHTML="<h2>Comptes administrateurs</h2><p>"+esc(e.message)+"</p>";return}
+ const RL={owner:"Propriétaire",admin:"Administrateur",editor:"Éditeur"};
+ content.innerHTML='<h2>Comptes administrateurs</h2><p>Invitez une personne par e-mail. Elle reçoit un lien pour choisir son mot de passe, puis active la double vérification à sa première connexion.</p>'+members.map(m=>'<article class="admin-panel" style="padding:12px;margin:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><strong>'+esc(m.email)+'</strong><br><small>'+esc(RL[m.role]||m.role)+'</small></div>'+(m.role==="owner"?"":'<button class="button" data-rm="'+m.user_id+'" type="button">Retirer l’accès</button>')+"</article>").join("")+'<section class="admin-panel"><h3>Inviter un administrateur</h3><form id="tf" class="admin-grid"><label>E-mail<input name="email" type="email" required></label><label>Rôle<select name="role"><option value="admin">Administrateur (tout gérer)</option><option value="editor">Éditeur (contenu)</option></select></label><p><button class="button" type="submit">Envoyer l’invitation</button></p><p class="admin-status" id="tm" aria-live="polite"></p></form></section>';
+ const tm=content.querySelector("#tm");
+ content.querySelector("#tf").onsubmit=async e=>{e.preventDefault();const f=e.target;tm.textContent="Envoi…";try{await call({action:"invite",email:f.email.value,role:f.role.value});renderTeamAdmin(content,supabase)}catch(er){tm.textContent=er.message}};
+ content.querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{if(!confirm("Retirer l’accès de ce compte ?"))return;try{await call({action:"remove",user_id:b.dataset.rm});renderTeamAdmin(content,supabase)}catch(er){alert(er.message)}});
+}
