@@ -85,7 +85,7 @@ const money=n=>{if(cur==='XOF'||cur==='XAF')return n.toLocaleString(loc())+' FCF
 (function(){try{const c=new AbortController();setTimeout(()=>c.abort(),3500);fetch('https://open.er-api.com/v6/latest/EUR',{signal:c.signal}).then(r=>r.json()).then(j=>{if(j&&j.rates){Object.keys(FX).forEach(k=>{if(j.rates[k]&&k!=='XOF'&&k!=='XAF')FX[k]=j.rates[k]});fxLive=true;applyLang()}}).catch(()=>{})}catch(x){}})();
 const dur=s=>lang==='fr'?s:s.replace('à','to').replace('Environ','About').replace('À définir selon le safari','Depends on the safari');
 const tprice=x=>x.priceValue?money(x.priceValue)+' <small>'+t('pp')+'</small>':t('onreq');
-const ph=(x,cls)=>'<div class="ph th-'+x.theme+' '+(cls||'')+'"><img src="'+esc(x.img||'')+'" alt="'+esc(x.destination)+'" loading="lazy" referrerpolicy="no-referrer" onload="this.parentNode.classList.add(\'ok\')" onerror="this.remove()"><span class="phl">'+esc(x.destination)+'</span></div>';
+const ph=(x,cls)=>'<div class="ph th-'+x.theme+' '+(cls||'')+'"><img src="'+esc(x.img||'')+'" alt="'+esc(x.destination)+'" loading="lazy" referrerpolicy="no-referrer" onload="this.parentNode.classList.add(\'ok\')" onerror="this.parentNode.classList.add(\'bad\');this.remove()"><span class="phl">'+esc(x.destination)+'</span></div>';
 const heart='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6a5.3 5.3 0 0 1 9.3 6c-2.3 4.4-9.3 9-9.3 9Z"/></svg>';
 globalThis.__ENG_SEL=()=>[...sel];const sel=new Set(),st={th:new Set(),h:99,priced:false,q:'',sort:'',d:'',map:false};
 const items=()=>[...sel].map(id=>{if(id.startsWith('vd')){const o=VD.opts[+id.slice(2)];return{id,name:'Vodun Days · '+o.n[lang],p:o.p}}const x=T.find(y=>y.id===id);return{id,name:x.destination,p:x.priceValue}});
