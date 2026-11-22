@@ -88,7 +88,7 @@ const dur=s=>lang==='fr'?s:s.replace('à','to').replace('Environ','About').repla
 const tprice=x=>x.priceValue?money(x.priceValue)+' <small>'+t('pp')+'</small>':t('onreq');
 const ph=(x,cls)=>'<div class="ph th-'+x.theme+' '+(cls||'')+'"><img src="'+esc(x.img||'')+'" alt="'+esc(x.destination)+'" loading="lazy" referrerpolicy="no-referrer" onload="this.parentNode.classList.add(\'ok\')" onerror="this.parentNode.classList.add(\'bad\');this.remove()"><span class="phl">'+esc(x.destination)+'</span></div>';
 const heart='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6a5.3 5.3 0 0 1 9.3 6c-2.3 4.4-9.3 9-9.3 9Z"/></svg>';
-globalThis.__ENG_SEL=()=>[...sel];const sel=new Set(),st={th:new Set(),h:99,priced:false,q:'',sort:'',d:'',map:false};
+try{globalThis.__SEL0=JSON.parse(localStorage.getItem('afa_sel')||'[]')}catch(x){globalThis.__SEL0=[]}globalThis.__ENG_SEL=()=>[...sel];const sel=new Set(),st={th:new Set(),h:99,priced:false,q:'',sort:'',d:'',map:false};
 const items=()=>[...sel].map(id=>{if(id.startsWith('vd')){const o=VD.opts[+id.slice(2)];return{id,name:VD.short+' · '+o.n[lang],p:o.p}}const x=T.find(y=>y.id===id);return{id,name:x.destination,p:x.priceValue}});
 function vis(){let l=T.filter(x=>(!st.th.size||st.th.has(x.theme))&&x.h<=st.h&&(!st.priced||x.priceValue)&&(!st.d||x.destination===st.d)&&(!st.q||(x.destination+' '+x.title+' '+x.description+' '+x.stops).toLowerCase().includes(st.q)));
 if(st.sort==='h')l.sort((a,b)=>a.h-b.h);if(st.sort==='p')l.sort((a,b)=>(a.priceValue||1e9)-(b.priceValue||1e9));if(st.sort==='n')l.sort((a,b)=>a.destination.localeCompare(b.destination,'fr'));return l}
@@ -100,7 +100,7 @@ const P=[[.77,10.8],[1.0,10.0],[1.25,9.0],[1.6,8.0],[1.62,7.0],[1.62,6.28],[2.72
 const K=95,X=l=>(l-.5)*K,Y=a=>(12.6-a)*K;const pos={'axe-du-pouvoir':[2.63,6.5],'secrets-riviere-noire':[2.78,6.62],'vie-ciel-eau':[2.38,6.55],'route-memoires':[2.09,6.36],'traces-danxome':[1.99,7.19],'amazone-atlantique':[2.45,6.34],'fleuve-ocean':[1.82,6.28],'pistes-pendjari':[1.55,11.2]};const lab={'axe-du-pouvoir':[10,-8],'secrets-riviere-noire':[10,0],'vie-ciel-eau':[-10,-12],'route-memoires':[-12,-12],'traces-danxome':[12,4],'amazone-atlantique':[2,24],'fleuve-ocean':[-12,22],'pistes-pendjari':[12,4]};
 function drawMap(){$('#map').innerHTML='<path class="land" d="M'+P.map(p=>X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' L')+'Z"/>'+T.filter(x=>pos[x.id]&&lab[x.id]).map(x=>{const [px,py]=pos[x.id],[dx,dy]=lab[x.id];return '<g class="pin" tabindex="0" role="button" data-id="'+x.id+'" data-th="'+x.theme+'" aria-label="'+esc(x.destination)+'"><circle cx="'+X(px)+'" cy="'+Y(py)+'" r="7"/><text x="'+(X(px)+dx)+'" y="'+(Y(py)+dy+4)+'" text-anchor="'+(dx<0?'end':'start')+'">'+esc(x.destination)+'</text></g>'}).join('')}
 function renderCircuits(){const l=vis();$('#cnt').textContent=l.length+(l.length>1?t('cntn'):t('cnt1'));$('#none').hidden=l.length>0;$('#grid').innerHTML=l.map(card).join('');const ids=new Set(l.map(x=>x.id));$$('.pin').forEach(p=>p.classList.toggle('dim',!ids.has(p.dataset.id)))}
-function renderSel(){const it=items();$('#nb').textContent=sel.size;$('#nb2')&&($('#nb2').textContent=sel.size);
+function renderSel(){const it=items();try{localStorage.setItem('afa_sel',JSON.stringify([...sel]))}catch(x){}$('#nb').textContent=sel.size;$('#nb2')&&($('#nb2').textContent=sel.size);
 $('#tags').innerHTML=it.length?it.map(i=>'<span class="tag">'+esc(i.name)+'<button type="button" data-rm="'+i.id+'" aria-label="'+t('rem')+' : '+esc(i.name)+'">×</button></span>').join(''):'<span class="none2">'+t('qNone')+'</span><button type="button" class="btn btn-or btn-sm" data-goc style="margin-top:10px">'+t('qGo')+'</button>';
 const pax=Math.max(1,+$('#pax').value||1),priced=it.filter(i=>i.p),un=it.length-priced.length,sum=priced.reduce((s,i)=>s+i.p,0)*pax;
 $('#est').innerHTML=it.length?'<b>'+t('est')+' : '+money(sum)+'</b> · '+pax+' '+t('pax').toLowerCase()+(un?' · +'+un+' '+t('onq'):'')+'<br><small>'+t('estn')+'</small>':'<small>'+t('estn')+'</small>';
@@ -124,7 +124,7 @@ $('#faq').innerHTML=[1,2,3,4,5,6,7,8].map(i=>'<details class="q"><summary>'+t('q
 document.addEventListener('change',ev=>{const s=ev.target.closest&&ev.target.closest('.cursel');if(s){cur=s.value;applyLang()}});
 document.addEventListener('click',e=>{const g=e=>e.target.closest(g.s);const c=s=>e.target.closest(s);let b;
 if(b=c('[data-lang]')){lang=b.dataset.lang;applyLang();return}
-if(b=c('.heart'))return toggle(b.dataset.id);if(b=c('[data-add]')){const id=b.dataset.add;if(!sel.has(id)){sel.add(id);renderSel()}return window.openBook?openBook('circuit',id):void 0}if(b=c('[data-open]'))return openD(b.dataset.open);
+if(b=c('.heart'))return toggle(b.dataset.id);if(b=c('[data-add]')){const id=b.dataset.add;if(!sel.has(id)){sel.add(id);renderSel()}return window.__remind&&window.__remind(id)}if(b=c('[data-open]'))return openD(b.dataset.open);
 if(b=c('[data-rm]'))return toggle(b.dataset.rm);if(b=c('[data-gi]'))return($('#lb').showModal(),showLb(+b.dataset.gi));
 if(b=c('.chip[data-k]')){const k=b.dataset.k;st.th.has(k)?st.th.delete(k):st.th.add(k);applyLang();return}
 if(b=c('.pin')){openD(b.dataset.id);return}

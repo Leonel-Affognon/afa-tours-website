@@ -168,7 +168,28 @@ var al=window.applyLang;if(typeof al==='function')window.applyLang=function(){va
 })();
 /* réserver = ajouter à la demande ; retour sur la fiche du circuit */
 (function(){
-document.addEventListener('click',function(e){var b=e.target.closest('#dbk');if(!b)return;try{if(!sel.has(cur2.id)){sel.add(cur2.id);renderSel()}window.__retD=cur2.id}catch(x){}},true);
+
+try{(window.__SEL0||[]).forEach(function(id){if(id.indexOf('vd')===0||T.find(function(y){return y.id===id}))sel.add(id)});if(sel.size)renderSel()}catch(x){}
+var EN=function(){return typeof lang!=='undefined'&&lang==='en'},rn=0,rt=null,lastAct=Date.now();
+var st=document.createElement('style');st.textContent='#rmd{position:fixed;left:12px;right:12px;bottom:84px;z-index:60;max-width:440px;background:#2A0C07;color:#FBF6EF;border-radius:18px;padding:16px 16px 14px;box-shadow:0 18px 44px rgba(0,0,0,.35);border:2px solid #E8832F;animation:rmi .28s ease-out}@media(min-width:701px){#rmd{left:24px;right:auto;bottom:24px}}#rmd b{display:block;font:700 1.05rem/1.25 var(--d,Georgia,serif);margin:0 28px 4px 0}#rmd p{margin:0 0 12px;font-size:.92rem;line-height:1.45;color:#f1e3d6}#rmd .rb{display:flex;flex-wrap:wrap;gap:8px}#rmd .btn{padding:10px 16px;font-size:.92rem}#rmd .x{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:1.2rem;line-height:1;cursor:pointer}#rmd a.btn-w{background:#25D366;color:#073b1a;border:0;font-weight:700;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center}@keyframes rmi{from{opacity:0;transform:translateY(14px)}}@media(prefers-reduced-motion:reduce){#rmd{animation:none}}';document.head.appendChild(st);
+function names(){try{return items().map(function(i){return i.name})}catch(x){return []}}
+function hide(){var o=document.getElementById('rmd');if(o)o.remove()}
+function show(added){if(!sel.size)return;hide();var n=sel.size,en=EN(),nm=names(),last=added?nm[nm.length-1]:'';
+ var box=document.createElement('div');box.id='rmd';box.setAttribute('role','status');
+ var t=added?(en?'✓ '+last+' added to your booking':'✓ '+last+' ajouté à votre réservation'):(en?'Your booking is not finished':'Votre réservation n’est pas terminée');
+ var p=added?(en?n+' choice'+(n>1?'s':'')+' saved. Keep exploring, then finish: dates, travellers and contact.':n+' choix enregistré'+(n>1?'s':'')+'. Continuez à explorer, puis terminez : dates, voyageurs et contact.'):(en?n+' choice'+(n>1?'s':'')+' waiting: '+nm.slice(0,3).join(', ')+'. Add more, send your request, or write to us.':n+' choix en attente : '+nm.slice(0,3).join(', ')+'. Ajoutez-en d’autres, envoyez votre demande ou écrivez-nous.');
+ var wa='https://wa.me/2290197165646?text='+encodeURIComponent((en?'Hello AFA Tours, I would like to book: ':'Bonjour AFA Tours, je souhaite réserver : ')+nm.join(', '));
+ box.innerHTML='<button class="x" type="button" aria-label="'+(en?'Close':'Fermer')+'">×</button><b></b><p></p><div class="rb"><button type="button" class="btn btn-or" data-fin>'+(en?'Finish my booking':'Finaliser ma réservation')+'</button>'+(added?'<button type="button" class="btn btn-out" data-more style="color:#FBF6EF;border-color:#FBF6EF">'+(en?'Keep exploring':'Voir d’autres circuits')+'</button>':'<a class="btn btn-w" target="_blank" rel="noopener" href="'+wa+'">WhatsApp</a>')+'</div>';
+ box.querySelector('b').textContent=t;box.querySelector('p').textContent=p;
+ var dl=document.getElementById('dlg');(dl&&dl.open?dl:document.body).appendChild(box);
+ box.addEventListener('click',function(e){if(e.target.closest('.x,[data-more]')){hide();var d=document.getElementById('dlg');if(e.target.closest('[data-more]')&&d&&d.open)d.close()}else if(e.target.closest('[data-fin]')){hide();var d2=document.getElementById('dlg');if(d2&&d2.open)d2.close();window.__retD=null;if(window.openBook)openBook('circuit',[].concat(Array.from(sel))[0])}});
+ clearTimeout(rt);rt=setTimeout(function(){if(added)hide()},added?14000:30000);}
+window.__remind=function(){lastAct=Date.now();show(true)};
+document.addEventListener('click',function(e){var b=e.target.closest('#dbk');if(!b)return;e.preventDefault();e.stopImmediatePropagation();try{if(!sel.has(cur2.id)){sel.add(cur2.id);renderSel()}}catch(x){}window.__remind()},true);
+setInterval(function(){var bq=document.getElementById('bq');if(!sel.size||rn>=3||(bq&&bq.open)||document.getElementById('rmd')||document.hidden)return;if(Date.now()-lastAct>60000){rn++;lastAct=Date.now();show(false)}},5000);
+addEventListener('hashchange',function(){if(/^#page-[234]/.test(location.hash)&&sel.size&&rn<3&&!document.getElementById('rmd')){rn++;lastAct=Date.now();setTimeout(function(){show(false)},1200)}});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&sel.size&&rn<3&&Date.now()-lastAct>20000){rn++;lastAct=Date.now();show(false)}});
+
 var d=document.getElementById('bq');
 if(d)d.addEventListener('close',function(){var id=window.__retD;window.__retD=null;if(id&&typeof openD==='function')setTimeout(function(){try{openD(id)}catch(e){}},60)});
 function pdfbtn(after){var o=document.getElementById('dpdf');if(o)o.remove();var b=document.createElement('button');b.type='button';b.id='dpdf';b.className='btn btn-out';b.style.cssText='margin-top:10px;justify-self:start';b.textContent=(typeof lang!=='undefined'&&lang==='en')?'Download the PDF sheet':'Télécharger la fiche PDF';after.insertAdjacentElement('afterend',b)}
