@@ -134,6 +134,13 @@ main .sec .h2,main .xs h2{font-size:clamp(2.1rem,4.6vw,3.7rem);line-height:1.02;
 #equipe .team .tm{border-radius:18px;box-shadow:0 12px 30px rgba(42,12,7,.08)}
 #galerie .shcard{border-radius:18px;box-shadow:0 14px 34px rgba(42,12,7,.1)}
 @media(min-width:900px){#galerie .share{grid-template-columns:1fr 1.1fr;align-items:start}}
+
+/* ALLEGEMENT : moins de boutons flottants, séjours sur une ligne, bandeau de confiance sobre */
+.fabs .mb.ph1,.fabs .mb.ml,.fabs .mb.mr,.snav #sup,.snav #sdn{display:none!important}
+#sejours .sjc.hl .dn{font-size:clamp(1.9rem,2.5vw,2.7rem)!important;-webkit-text-stroke:0!important;color:#fff!important;line-height:1.02;overflow-wrap:anywhere;hyphens:auto}
+@media(min-width:1100px){#sejours .sj{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:16px}#sejours .sjc{padding:20px}}
+@media(min-width:701px) and (max-width:1099px){#sejours .sj{grid-template-columns:repeat(2,minmax(0,1fr))!important}#sejours .sjc.hl{grid-column:1/-1}#sejours .sjc:nth-child(2n){margin-top:0}}
+@media(min-width:701px){.trust ul{display:flex!important;flex-wrap:wrap;justify-content:center;gap:8px 34px!important;padding:0}.trust li{display:flex!important;align-items:baseline;gap:.55em;border:0!important;padding:6px 0!important;text-align:left}.trust li b{font-size:1rem!important}.trust li span{display:none}.trust li{white-space:nowrap}.trust ul{gap:4px 30px!important}@media(min-width:1100px){.trust ul{flex-wrap:nowrap!important}}.trust li+li::before{content:"✦";color:#E8832F;margin-right:26px;font-size:.8rem}}
 /* TÉLÉPHONE */
 @media(max-width:700px){
  #sejours>.wrap{max-width:100vw;overflow:hidden}
@@ -154,7 +161,7 @@ function wm(id,fr,en,left){var s=D.getElementById(id);if(!s||s.querySelector('.w
 function fit(){var vw=D.documentElement.clientWidth||innerWidth;D.querySelectorAll('.wm').forEach(function(w){w.style.fontSize='100px';var bw=w.getBoundingClientRect().width||1;var f=Math.min(100*vw*.84/bw,vw*.23,336);w.style.fontSize=Math.max(f,48).toFixed(1)+'px'})}
 function lg(){return document.documentElement.lang==='en'}
 function sync(){var ch=0;D.querySelectorAll('.wm').forEach(function(w){var t=lg()?w.dataset.en:w.dataset.fr;if(w.textContent!==t){w.textContent=t;ch=1}});if(ch)fit()}
-[['circuits','BÉNIN','BENIN',0],['agenda','VODUN','VODUN',1],['sejours','AFRIQUE','AFRICA',0],['galerie','IMAGES','IMAGES',1],['blog','BLOG','BLOG',0],['partenaires','ACCUEIL','WELCOME',1],['pratique','ASTUCES','TIPS',0],['approche','AUTHENTIQUE','AUTHENTIC',1],['equipe','NOUS','US',0],['avis','MERCI','THANKS',1],['devis','PARLONS','HELLO',0]].forEach(function(a){wm(a[0],a[1],a[2],a[3])});
+[['circuits','BÉNIN','BENIN',0],['agenda','VODUN','VODUN',1],['approche','AUTHENTIQUE','AUTHENTIC',1]].forEach(function(a){wm(a[0],a[1],a[2],a[3])});
 var tk=0;var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(fit,120)});addEventListener('orientationchange',function(){setTimeout(fit,250)});if(D.fonts&&D.fonts.ready)D.fonts.ready.then(fit);addEventListener('load',fit);function par(){tk=0;var vh=innerHeight;D.querySelectorAll('.wm').forEach(function(w){var s=w.parentNode,r=s.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)return;var p=(r.top+r.height/2-vh/2)/vh;w.style.transform='translate3d('+(p*-22)+'px,'+(p*40)+'px,0)'})}
 addEventListener('scroll',function(){if(!tk){tk=1;requestAnimationFrame(par)}},{passive:true});
 ['galerie','partenaires','approche','avis','devis','pratique'].forEach(function(i){var s=D.getElementById(i);if(s)s.classList.add('kts')});
