@@ -44,11 +44,11 @@ const js=String.raw`
 var D=document,H=D.documentElement;
 var PG=[
  {id:1,fr:'Circuits',en:'Tours',sf:'Circuits, séjours, Vodun Days',ids:['circuits','agenda','sejours']},
- {id:2,fr:'Bibliothèque',en:'Library',sf:'Photos, récits, souvenirs',ids:['phero2','galerie','blog']},
+ {id:2,fr:'Bibliothèque',en:'Library',sf:'Photos, blog, souvenirs',ids:['phero2','galerie','blog']},
  {id:3,fr:'Réservations',en:'Bookings',sf:'Devis, partenaires, questions',ids:['phero3','devis','partenaires','pratique']},
  {id:4,fr:'Notre équipe',en:'Our team',sf:'Approche, équipe, avis',ids:['phero4','approche','equipe','avis']}];
 var HERO={
- 2:{c:'pb',fr:{e:'Bibliothèque',t:'Photos, récits et souvenirs du Bénin',l:'Regardez, lisez, partagez : les images de nos voyages, les histoires du pays et vos propres photos.',ch:[['Photos','#galerie'],['Récits','#blog'],['Partager mes photos','#galerie|.share']]},en:{e:'Library',t:'Photos, stories and memories of Benin',l:'Look, read, share: pictures from our trips, stories from the country and your own photos.',ch:[['Photos','#galerie'],['Stories','#blog'],['Share my photos','#galerie|.share']]}},
+ 2:{c:'pb',fr:{e:'Bibliothèque',t:'Photos, blog et souvenirs du Bénin',l:'Regardez, lisez, partagez : les images de nos voyages, les histoires du pays et vos propres photos.',ch:[['Photos','#galerie'],['Blog','#blog'],['Partager mes photos','#galerie|.share']]},en:{e:'Library',t:'Photos, blog and memories of Benin',l:'Look, read, share: pictures from our trips, stories from the country and your own photos.',ch:[['Photos','#galerie'],['Blog','#blog'],['Share my photos','#galerie|.share']]}},
  3:{c:'po',fr:{e:'Réservations',t:'Réservez votre voyage, sans stress',l:'Choisissez un circuit ou décrivez votre envie : nous répondons sous 24 h et nous organisons le reste.',ch:[['Demander un devis','#devis'],['Hôtels, restaurants, transport','#partenaires'],['Questions fréquentes','#pratique']]},en:{e:'Bookings',t:'Book your trip, stress-free',l:'Pick a tour or describe what you want: we reply within 24 hours and organise the rest.',ch:[['Request a quote','#devis'],['Hotels, restaurants, transport','#partenaires'],['Frequently asked questions','#pratique']]}},
  4:{c:'pr',fr:{e:'Notre équipe',t:'Des Béninois qui vous accueillent',l:'Une équipe jeune et passionnée, qui connaît chaque lieu et chaque personne que vous allez rencontrer.',ch:[['Notre approche','#approche'],['L’équipe','#equipe'],['Avis des voyageurs','#avis']]},en:{e:'Our team',t:'Beninese hosts who welcome you',l:'A young, passionate team that knows every place and every person you will meet.',ch:[['Our approach','#approche'],['The team','#equipe'],['Traveller reviews','#avis']]}}};
 
@@ -57,7 +57,7 @@ var main=D.getElementById('top');if(!main)return;
 function heroes(){var L=(typeof lang!=='undefined'&&lang==='en')?'en':'fr';[2,3,4].forEach(function(n){var s=D.getElementById('phero'+n);if(!s)return;var h=HERO[n][L];s.firstChild.innerHTML='<p class="eyebrow">'+h.e+'</p><h1>'+h.t+'</h1><p class="lede">'+h.l+'</p><div class="chips">'+h.ch.map(function(c){var u=c[1].split('|');return '<a href="'+u[0]+'"'+(u[1]?' data-go="'+u[1]+'"':'')+'>'+c[0]+'</a>'}).join('')+'</div>'})}
 document.addEventListener('click',function(e){var a=e.target.closest('a[data-go]');if(!a)return;e.preventDefault();var t=a.getAttribute('data-go');if(location.hash!=='#galerie'){location.hash='#galerie'}setTimeout(function(){var el=document.querySelector(t);if(el)scrollTo({top:el.getBoundingClientRect().top+pageYOffset-170,behavior:'smooth'})},450)});
 var secs=[].slice.call(main.children).filter(function(e){return e.tagName==='SECTION'&&!e.classList.contains('rvs')});
-var rvs=main.querySelector('.rvs'),rvs2=null;
+var rvs=main.querySelector('.rvs'),rvs2=null;setInterval(function(){if(rvs&&rvs2&&rvs2.innerHTML!==rvs.innerHTML)rvs2.innerHTML=rvs.innerHTML},700);
 var map={};PG.forEach(function(p){p.ids.forEach(function(i){map[i]=p.id})});
 secs.forEach(function(s){s.dataset.pg=map[s.id]||s.dataset.pg||1});heroes();
 PG.forEach(function(p){p.ids.forEach(function(i){var e=D.getElementById(i);if(e&&e.parentNode===main)main.appendChild(e)})});
