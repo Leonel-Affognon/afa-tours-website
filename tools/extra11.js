@@ -190,5 +190,11 @@ function sc(){var w=D.querySelector('#pratique>.wrap>div:first-child');if(w&&!w.
  var d=D.querySelector('#devis>.wrap>div:first-child');if(d){var st=d.querySelector('.steps');if(!st){st=D.createElement('ol');st.className='steps';d.appendChild(st)}var T=en()?[['You write to us','Tell us your dates and what you would like to see.'],['We reply within 24 h','With a clear proposal and a price.'],['You approve, we organise','Guides, transport, meals: we take care of the rest.']]:[['Vous nous écrivez','Dites-nous vos dates et ce que vous aimeriez voir.'],['Nous répondons sous 24 h','Avec une proposition claire et un prix.'],['Vous validez, nous organisons','Guides, transport, repas : nous nous occupons du reste.']];st.innerHTML=T.map(function(x,i){return '<li><i>'+(i+1)+'</i><span><b>'+x[0]+'</b>'+x[1]+'</span></li>'}).join('')}}
 sc();setInterval(sc,1500);
 })();
+
+/* chargement fiable des photos : certains navigateurs mobiles n'amorcent pas le chargement différé après changement de page */
+(function(){
+function kick(){var vh=innerHeight;document.querySelectorAll('#gal img,#grid img,.bc img,.rv img').forEach(function(i){if(i.complete&&i.naturalWidth)return;var p=i.closest('button,div,article,figure')||i;var r=p.getBoundingClientRect();if(r.height===0&&r.width===0)return;if(r.top<vh*3&&r.bottom>-vh*2){if(i.loading!=='eager'){i.loading='eager';var s=i.getAttribute('src');if(s){i.removeAttribute('src');i.setAttribute('src',s)}}}})}
+addEventListener('scroll',kick,{passive:true});addEventListener('hashchange',function(){setTimeout(kick,200);setTimeout(kick,900)});setInterval(kick,1200);setTimeout(kick,300);
+})();
 `;
 module.exports={css,js};
