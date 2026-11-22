@@ -156,7 +156,7 @@ if(mini){const b=document.createElement('button');b.type='button';b.className='m
 const a=document.createElement('a');a.className='mb mr';a.href='#avis';a.setAttribute('data-rvgo','');a.setAttribute('aria-label','Laisser un avis');a.title='Laisser un avis';a.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg>';mini.appendChild(a)}
 const mb=document.querySelector('.mbar');
 if(mb){const w=mb.querySelector('#mwa');const c=document.createElement('button');c.type='button';c.className='rb rch';c.setAttribute('data-chat','');c.setAttribute('aria-label','Discuter avec nous');c.innerHTML=ICON.chat;mb.insertBefore(c,w);}
-setTimeout(()=>{if(!document.querySelector('#cw.on')&&!H.length)$$('[data-chat]').forEach(x=>x.classList.add('has'))},40000);
+setTimeout(()=>{let hl=0;try{hl=(JSON.parse(localStorage.getItem('afa_chat_v1'))||[]).length}catch(e){}if(!document.querySelector('#cw.on')&&!hl)document.querySelectorAll('[data-chat]').forEach(x=>x.classList.add('has'))},40000);
 /* bandeau avis, visible dès l'arrivée */
 const tr=document.querySelector('.trust');
 if(tr&&!document.querySelector('.rvs')){const sec=document.createElement('section');sec.className='rvs';sec.setAttribute('aria-label','Votre avis');
