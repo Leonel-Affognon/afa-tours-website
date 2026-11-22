@@ -1,5 +1,8 @@
 const css=`
 html.pgs .pgoff{display:none!important}
+.segs{display:none!important}
+#grid.coll>*:nth-child(n+5){display:none}@media(min-width:701px){#grid.coll>*:nth-child(n+5){display:initial}#grid.coll>*:nth-child(n+7){display:none}}
+.cmore{display:block;margin:22px auto 0;border:2px solid #2A0C07;background:#fff;color:#2A0C07;border-radius:99px;padding:14px 28px;font:700 1rem inherit;cursor:pointer}.cmore:active,.cmore.tp{transform:scale(.97);background:#E8832F}
 html[data-pg="2"] .ann,html[data-pg="3"] .ann{display:none}
 html[data-pg="2"] main,html[data-pg="3"] main{padding-top:84px}
 .pgbar{max-width:1180px;margin:0 auto;padding:18px clamp(18px,4vw,56px) 0;display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
@@ -20,13 +23,14 @@ const js=String.raw`
 (function(){
 var D=document,H=D.documentElement;
 var PG=[
- {id:1,fr:'Voyager',en:'Travel',sf:'Circuits, séjours et Vodun Days',ids:['circuits','agenda','approche','sejours']},
- {id:2,fr:'Découvrir',en:'Discover',sf:'Partenaires, galerie et blog',ids:['galerie','partenaires','blog']},
- {id:3,fr:'Nous connaître',en:'About us',sf:'Équipe, avis et contact',ids:['equipe','avis','pratique','devis']}];
+ {id:1,fr:'Voyager',en:'Travel',sf:'Circuits et Vodun Days',ids:['circuits','agenda']},
+ {id:2,fr:'Découvrir',en:'Discover',sf:'Séjours, partenaires, galerie, blog',ids:['sejours','galerie','partenaires','blog']},
+ {id:3,fr:'Nous connaître',en:'About us',sf:'Notre approche, équipe, avis, contact',ids:['approche','equipe','avis','pratique','devis']}];
 var main=D.getElementById('top');if(!main)return;
 var secs=[].slice.call(main.children).filter(function(e){return e.tagName==='SECTION'});
 var map={};PG.forEach(function(p){p.ids.forEach(function(i){map[i]=p.id})});
 secs.forEach(function(s){s.dataset.pg=map[s.id]||1});
+PG.forEach(function(p){p.ids.forEach(function(i){var e=D.getElementById(i);if(e&&e.parentNode===main)main.appendChild(e)})});
 H.classList.add('pgs');
 var cur=1,bar=D.createElement('nav'),nx=D.createElement('div');bar.className='pgbar';bar.setAttribute('aria-label','Pages du site');nx.className='pgnext';
 function lg(){return (typeof lang!=='undefined'&&lang==='en')?'en':'fr'}
@@ -38,7 +42,7 @@ function draw(){
  if(window.__trDom)try{window.__trDom(bar);window.__trDom(nx)}catch(e){}
 }
 function place(){
- var vis=secs.filter(function(s){return+s.dataset.pg===cur&&!s.hidden});
+ var vis=[].slice.call(main.children).filter(function(s){return s.tagName==='SECTION'&&+s.dataset.pg===cur&&!s.hidden});
  var tr=main.querySelector('.trust');
  if(cur===1&&tr&&tr.parentNode===main)main.insertBefore(bar,tr.nextSibling);else if(vis[0])main.insertBefore(bar,vis[0]);else main.insertBefore(bar,main.firstChild);
  var f=D.querySelector('footer');if(f)f.parentNode.insertBefore(nx,f);
@@ -112,6 +116,20 @@ var st;try{st=localStorage.getItem('afa_lang')}catch(e){}
 var want=st||((navigator.language||'fr').slice(0,2)==='en'?'en':'fr');
 if(want==='en'&&lg()!=='en'){var b=[].slice.call(document.querySelectorAll('button')).find(function(x){return x.textContent.trim()==='EN'});if(b)b.click()}
 sync();
+})();
+
+/* circuits : 4 cartes (6 sur grand écran) puis « Voir tous » */
+(function(){
+var g=document.getElementById('grid');if(!g)return;var exp=false,btn=document.createElement('button');btn.type='button';btn.className='cmore';
+function lg(){return (typeof lang!=='undefined'&&lang==='en')?'en':'fr'}
+function lim(){return innerWidth>700?6:4}
+function apply(){var n=g.children.length;if(n<=lim()||exp){g.classList.remove('coll');btn.hidden=true;return}g.classList.add('coll');btn.hidden=false;btn.textContent=lg()==='en'?'See all '+n+' tours':'Voir les '+n+' circuits';if(window.__trDom)try{window.__trDom(btn)}catch(e){}}
+g.after(btn);btn.onclick=function(){exp=true;apply()};
+var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(apply,60)}).observe(g,{childList:true});
+var bar=document.querySelector('#circuits .bar'),fd=document.getElementById('finder');
+[bar,fd].forEach(function(e){if(e)['input','change','click'].forEach(function(ev){e.addEventListener(ev,function(x){if(ev==='click'&&!x.target.closest('button,.chip'))return;exp=true;apply()})})});
+addEventListener('resize',apply);apply();
+var al=window.applyLang;if(typeof al==='function')window.applyLang=function(){var r=al.apply(this,arguments);apply();return r};
 })();
 `;
 module.exports={css,js};
