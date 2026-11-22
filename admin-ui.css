@@ -98,3 +98,41 @@ body:has(.admin-wrap){background:#f8f6f6;color:var(--admin-ink)}
 .booking-feedback{margin-top:14px;color:var(--admin-muted);font-size:13px}
 @media(max-width:850px){.booking-list{grid-template-columns:1fr}.booking-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){#adminContent.admin-panel{padding:14px;border-radius:16px}.booking-heading{flex-direction:column;align-items:stretch}.booking-refresh{align-self:flex-start}.booking-stats{gap:8px;margin:14px 0 18px}.booking-stats>div{padding:13px;border-radius:15px}.booking-stats strong{font-size:24px}.booking-filters{margin-right:-4px}.booking-card{padding:15px;border-radius:17px}.booking-card h3{font-size:17px}.booking-facts{gap:7px}.booking-details dl{grid-template-columns:1fr}.booking-actions{align-items:stretch}.booking-actions label,.booking-save{flex:1 1 100%;width:100%}.booking-save{min-height:46px}}
+
+/* ===== Affichage téléphone et contenu du site (2026-11-22) ===== */
+.sx-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 18px}
+.sx-tabs button{border:1px solid #ead9de;background:#fff;color:#55464b;border-radius:999px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.sx-tabs button.on{background:#2a0c07;border-color:#2a0c07;color:#fff}
+.sx-h{font-size:18px;margin:22px 0 8px;color:#31252a}
+.sx-row{border:1px solid #eee3e6;border-radius:14px;padding:13px 14px;margin:9px 0;background:#fff}
+.sx-row .t{font-weight:700;margin-bottom:4px}.sx-row small{color:#7a6a6f}
+.sx-st{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;margin-right:8px}
+.sx-st.pub{background:#e5f4e9;color:#176536}.sx-st.dr{background:#fff3df;color:#8a5a00}.sx-st.ar{background:#eee;color:#555}
+.sx-act{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.sx-btn{display:inline-block;border:1px solid #ead9de;background:#fff;color:#8f2438;border-radius:999px;padding:9px 15px;font-weight:750;font-size:13px;cursor:pointer;text-decoration:none;line-height:1.2}
+.sx-btn.pri{background:#8f2438;border-color:#8f2438;color:#fff}.sx-btn.dg{color:#a12622}
+.sx-form{background:#faf6f7;border:1px solid #eee3e6;border-radius:16px;padding:6px 16px 14px;margin-top:22px;max-width:760px}
+.sx-form h4{margin:14px 0 2px;font-size:13px;color:#8f2438;text-transform:none}
+.sx-form label{display:block;font-size:13px;font-weight:700;color:#4d4146;margin:13px 0 0}
+.sx-form input:not([type=checkbox]),.sx-form select,.sx-form textarea{display:block;width:100%;margin-top:5px;border:1px solid #e0d3d7;border-radius:10px;background:#fff;padding:11px 12px;font-size:16px;font-weight:400;color:#31252a;box-sizing:border-box}
+.sx-form textarea{min-height:84px;resize:vertical}
+.sx-form details{border:1px solid #eadde1;border-radius:12px;background:#fff;padding:0 14px 12px;margin-top:16px}
+.sx-form summary{cursor:pointer;font-weight:800;padding:13px 0;color:#31252a}
+.sx-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sx-msg{min-height:1.2em;font-size:13px;color:#8f2438;margin:12px 0 0}
+.sx-bar{position:sticky;bottom:0;display:flex;gap:8px;flex-wrap:wrap;background:#faf6f7;padding:12px 0 4px;margin-top:8px;border-top:1px solid #eee3e6}
+.sx-pre{white-space:pre-wrap;font:inherit;font-size:14px;background:#faf6f7;border-radius:10px;padding:12px;margin:10px 0;max-height:260px;overflow:auto}
+.sx-lb{width:150px;flex:0 0 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.booking-filters{flex-wrap:wrap;overflow:visible}.booking-filters button{flex:0 0 auto}
+@media(max-width:700px){
+ .admin-wrap>h1{font-size:28px!important}
+ #dashboard>.admin-status{padding:10px 12px;font-size:13px;overflow-wrap:anywhere}
+ .admin-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;overflow:visible!important;flex-wrap:wrap!important;margin:14px 0}
+ .admin-tabs button{padding:10px 4px;font-size:12.5px;line-height:1.2;white-space:normal;border-radius:12px;min-height:46px;text-align:center}
+ .admin-tabs button[hidden]{display:none}
+ .admin-tabs #logoutButton{grid-column:1/-1;margin:0;min-height:40px;font-weight:600}
+ .sx-lb{width:104px;font-size:13px}.sx-two{grid-template-columns:1fr}
+ .sx-form{padding:4px 12px 12px;border-radius:14px}
+ .sx-bar .sx-btn{flex:1 1 auto;text-align:center}
+ #adminContent h2{font-size:24px}
+}
