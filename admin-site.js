@@ -13,6 +13,8 @@ const KINDS={
  partner:{label:"Partenaires",one:"partenaire",fields:[
   {k:"name",l:"Nom du partenaire",req:1},{k:"ptype",l:"Type",sel:[["hotel","Hôtel"],["resto","Restaurant"],["heb","Hébergement"],["trans","Transport"],["other","Autre"]]},
   {k:"city",l:"Ville"},{k:"description",l:"Présentation",tr:1,area:1},{k:"price",l:"Tarif indicatif",tr:1},{k:"img",l:"Photo (lien https)"},{k:"link",l:"Lien (site, Facebook, vidéo)"}]},
+ blog:{label:"Blog",one:"article",fields:[
+  {k:"title",l:"Titre de l’article",tr:1,req:1},{k:"excerpt",l:"Résumé (2 phrases pour la carte)",tr:1,area:1},{k:"body",l:"Article complet (séparez les paragraphes par une ligne vide)",tr:1,area:1,req:1},{k:"img",l:"Photo de couverture (lien https)"},{k:"date",l:"Date affichée (ex. 12 décembre 2026)"}]},
  text:{label:"Textes à corriger",one:"texte",fields:[
   {k:"text",l:"Texte français tel qu’il est écrit sur le site",tr:1,area:1,req:1}]}
 };
