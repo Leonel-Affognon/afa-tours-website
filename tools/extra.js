@@ -63,7 +63,7 @@ const DEMO0=[
 {id:'b1',img:'https://static.wixstatic.com/media/c5c03e_f25e6d0a042b41129d6cb6c72d794213~mv2.jpg/v1/fill/w_980%2Ch_1097%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01%2Cenc_avif%2Cquality_auto/GRAND_POPO.jpg',k:'heb',n:'Maison d’hôtes exemple — Grand-Popo',v:'Grand-Popo',p:25000,u:'nuit',d:'Bungalows près de la plage et de la Bouche du Roy.'},
 
 {id:'b2',img:'https://static.wixstatic.com/media/c5c03e_8efee4fe36254c7f85888a690bb479a2~mv2.jpg/v1/fill/w_980%2Ch_834%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01%2Cenc_avif%2Cquality_auto/Abomey.jpg',k:'heb',n:'Auberge exemple — Abomey',v:'Abomey',p:15000,u:'nuit',d:'Hébergement simple et accueillant à proximité des palais royaux.'}];
-const DEMO=DEMO0.map(d=>Object.assign({demo:1},d));
+const DEMO=PROD?[]:DEMO0.map(d=>Object.assign({demo:1},d));
 const KL={hotel:'Hôtel',resto:'Restaurant',heb:'Hébergement',trans:'Transport',other:'Service'},KI={hotel:'🏨',resto:'🍽',heb:'🏡',trans:'🚐',other:'✨'};
 const approved=()=>PROD?(window.__dbP||[]):LS.get('afa_partners_ok',[]);
 const TRP=()=>TR.map(t=>({id:t.id,k:'trans',n:t.n,v:'Bénin',p:0,u:'',d:t.d,std:1,i:t.i}));

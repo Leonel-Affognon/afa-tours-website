@@ -114,18 +114,36 @@ async function siteManager(content,supabase,kind,opt){
  };
 }
 
-export async function renderPartners(content,supabase){
- content.innerHTML="<h2>Partenaires</h2><p>Chargement…</p>";
- const {data:msgs,error}=await supabase.from("messages").select("*").order("created_at",{ascending:false}).limit(200);
+export async function renderPartners(content,supabase,st={}){
+ st.f=st.f||"new";
+ content.innerHTML="<h2>Demandes de partenariat</h2><p>Chargement…</p>";
+ const {data:msgs,error}=await supabase.from("messages").select("*").order("created_at",{ascending:false}).limit(300);
  if(error){content.innerHTML="<p>"+esc(error.message)+"</p>";return}
- const parts=msgs.filter(m=>/partenaire|partner/i.test((m.subject||"")+" "+(m.body||"").slice(0,80)));
- const wa=m=>"https://wa.me/"+String(m.phone||"").replace(/\D/g,"");
- content.innerHTML="<h2>Demandes de partenariat</h2><p>Lisez la fiche reçue, créez la fiche publique (avec traduction anglaise) puis publiez-la.</p>"+(parts.length?parts.map(m=>'<article class="sx-row"><strong>'+esc(m.full_name)+"</strong> · "+esc(m.email||"")+"<br><small>"+new Date(m.created_at).toLocaleString("fr-FR")+' · '+esc(m.status)+'</small><pre class="sx-pre">'+esc(m.body)+'</pre><div class="sx-act"><button class="sx-btn pri" data-mk="'+m.id+'" type="button">Créer la fiche publique</button><button class="sx-btn" data-ok="'+m.id+'" type="button">Marquer traitée</button></div></article>').join(""):"<p>Aucune demande de partenariat reçue pour le moment.</p>")+'<p><button class="sx-btn" id="pgo" type="button">Gérer les fiches publiées</button></p>';
+ const all=msgs.filter(m=>/partenaire|partner/i.test((m.subject||"")+" "+(m.body||"").slice(0,80)));
+ const S=m=>["approved","rejected","correction"].includes(m.status)?m.status:(m.status==="closed"?"approved":"new");
+ const LBL={new:"À traiter",approved:"Approuvées",correction:"Corrections demandées",rejected:"Rejetées",all:"Toutes"};
+ const cnt=k=>k==="all"?all.length:all.filter(m=>S(m)===k).length;
+ const list=all.filter(m=>st.f==="all"||S(m)===st.f);
+ const phoneOf=m=>{const x=String(m.body||"").match(/\+?\d[\d\s().-]{7,}\d/);return x?x[0].replace(/\D/g,""):""};
+ const parse=m=>{const subj=String(m.subject||"");const mt=subj.match(/\(([a-z]+)\)\s*:\s*(.+)$/i);const blocks=String(m.body||"").split(/\n\s*\n/).map(b=>{const i=b.indexOf("\n");return i<0?[b.trim(),""]:[b.slice(0,i).trim(),b.slice(i+1).trim()]});const g=re=>{const x=blocks.find(b=>re.test(b[0]));return x?x[1]:""};
+  const desc=g(/pr[ée]sent|descri|activit|services?/i);return {ptype:(mt&&mt[1])||"other",name:(mt&&mt[2])||m.full_name||"Partenaire",city:g(/ville|lieu|localisation|adresse|quartier/i),description:desc||""}};
+ content.innerHTML='<div class="ad-head"><div><h2>Demandes de partenariat</h2><p class="ad-intro">Approuvez, rejetez, demandez des corrections ou supprimez. Une demande approuvée crée la fiche publique que vous pouvez ensuite compléter dans « Fiches publiées ».</p></div></div>'
+ +'<div class="sx-bar">'+Object.keys(LBL).map(k=>'<button type="button" class="sx-btn'+(st.f===k?' pri':'')+'" data-f="'+k+'">'+LBL[k]+' ('+cnt(k)+')</button>').join("")+'<button type="button" class="sx-btn" id="pgo">Fiches publiées</button></div>'
+ +(list.length?list.map(m=>{const s=S(m);return '<article class="sx-row" data-id="'+m.id+'"><div class="t">'+esc(m.full_name||"")+" · "+esc(m.email||"")+'</div><small>'+new Date(m.created_at).toLocaleString("fr-FR")+" · <b>"+LBL[s]+'</b></small><pre class="sx-pre">'+esc(m.body)+'</pre><div class="sx-act"><button class="sx-btn pri" data-a="ok" type="button">Approuver et publier</button><button class="sx-btn" data-a="fix" type="button">Demander des corrections</button><button class="sx-btn" data-a="no" type="button">Rejeter</button><button class="sx-btn dg" data-a="del" type="button">Supprimer</button></div><div class="fixbox" hidden></div></article>'}).join(""):"<p>Aucune demande dans cette catégorie.</p>");
+ content.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{st.f=b.dataset.f;renderPartners(content,supabase,st)});
  content.querySelector("#pgo").onclick=()=>renderSiteManager(content,supabase,"partner");
- content.querySelectorAll("[data-ok]").forEach(b=>b.onclick=async()=>{await supabase.from("messages").update({status:"closed"}).eq("id",b.dataset.ok);renderPartners(content,supabase)});
- content.querySelectorAll("[data-mk]").forEach(b=>b.onclick=async()=>{
-  await renderSiteManager(content,supabase,"partner");const m=msgs.find(x=>x.id===b.dataset.mk),f=content.querySelector("#sf");
-  f.elements.fr_name.value=m.full_name||"";f.elements.fr_description.value=String(m.body||"").slice(0,600);f.scrollIntoView({behavior:"smooth"});
+ const setSt=async(id,status)=>{const r=await supabase.from("messages").update({status}).eq("id",id);if(r.error){toast(r.error.message,1);return false}return true};
+ content.querySelectorAll(".sx-row").forEach(row=>{const id=row.dataset.id,m=msgs.find(x=>x.id===id);
+  row.querySelector('[data-a=ok]').onclick=async()=>{const p=parse(m);const slug=slugify(p.name)+"-"+Date.now().toString(36).slice(-3);const fr={name:p.name,ptype:p.ptype,city:p.city,description:p.description||"Partenaire AFA Tours."};
+   const r=await supabase.from("site_items").insert({kind:"partner",slug,sort:99,status:"published",fr,en:{}});if(r.error){toast(r.error.message,1);return}
+   await setSt(id,"approved");toast("Partenaire approuvé et publié sur le site");renderPartners(content,supabase,st)};
+  row.querySelector('[data-a=no]').onclick=async()=>{if(await setSt(id,"rejected")){toast("Demande rejetée");renderPartners(content,supabase,st)}};
+  row.querySelector('[data-a=del]').onclick=function(){const b=this;if(b.dataset.arm){supabase.from("messages").delete().eq("id",id).then(r=>{if(r.error)toast(r.error.message,1);else{toast("Demande supprimée");renderPartners(content,supabase,st)}});return}b.dataset.arm=1;b.textContent="Confirmer la suppression";setTimeout(()=>{b.dataset.arm="";b.textContent="Supprimer"},4000)};
+  row.querySelector('[data-a=fix]').onclick=()=>{const bx=row.querySelector(".fixbox");bx.hidden=!bx.hidden;if(bx.hidden)return;const nm=m.full_name||"";const txt="Bonjour "+nm+",\n\nMerci pour votre demande de partenariat avec AFA Tours. Avant de publier votre fiche, pouvez-vous nous préciser ou corriger les points suivants :\n- \n- \n\nMerci d’avance.\nAFA Tours · +229 01 97 16 56 46";bx.innerHTML='<textarea class="sx-in" rows="7" style="width:100%;margin-top:10px">'+esc(txt)+'</textarea><div class="sx-act"><button class="sx-btn pri" data-s="mail" type="button">Envoyer par e-mail</button><button class="sx-btn" data-s="wa" type="button">Envoyer par WhatsApp</button></div>';
+   const ta=bx.querySelector("textarea"),ph=phoneOf(m);
+   bx.querySelector('[data-s=mail]').onclick=async()=>{await setSt(id,"correction");location.href="mailto:"+encodeURIComponent(m.email||"")+"?subject="+encodeURIComponent("Votre demande de partenariat — AFA Tours")+"&body="+encodeURIComponent(ta.value)};
+   const w=bx.querySelector('[data-s=wa]');if(!ph)w.disabled=true,w.title="Aucun numéro trouvé dans la demande";
+   w.onclick=async()=>{await setSt(id,"correction");window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(ta.value),"_blank")}}
  });
 }
 

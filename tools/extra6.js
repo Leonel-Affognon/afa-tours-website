@@ -20,7 +20,7 @@ dialog[open]::backdrop{animation:bgi .3s both}
 @keyframes dgi{from{opacity:0;transform:translateY(26px) scale(.95)}to{opacity:1;transform:none}}
 @keyframes bgi{from{opacity:0}to{opacity:1}}
 .cw,.cw *{overscroll-behavior:contain}
-@media(hover:none){.card .peek{display:block!important;transform:translateY(140%)!important;opacity:0;transition:transform .5s cubic-bezier(.2,.9,.3,1.3),opacity .3s!important}.card.pk .peek{transform:none!important;opacity:1}.card .cimg:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(30,8,4,.45),transparent 55%);opacity:0;transition:opacity .3s;pointer-events:none}.card.pk .cimg:after{opacity:1}}
+@media(hover:none){.card .peek{display:block!important;transform:none!important;opacity:1;transition:transform .2s,background .2s,color .2s!important}.card .peek:active,.card .peek.tp{transform:scale(.95)!important;background:#E8832F;color:#fff}}
 .bgrid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))!important;gap:14px!important}
 .bc .bi{aspect-ratio:16/9!important}.bc h3{font-size:1.08rem!important}.bc p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.86rem!important}
 .bc .bxt{padding:12px 14px 14px!important}
@@ -51,7 +51,7 @@ if(window.visualViewport){visualViewport.addEventListener('resize',vv);visualVie
 D.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='submit'&&!e.target.closest('form[data-keepfocus]')&&e.target.type==='search'){e.target.blur()}});
 D.addEventListener('touchstart',function(e){var a=D.activeElement;if(a&&a.matches&&a.matches(ED)&&!e.target.closest(ED+',label,.kbdone,button,a'))a.blur()},{passive:true});
 /* aperçu des circuits au toucher */
-var tmr;D.addEventListener('click',function(e){if(!matchMedia('(hover:none)').matches)return;var c=e.target.closest('.card .cimg');if(!c||e.target.closest('.peek,.heart'))return;var card=c.closest('.card'),on=card.classList.contains('pk');D.querySelectorAll('.card.pk').forEach(function(x){x.classList.remove('pk')});if(!on){card.classList.add('pk');clearTimeout(tmr);tmr=setTimeout(function(){card.classList.remove('pk')},6000)}});
+D.addEventListener('click',function(e){var c=e.target.closest('.card .cimg');if(!c||e.target.closest('.peek,.heart,a,button'))return;var pk=c.querySelector('.peek');if(pk)pk.click()});
 })();
 (function(){function fx(){var h=document.querySelector('.hero'),f=document.getElementById('finder'),s=document.querySelector('.segs');if(h&&f&&s){var ov=h.getBoundingClientRect().bottom-f.getBoundingClientRect().top;s.style.bottom=(Math.max(0,ov)+14)+'px'}}
 addEventListener('resize',fx);addEventListener('load',fx);[200,900,2500].forEach(function(t){setTimeout(fx,t)});fx()})();

@@ -45,4 +45,18 @@ h=h.replace(/<article class="tm"><div class="av"[^>]*>\?<\/div>.*?<\/article>/gs
 h=h.replace('<span class="badge-ex">Fiches d’exemple en attendant vos partenaires</span>','');
 h=h.replace('<head>','<head>'+String.raw`<script>(function(){var h=location.hash||"";if(/(^|[#&])type=(invite|recovery|signup|magiclink)/.test(h)||/error_code=/.test(h)&&/otp_expired|access_denied/.test(h))location.replace("admin.html"+h)})()</script>`);
 h=h.split('prefers-reduced-motion:reduce').join('prefers-reduced-motion:never').split('prefers-reduced-motion: reduce').join('prefers-reduced-motion:never');
+
+// footer : un lien par ligne
+h=h.replace(/<footer>[\s\S]*?<\/footer>/,m=>m.split('</a><a ').join('</a></li><li><a '));
+// survol : désactivé sur tactile (pas de double-tap) ; la classe .tp reproduit le survol au toucher
+h=h.replace(/<style>([\s\S]*?)<\/style>/g,(m,css)=>{
+ if((css.indexOf(':hover')<0&&css.indexOf('body.sc')<0)||css.indexOf('@font-face')>=0&&css.length<3000)return m;
+ const out=[];let i=0;const n=css.length;
+ function block(start){let d=0,j=start;for(;j<n;j++){const c=css[j];if(c==='{')d++;else if(c==='}'){d--;if(d===0)return j+1}}return n}
+ function proc(txt){let o='',k=0;const L=txt.length;while(k<L){const b=txt.indexOf('{',k);if(b<0){o+=txt.slice(k);break}const sel=txt.slice(k,b);let d=0,j=b;for(;j<L;j++){if(txt[j]==='{')d++;else if(txt[j]==='}'){d--;if(d===0){j++;break}}}const body=txt.slice(b,j);const st=sel.trim();
+  if(st[0]==='@'){if(/^@(media|supports)/.test(st)&&!/hover/.test(st)){o+=sel+'{'+proc(body.slice(1,-1))+'}'}else o+=sel+body}
+  else if(sel.indexOf('body.sc')>=0){const v=sel.split(',').filter(x=>x.indexOf('body.sc')>=0).map(x=>x.trim()).map(x=>['2','3'].map(n=>x.replace('body.sc','html[data-pg="'+n+'"] body')).join(',')).join(',');o+=sel+body+v+body}
+  else if(sel.indexOf(':hover')>=0){const tp=sel.split(',').filter(x=>x.indexOf(':hover')>=0).map(x=>x.split(':hover').join('.tp')).join(',');o+='@media(hover:hover){'+sel+body+'}'+tp+body}
+  else o+=sel+body;k=j}return o}
+ return '<style>'+proc(css)+'</style>'});
 fs.writeFileSync(ROOT+'index.html',h);console.log('index.html',h.length);
