@@ -143,8 +143,8 @@ out3=out3.replace('<div class="filters" style="margin-top:28px"><div class="filt
  .replace('<section class="sec devsec" id="devis">','<section class="sec devsec on-dark" id="devis">');
 const X=require('./extra.js');
 out3=out3.replace('</style>',()=>X.css+'</style>').replace('<section class="sec rvsec" id="avis">',()=>X.sej+X.trn+X.part+X.team+'<section class="sec rvsec" id="avis">').replace('<script>window.TRIPS',()=>X.book+'<script>window.TRIPS').replace('</script></body>',()=>'</script><script>'+X.js+'</script></body>').split('<a href="#avis" data-i="nav5"></a>').join('<a href="#sejours">Séjours</a><a href="#transport">Transport</a><a href="#partenaires">Partenaires</a><a href="#equipe">Équipe</a><a href="#avis" data-i="nav5"></a>').replace('<a class="btn btn-red btn-sm wish"','<button class="btn btn-or btn-sm" data-book data-kind="circuit">Réserver</button><a class="btn btn-red btn-sm wish"');
-const X2=require('./extra2.js');
+const X2=require('./extra2.js');const X3=require('./extra3.js');
 {const fi=out3.indexOf('<div class="fabs">');const fe=out3.indexOf('</div>',out3.indexOf('</a>',fi))+6;
 out3=out3.slice(0,fi)+X2.fabs+out3.slice(out3.indexOf('<a class="fab wa"',fi));}
-out3=out3.replace('</style>',()=>X2.css+'</style>').replace('<div class="gal" id="gal" style="margin-top:28px"></div>','<div class="ig" id="ig"></div><div id="gal" hidden></div>').replace('<div class="end">',()=>X2.soc+'<div class="end">').replace('<script>window.TRIPS',()=>X2.igv+'<script>window.TRIPS').replace('</script></body>',()=>'</script><script>'+X2.js+'</script></body>');
+out3=out3.replace('</style>',()=>X2.css+X3.css+'</style>').replace('<div class="gal" id="gal" style="margin-top:28px"></div>','<div class="ig" id="ig"></div><div id="gal" hidden></div>').replace('<div class="end">',()=>X2.soc+'<div class="end">').replace('<script>window.TRIPS',()=>X2.igv+'<script>window.TRIPS').replace('</script></body>',()=>'</script><script>'+X2.js+'</script><script>'+X3.js+'</script></body>');
 fs.writeFileSync('p3.html',out3);console.log('p3',out3.length);
