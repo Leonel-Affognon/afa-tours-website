@@ -103,7 +103,7 @@ function calc(){
 ensure();let total=0,quote=[],lines=[],txt=[];
 const C=circuits(),L=lodgings(),R=restos(),TT=trans();
 P.days.forEach((x,i)=>{let sub=0,parts=[];
-x.c.forEach(id=>{const t=C.find(z=>z.id===id);if(!t)return;parts.push('Circuit : '+t.destination+' — '+t.title);if(t.priceValue)sub+=t.priceValue*P.pax;else quote.push('Jour '+(i+1)+' · '+t.destination)});
+x.c.forEach(id=>{const t=C.find(z=>z.id===id);if(!t)return;parts.push('Circuit : '+t.destination+' — '+t.title);if(t.priceValue)sub+=(P.pax>=7&&typeof gprice==='function'?gprice(t.priceValue):t.priceValue)*P.pax;else quote.push('Jour '+(i+1)+' · '+t.destination)});
 const lv=resolveLod(i);
 if(lv==='afa')parts.push('Hébergement : à proposer par AFA TOURS');else if(lv==='own')parts.push('Hébergement : déjà réservé par le client');else if(lv!=='none'){const h=L.find(z=>z.id===lv);if(h){parts.push('Hébergement : '+h.n+(i&&x.lod==='prev'?' (même qu’avant)':''));if(h.p)sub+=h.p*P.rooms;else quote.push('Jour '+(i+1)+' · '+h.n)}}
 x.r.forEach(id=>{const r=R.find(z=>z.id===id);if(!r)return;parts.push('Restaurant : '+r.n);if(r.p)sub+=r.p*P.pax;else quote.push('Jour '+(i+1)+' · '+r.n)});
@@ -206,7 +206,7 @@ else{e2.readOnly=false;e2.style.opacity='';if(tn)tn.nodeValue='Fin (facultatif)'
 ST.D=D}
 function calc(){link();const pax=Math.max(1,+val('pax')||1),rooms=Math.ceil(pax/2),nn=nights();let tot=0,q=0;const lines=[];
 if(ST.plan){tot=ST.plan.total||0;q=ST.plan.quote?1:0}
-else picked().forEach(i=>{let s=0;if(i.p){s=i.u==='pp'?i.p*pax:i.u==='n'?i.p*rooms*nn:i.p;tot+=s}else q++;lines.push({i,s})});
+else picked().forEach(i=>{let s=0;if(i.p){s=i.u==='pp'?((i.g==='c'&&pax>=7&&typeof gprice==='function'?gprice(i.p):i.p)*pax):i.u==='n'?i.p*rooms*nn:i.p;tot+=s}else q++;lines.push({i,s})});
 const n=ST.plan?1:lines.length;
 $('#bqtt')&&($('#bqtt').textContent=tot?m(tot)+(q?' + devis':''):(n||ST.plan?'Sur devis':'Choisissez un service'));
 $('#bqsm')&&($('#bqsm').textContent=(ST.plan?'Séjour sur mesure':n+' choix')+' · '+pax+' voyageur'+(pax>1?'s':''));

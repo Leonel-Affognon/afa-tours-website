@@ -1,4 +1,5 @@
-const css=`
+const css=`.grp{display:block;font-size:.78rem;font-weight:600;color:#7a5a4a;margin-top:2px}.grp small{font-size:inherit}
+
 /* ===== couche design : rythme, contrastes, compositions variées ===== */
 main>section{position:relative;isolation:isolate}
 .kt{height:12px;background:repeating-linear-gradient(90deg,#E8832F 0 44px,#2A0C07 44px 58px,#B51D27 58px 104px,#FBF6EF 104px 112px,#2A0C07 112px 126px)}
