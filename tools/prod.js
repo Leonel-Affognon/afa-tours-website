@@ -12,7 +12,7 @@ h=h.replace(/<link rel="preconnect" href="https:\/\/fonts.googleapis.com">.*?rel
 const TITLE='AFA Tours | Circuits, séjours et transport au Bénin';
 const DESC='Découvrez le Bénin avec AFA Tours : circuits guidés de Porto-Novo à la Pendjari, séjours de 3 jours à 3 semaines, transport, hôtels et restaurants partenaires. Réservez en ligne.';
 h=h.replace(/<title>.*?<\/title>/,`<title>${TITLE}</title><meta name="description" content="${DESC}"><meta name="theme-color" content="#2A0C07"><link rel="icon" href="afa-tours-logo.jpg"><meta property="og:type" content="website"><meta property="og:title" content="${TITLE}"><meta property="og:description" content="${DESC}"><meta property="og:image" content="afa-tours-logo.jpg"><meta property="og:locale" content="fr_FR">`);
-const ld={"@context":"https://schema.org","@type":"TravelAgency",name:"AFA Tours",alternateName:"Afrique Authentique Innovant",slogan:"Découvrez l’Afrique à travers le Bénin",telephone:["+22901971656 46".replace(' ',''),"+2290161956804"],email:"afatours24@gmail.com",areaServed:"BJ",address:{"@type":"PostalAddress",addressLocality:"Porto-Novo",addressCountry:"BJ"},logo:"afa-tours-logo.jpg"};
+const ld={"@context":"https://schema.org","@type":"TravelAgency",name:"AFA Tours",alternateName:"Afrique Authentique Innovant",slogan:"Découvrez l’Afrique à travers le Bénin",telephone:["+22901971656 46".replace(' ',''),"+2290161956804"],email:"afatours23@gmail.com",areaServed:"BJ",address:{"@type":"PostalAddress",addressLocality:"Porto-Novo",addressCountry:"BJ"},logo:"afa-tours-logo.jpg"};
 ld.telephone=["+2290197165646","+2290161956804"];
 h=h.replace('</head>',`<script type="application/ld+json">${JSON.stringify(ld)}</script></head>`);
 // 3. logo : fichier du dépôt au lieu de l'image intégrée
