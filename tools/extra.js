@@ -47,7 +47,7 @@ const part=`<section class="xs" id="partenaires"><div class="wrap"><p class="ey"
 <dialog class="xd" id="jd" aria-labelledby="jt"><div class="xh"><h2 id="jt">Devenir partenaire AFA TOURS</h2><p>Réponse sous 48 h après étude de votre fiche.</p><button class="xx" data-x aria-label="Fermer">×</button></div><form class="xb" id="jf" novalidate><div id="jfb"></div><p class="err" id="jerr" role="alert"></p><div class="nv"><button type="button" class="btn btn-out" data-x>Annuler</button><button class="btn btn-red" type="submit">Envoyer ma demande</button></div><div id="jok" hidden class="okb"><div class="ck">✓</div><h3>Demande reçue</h3><p>Nous vous contactons après étude de votre fiche.</p></div></form></dialog>`;
 const book=`<dialog class="xd" id="bk" aria-labelledby="bkt"><div class="xh"><h2 id="bkt">Réserver</h2><p id="bks">Étape 1 sur 4</p><button class="xx" data-x aria-label="Fermer">×</button></div><div class="xb"><div class="steps" id="bsteps"><i></i><i></i><i></i><i></i></div><div id="bbody"></div></div></dialog>
 <aside class="pop" id="pop" role="complementary" aria-label="À découvrir"><button class="px" id="pox" aria-label="Fermer">×</button><div class="pp" id="ppp"></div><div class="pn"><p id="ptx"></p><div class="pa"><a class="btn btn-red btn-sm" id="pcta" href="#"></a></div></div><div class="bar" id="pbar"></div></aside>
-<aside class="rvt" id="rvt" role="status" aria-live="polite"><button class="rx" id="rvx" aria-label="Masquer les avis">×</button><div class="rs" id="rvs"></div><p class="rq" id="rvq"></p><p class="rn" id="rvn"></p></aside>`;
+<aside class="rvt" id="rvt" role="status" aria-live="polite"><button class="rx" id="rvtx" aria-label="Masquer les avis">×</button><div class="rs" id="rvs"></div><p class="rq" id="rvq"></p><p class="rn" id="rvn"></p></aside>`;
 const js=String.raw`
 (function(){
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -207,7 +207,7 @@ const revs=()=>{const a=PROD?(window.__rv||[]):LS.get('afa_reviews_ok',[]);retur
 const rt=$('#rvt');let ri=0,rtm=null,rOff=false;try{rOff=!!sessionStorage.getItem('afa_rvt_off')}catch(e){}
 function hideRv(){rt.classList.remove('on');clearTimeout(rtm)}
 function nextRv(){clearTimeout(rtm);if(rOff)return;if(cp||busy()){rtm=setTimeout(nextRv,4000);return}const L=revs();if(!L.length){rtm=setTimeout(nextRv,8000);return}const r=L[ri%L.length];ri++;$('#rvq').textContent='« '+r.t+' »';$('#rvs').textContent='★'.repeat(r.s)+'☆'.repeat(5-r.s);$('#rvn').textContent=r.n+(r.o?' · '+r.o:'');rt.classList.toggle('ex',!!r.ex);rt.classList.add('on');rtm=setTimeout(()=>{rt.classList.remove('on');rtm=setTimeout(nextRv,CF.rgap??13000)},CF.rshow??(innerWidth<700?5500:8000))}
-$('#rvx').addEventListener('click',()=>{rOff=true;try{sessionStorage.setItem('afa_rvt_off','1')}catch(e){}hideRv()});
+$("#rvtx").addEventListener("click",()=>{rOff=true;try{sessionStorage.setItem('afa_rvt_off','1')}catch(e){}hideRv()});
 rt.addEventListener('mouseenter',()=>clearTimeout(rtm));rt.addEventListener('mouseleave',()=>{rtm=setTimeout(()=>{rt.classList.remove('on');rtm=setTimeout(nextRv,CF.rgap??13000)},3000)});
 rtm=setTimeout(nextRv,CF.rfirst??(innerWidth<700?9000:4500));
 // avis réels : collecte + affichage
