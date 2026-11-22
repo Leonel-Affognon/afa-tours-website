@@ -207,3 +207,26 @@ body:has(.admin-wrap){background:#f8f6f6;color:var(--admin-ink)}
 @media(prefers-reduced-motion:reduce){.ad-nav,#adToast{transition:none}}
 .st-w{overflow-x:auto}.st-t{min-width:560px}.st-z td{color:#8a7f84;background:#faf7f7}
 .st-b{display:flex;gap:10px;align-items:center;margin:7px 0}.st-bar{height:14px;border-radius:7px;background:#E8832F;min-width:6px;flex:0 1 auto}
+.bk-bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:10px 14px;border:1px solid var(--admin-line);border-radius:14px;background:#faf7f7;margin-bottom:10px}.bk-all{font-weight:700;display:flex;gap:8px;align-items:center}.bk-n{color:var(--admin-muted);font-size:14px;flex:1}
+.bk-pick{display:flex;align-items:center;padding:6px}.bk-pick input,.bk-all input{width:22px;height:22px;accent-color:var(--admin-red)}
+.ib-b{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#4a3d42;max-height:9em;overflow:auto}
+.ad-item select{padding:10px;border:1px solid #e5dadd;border-radius:10px;font-size:15px;background:#fff;min-height:44px}
+.ad-item[hidden]{display:none}
+.am-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin:8px 0 18px}
+.am-t{position:relative;margin:0;border:1px solid var(--admin-line);border-radius:14px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.am-t img,.am-t video,.am-ph img,.am-ph video{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#eee}
+.am-ph{min-height:120px;background:#f3ecee;display:grid;place-items:center;color:var(--admin-muted)}
+.am-t figcaption{padding:8px 10px 2px;font-size:13px;display:flex;flex-direction:column;gap:2px}.am-t figcaption input{width:100%;box-sizing:border-box;border:1px solid #eadfe2;border-radius:8px;padding:8px;font-size:14px}
+.am-a{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px 10px}.am-a .sx-btn{flex:1 1 auto;min-height:40px;padding:6px 10px}.am-a select{flex:1 1 100%}
+.am-ck{position:absolute;top:6px;left:6px;z-index:2;background:rgba(255,255,255,.92);border-radius:8px;padding:5px;display:flex}.am-ck input{width:22px;height:22px;accent-color:var(--admin-red)}
+.am-pl{position:absolute;top:calc(50% - 58px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:42px;height:42px;display:grid;place-items:center;pointer-events:none}
+.am-ah{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:2px solid #f0e4e7;margin-top:22px}.am-ah h3{margin:0 0 6px}.am-ah small{color:var(--admin-muted)}
+.am-bulk{position:sticky;top:64px;z-index:30;background:#fff;box-shadow:0 8px 22px #4b1b2922}.am-bulk[hidden]{display:none}.am-bulk select{padding:10px;border:1px solid #e5dadd;border-radius:10px;font-size:15px}
+.am-pv{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.am-pv img{width:64px;height:64px;object-fit:cover;border-radius:8px}.am-vid{padding:8px 10px;background:#f3ecee;border-radius:8px;font-size:12px}
+.am-pg{height:8px;background:#f0e4e7;border-radius:6px;overflow:hidden;margin:8px 0}.am-pg span{display:block;height:100%;width:0;background:var(--admin-red);transition:width .3s}
+@media(max-width:900px){.am-bulk{top:70px}.am-g{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ad-rich>label{display:block;font-weight:700}.rt-bar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;position:sticky;top:0;z-index:5;background:#fffaf7;padding:6px 0}
+.rt-bar button,.rt-img{border:1px solid #e0cdd2;background:#fff;border-radius:10px;padding:9px 12px;font:700 14px var(--sans,system-ui);cursor:pointer;min-height:42px;display:inline-flex;align-items:center;margin:0!important;color:var(--admin-red)}
+.rt-img input{display:none}.rt-prev{border:1px dashed #d9b9c1;border-radius:12px;padding:16px;background:#fff;max-height:420px;overflow:auto}.rt-prev img{max-width:100%;border-radius:10px}
+.rt-prev blockquote{border-left:4px solid #B51D27;margin:10px 0;padding:8px 14px;background:#FBF6EF;font-style:italic}.rt-prev .tip{background:#FFF1E2;padding:10px 12px;border-radius:10px;margin:8px 0}
+.sx-form .rt-img input[type=file],.rt-img input{display:none!important}.rt-img{cursor:pointer}

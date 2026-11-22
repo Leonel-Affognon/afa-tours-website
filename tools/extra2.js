@@ -115,19 +115,21 @@ const rt=$('#rvt');if(rt&&!$('.rl',rt)){const a=document.createElement('a');a.cl
 const hd=$('.hd');if(rt&&hd){const pos=()=>{rt.style.top=Math.round(hd.getBoundingClientRect().bottom+12)+'px'};pos();addEventListener('scroll',pos,{passive:true});addEventListener('resize',pos)}
 // galerie façon Photos
 const ig=$('#ig');if(ig&&typeof G!=='undefined'){
-let ALB;const mkAlb=()=>{ALB=[['Histoire et mémoire',g=>g.x.theme==='memoire'&&g.x.destination!=='Vodun Days'],['Villes et patrimoine',g=>g.x.theme==='ville'],['Eau et savoir-faire',g=>g.x.theme==='eau'],['Nature et safari',g=>g.x.theme==='nature'],['Vodun Days',g=>g.x.destination==='Vodun Days']].map(([n,f])=>({n,it:G.map((g,i)=>({g,i})).filter(o=>f(o.g))})).filter(a=>a.it.length)};mkAlb();
+const TH={memoire:'Histoire et mémoire',ville:'Villes et patrimoine',eau:'Eau et savoir-faire',nature:'Nature et safari',vodun:'Vodun et spiritualités'};
+let ALB;const mkAlb=()=>{const m=new Map();G.forEach((g,i)=>{const n=g.a||(g.x.destination==='Vodun Days'?'Vodun Days':TH[g.x.theme])||'Autres';if(!m.has(n))m.set(n,[]);m.get(n).push({g,i})});ALB=[...m.entries()].sort((a,b)=>a[0]==='Autres'?1:b[0]==='Autres'?-1:0).map(([n,it])=>({n,it}))};mkAlb();
 let view='photos',alb=null,cur=0,list=[];
-const sq=(o)=>'<button type="button" data-ph="'+o.i+'" aria-label="'+esc(o.g.cap)+'">'+ph(o.g.x)+'</button>';
+const pv=(g,big)=>g.x&&g.x.video?(big?'<video controls autoplay playsinline src="'+g.x.img+'" style="max-width:100%;max-height:100%"></video>':'<video src="'+g.x.img+'#t=0.1" preload="metadata" muted playsinline></video><span class="vplay">▶</span>'):ph(g.x);
+const sq=(o)=>'<button type="button" data-ph="'+o.i+'" aria-label="'+esc(o.g.cap)+'">'+pv(o.g)+'</button>';
 function draw(){const all=G.map((g,i)=>({g,i}));let h='';
 if(view==='photos'){h='<div class="igh"><div class="igt"><b>Photos</b><span>'+G.length+' photos</span></div><div class="iseg" role="group" aria-label="Affichage"><button data-iv="photos" aria-pressed="true">Photos</button><button data-iv="albums" aria-pressed="false">Albums</button></div></div><div class="igg">'+all.map(sq).join('')+'</div>'}
-else if(!alb){h='<div class="igh"><div class="igt"><b>Albums</b><span>'+ALB.length+' albums</span></div><div class="iseg" role="group" aria-label="Affichage"><button data-iv="photos" aria-pressed="false">Photos</button><button data-iv="albums" aria-pressed="true">Albums</button></div></div><div class="ial">'+ALB.map((a,k)=>'<button type="button" data-ia="'+k+'"><span class="cv">'+ph(a.it[0].g.x)+'</span><b>'+esc(a.n)+'</b><small>'+a.it.length+' photo'+(a.it.length>1?'s':'')+'</small></button>').join('')+'</div>'}
+else if(!alb){h='<div class="igh"><div class="igt"><b>Albums</b><span>'+ALB.length+' albums</span></div><div class="iseg" role="group" aria-label="Affichage"><button data-iv="photos" aria-pressed="false">Photos</button><button data-iv="albums" aria-pressed="true">Albums</button></div></div><div class="ial">'+ALB.map((a,k)=>'<button type="button" data-ia="'+k+'"><span class="cv">'+pv(a.it[0].g)+'</span><b>'+esc(a.n)+'</b><small>'+a.it.length+' photo'+(a.it.length>1?'s':'')+'</small></button>').join('')+'</div>'}
 else{const a=ALB[alb.k];h='<div class="igh"><button class="iback" data-iv="albums">‹ Albums</button><div class="igt"><b>'+esc(a.n)+'</b><span>'+a.it.length+'</span></div></div><div class="igg">'+a.it.map(sq).join('')+'</div>'}
 ig.innerHTML=h}
-function mk(i){return '<div class="vs">'+ph(G[i].x)+'</div>'}
+function mk(i){return '<div class="vs">'+pv(G[i],1)+'</div>'}
 function open(i,l){list=l;cur=list.indexOf(i);if(cur<0){cur=0}render(0);$('#igv').classList.add('on');document.body.style.overflow='hidden';$('#igc').focus()}
 function render(dir){const i=list[cur],s=$('#igs');$$('.vs',s).forEach(x=>x.remove());const n=document.createElement('div');n.innerHTML=mk(i);const sl=n.firstChild;if(dir){sl.style.transform='translateX('+(dir*100)+'%)';s.appendChild(sl);sl.offsetWidth;sl.style.transform='none'}else s.appendChild(sl);
 $('#igcn').textContent=(cur+1)+' / '+list.length;$('#igcap').textContent=G[i].cap;$('#igsh').href='https://wa.me/?text='+encodeURIComponent(G[i].cap+' — AFA Tours '+location.href.split('#')[0]);
-$('#igst').innerHTML=list.map((k,j)=>'<button data-st="'+j+'" aria-label="Photo '+(j+1)+'"'+(j===cur?' aria-current="true"':'')+'>'+ph(G[k].x)+'</button>').join('');const c=$('#igst [aria-current]');c&&c.scrollIntoView({inline:'center',block:'nearest'})}
+$('#igst').innerHTML=list.map((k,j)=>'<button data-st="'+j+'" aria-label="Photo '+(j+1)+'"'+(j===cur?' aria-current="true"':'')+'>'+pv(G[k])+'</button>').join('');const c=$('#igst [aria-current]');c&&c.scrollIntoView({inline:'center',block:'nearest'})}
 function step(d){cur=(cur+d+list.length)%list.length;render(d)}function close(){$('#igv').classList.remove('on');document.body.style.overflow=''}
 document.addEventListener('click',e=>{const p=e.target.closest('[data-ph]');if(p){const i=+p.dataset.ph;open(i,alb?ALB[alb.k].it.map(o=>o.i):G.map((_,k)=>k));return}
 const v=e.target.closest('[data-iv]');if(v){view=v.dataset.iv==='photos'?'photos':'albums';alb=null;draw();return}

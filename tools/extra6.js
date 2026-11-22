@@ -1,4 +1,5 @@
 const css=`
+.igg button video,.ial .cv video{width:100%;height:100%;object-fit:cover;display:block}.vplay{position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:grid;place-items:center;font-size:12px;pointer-events:none}.igg button,.ial .cv{position:relative}.vs video{max-width:100%;max-height:100%}
 @media(min-width:701px){.wrap{padding-right:max(clamp(18px,4vw,56px),88px)!important}.fab.wa{width:46px!important;height:46px!important;padding:0!important;justify-content:center!important;gap:0!important}.fab.wa span{display:none!important}}
 /* ===== correctifs interface (extra6) ===== */
 .snav:not(.live){opacity:0!important;pointer-events:none!important}
