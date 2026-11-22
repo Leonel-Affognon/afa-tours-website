@@ -180,7 +180,7 @@ const countries=()=>{try{const dn=new Intl.DisplayNames([lg()==='en'?'en':'fr'],
 function groups(){const en=lg()==='en';const G=[];
 const T=window.TRIPS||[];G.push({k:'c',t:'Circuits',open:1,items:T.map(x=>({id:'c:'+x.id,n:x.destination+' — '+x.title+(x.priceFrom&&x.priceValue?(document.documentElement.lang==='en'?' (from)':' (à partir de)'):''),p:x.priceValue||0,u:'pp',days:(()=>{const m=String(x.duration||'').match(/(\d+)/);return /jour|day/i.test(x.duration||'')&&m?+m[1]:0})()}))});
 if(typeof VD!=='undefined'&&!window.__noEvent)G.push({k:'v',t:VD.title+(VD.when?' ('+(lg()==='en'&&VD.whenEn?VD.whenEn:VD.when)+')':' (2 au 9 janvier, Ouidah)'),items:VD.opts.map((o,i)=>({id:'v:'+i,n:VD.short+' · '+o.n[lg()],p:o.p||0,u:'pp'}))});
-const S=(W.SEJ&&W.SEJ())||[];if(S.length)G.push({k:'s',t:'Séjours',items:S.map(x=>({id:'s:'+x.id,n:x.n,p:0,u:'q',days:+x.days||0}))});
+const S=(W.SEJ&&W.SEJ())||[];if(S.length)G.push({k:'s',t:'Séjours',items:S.map(x=>({id:'s:'+x.id,n:x.n+(x.pf&&x.pv?(document.documentElement.lang==='en'?' (from)':' (à partir de)'):''),p:x.pv||0,u:x.pv?'pp':'q',days:+x.days||0}))});
 G.push({k:'t',t:'Transport',items:W.TR.map(x=>({id:'t:'+x.id,n:x.n,p:0,u:'q'})).concat(W.ALLP().filter(x=>x.k==='trans'&&!x.std).map(x=>({id:'t:'+x.id,n:x.n,p:+x.p||0,u:'f'})))});
 const L=W.ALLP().filter(x=>x.k==='hotel'||x.k==='heb');if(L.length)G.push({k:'h',t:'Hôtels et hébergements',items:L.map(x=>({id:'h:'+x.id,n:x.n+(x.v?' — '+x.v:''),p:+x.p||0,u:'n'}))});
 const R=W.ALLP().filter(x=>x.k==='resto');if(R.length)G.push({k:'r',t:'Restaurants',items:R.map(x=>({id:'r:'+x.id,n:x.n+(x.v?' — '+x.v:''),p:+x.p||0,u:'pp'}))});
@@ -206,7 +206,7 @@ else{e2.readOnly=false;e2.style.opacity='';if(tn)tn.nodeValue='Fin (facultatif)'
 ST.D=D}
 function calc(){link();const pax=Math.max(1,+val('pax')||1),rooms=Math.ceil(pax/2),nn=nights();let tot=0,q=0;const lines=[];
 if(ST.plan){tot=ST.plan.total||0;q=ST.plan.quote?1:0}
-else picked().forEach(i=>{let s=0;if(i.p){s=i.u==='pp'?((i.g==='c'&&pax>=7&&typeof gprice==='function'?gprice(i.p):i.p)*pax):i.u==='n'?i.p*rooms*nn:i.p;tot+=s}else q++;lines.push({i,s})});
+else picked().forEach(i=>{let s=0;if(i.p){s=i.u==='pp'?(((i.g==='c'||i.g==='s')&&pax>=7&&typeof gprice==='function'?gprice(i.p):i.p)*pax):i.u==='n'?i.p*rooms*nn:i.p;tot+=s}else q++;lines.push({i,s})});
 const n=ST.plan?1:lines.length;
 $('#bqtt')&&($('#bqtt').textContent=tot?m(tot)+(q?' + devis':''):(n||ST.plan?'Sur devis':'Choisissez un service'));
 $('#bqsm')&&($('#bqsm').textContent=(ST.plan?'Séjour sur mesure':n+' choix')+' · '+pax+' voyageur'+(pax>1?'s':''));
