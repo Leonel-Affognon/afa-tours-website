@@ -1,4 +1,5 @@
 const css=`
+@media(min-width:701px){.wrap{padding-right:max(clamp(18px,4vw,56px),88px)!important}.fab.wa{width:46px!important;height:46px!important;padding:0!important;justify-content:center!important;gap:0!important}.fab.wa span{display:none!important}}
 /* ===== correctifs interface (extra6) ===== */
 .snav:not(.live){opacity:0!important;pointer-events:none!important}
 .snav.live{opacity:.96!important;pointer-events:auto!important}
@@ -51,5 +52,7 @@ D.addEventListener('touchstart',function(e){var a=D.activeElement;if(a&&a.matche
 /* aperçu des circuits au toucher */
 var tmr;D.addEventListener('click',function(e){if(!matchMedia('(hover:none)').matches)return;var c=e.target.closest('.card .cimg');if(!c||e.target.closest('.peek,.heart'))return;var card=c.closest('.card'),on=card.classList.contains('pk');D.querySelectorAll('.card.pk').forEach(function(x){x.classList.remove('pk')});if(!on){card.classList.add('pk');clearTimeout(tmr);tmr=setTimeout(function(){card.classList.remove('pk')},6000)}});
 })();
+(function(){function fx(){var h=document.querySelector('.hero'),f=document.getElementById('finder'),s=document.querySelector('.segs');if(h&&f&&s){var ov=h.getBoundingClientRect().bottom-f.getBoundingClientRect().top;s.style.bottom=(Math.max(0,ov)+14)+'px'}}
+addEventListener('resize',fx);addEventListener('load',fx);[200,900,2500].forEach(function(t){setTimeout(fx,t)});fx()})();
 `;
 module.exports={css,js};

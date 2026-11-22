@@ -397,6 +397,7 @@ body{padding-right:0}
 .plq{padding:0 22px 16px;color:#6b4a3f;font-size:.85rem}
 @media(max-width:700px){#pl{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;margin:0}.pls,.pld{padding:14px}.plf{padding:12px 14px}.pck{grid-template-columns:1fr}}
 
+@media(min-width:701px){.wrap{padding-right:max(clamp(18px,4vw,56px),88px)!important}.fab.wa{width:46px!important;height:46px!important;padding:0!important;justify-content:center!important;gap:0!important}.fab.wa span{display:none!important}}
 /* ===== correctifs interface (extra6) ===== */
 .snav:not(.live){opacity:0!important;pointer-events:none!important}
 .snav.live{opacity:.96!important;pointer-events:auto!important}
@@ -769,7 +770,7 @@ function go(y){scrollTo({top:y,behavior:matchMedia('(prefers-reduced-motion:neve
 $('#sup').onclick=()=>go(0);$('#sdn').onclick=()=>go(document.documentElement.scrollHeight);
 $('#spv').onclick=()=>{const y=scrollY+5;const l=secs().filter(s=>s.getBoundingClientRect().top+scrollY-70<y-12).pop();go(l?l.getBoundingClientRect().top+scrollY-70:0)};
 $('#snx').onclick=()=>{const y=scrollY+Math.min(innerHeight*.3,160);const n=secs().find(s=>s.getBoundingClientRect().top+scrollY>y+10);if(n)go(n.getBoundingClientRect().top+scrollY-70);else go(document.documentElement.scrollHeight)};
-let snt=null;function navst(){const sn=$('.snav');if(scrollY>300){sn.classList.add('live');clearTimeout(snt);snt=setTimeout(()=>sn.classList.remove('live'),2600)}else sn.classList.remove('live');const atTop=scrollY<60,atBot=scrollY+innerHeight>=document.documentElement.scrollHeight-60;$('#sup').disabled=atTop;$('#spv').disabled=atTop;$('#sdn').disabled=atBot;$('#snx').disabled=atBot}
+let snt=null;function navst(){const sn=$('.snav');if(scrollY>300){sn.classList.add('live');clearTimeout(snt);snt=setTimeout(()=>sn.classList.remove('live'),matchMedia('(hover:none)').matches?1500:2600)}else sn.classList.remove('live');const atTop=scrollY<60,atBot=scrollY+innerHeight>=document.documentElement.scrollHeight-60;$('#sup').disabled=atTop;$('#spv').disabled=atTop;$('#sdn').disabled=atBot;$('#snx').disabled=atBot}
 addEventListener('scroll',navst,{passive:true});navst();
 // réseaux sociaux
 const SO=Object.assign({},(LS.get('afa_cfg',{})||{}).social||{});
@@ -1257,4 +1258,6 @@ D.addEventListener('touchstart',function(e){var a=D.activeElement;if(a&&a.matche
 /* aperçu des circuits au toucher */
 var tmr;D.addEventListener('click',function(e){if(!matchMedia('(hover:none)').matches)return;var c=e.target.closest('.card .cimg');if(!c||e.target.closest('.peek,.heart'))return;var card=c.closest('.card'),on=card.classList.contains('pk');D.querySelectorAll('.card.pk').forEach(function(x){x.classList.remove('pk')});if(!on){card.classList.add('pk');clearTimeout(tmr);tmr=setTimeout(function(){card.classList.remove('pk')},6000)}});
 })();
+(function(){function fx(){var h=document.querySelector('.hero'),f=document.getElementById('finder'),s=document.querySelector('.segs');if(h&&f&&s){var ov=h.getBoundingClientRect().bottom-f.getBoundingClientRect().top;s.style.bottom=(Math.max(0,ov)+14)+'px'}}
+addEventListener('resize',fx);addEventListener('load',fx);[200,900,2500].forEach(function(t){setTimeout(fx,t)});fx()})();
 </script></body></html>

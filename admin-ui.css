@@ -205,3 +205,5 @@ body:has(.admin-wrap){background:#f8f6f6;color:var(--admin-ink)}
  .booking-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(prefers-reduced-motion:reduce){.ad-nav,#adToast{transition:none}}
+.st-w{overflow-x:auto}.st-t{min-width:560px}.st-z td{color:#8a7f84;background:#faf7f7}
+.st-b{display:flex;gap:10px;align-items:center;margin:7px 0}.st-bar{height:14px;border-radius:7px;background:#E8832F;min-width:6px;flex:0 1 auto}

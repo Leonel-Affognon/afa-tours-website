@@ -99,7 +99,7 @@ function go(y){scrollTo({top:y,behavior:matchMedia('(prefers-reduced-motion:redu
 $('#sup').onclick=()=>go(0);$('#sdn').onclick=()=>go(document.documentElement.scrollHeight);
 $('#spv').onclick=()=>{const y=scrollY+5;const l=secs().filter(s=>s.getBoundingClientRect().top+scrollY-70<y-12).pop();go(l?l.getBoundingClientRect().top+scrollY-70:0)};
 $('#snx').onclick=()=>{const y=scrollY+Math.min(innerHeight*.3,160);const n=secs().find(s=>s.getBoundingClientRect().top+scrollY>y+10);if(n)go(n.getBoundingClientRect().top+scrollY-70);else go(document.documentElement.scrollHeight)};
-let snt=null;function navst(){const sn=$('.snav');if(scrollY>300){sn.classList.add('live');clearTimeout(snt);snt=setTimeout(()=>sn.classList.remove('live'),2600)}else sn.classList.remove('live');const atTop=scrollY<60,atBot=scrollY+innerHeight>=document.documentElement.scrollHeight-60;$('#sup').disabled=atTop;$('#spv').disabled=atTop;$('#sdn').disabled=atBot;$('#snx').disabled=atBot}
+let snt=null;function navst(){const sn=$('.snav');if(scrollY>300){sn.classList.add('live');clearTimeout(snt);snt=setTimeout(()=>sn.classList.remove('live'),matchMedia('(hover:none)').matches?1500:2600)}else sn.classList.remove('live');const atTop=scrollY<60,atBot=scrollY+innerHeight>=document.documentElement.scrollHeight-60;$('#sup').disabled=atTop;$('#spv').disabled=atTop;$('#sdn').disabled=atBot;$('#snx').disabled=atBot}
 addEventListener('scroll',navst,{passive:true});navst();
 // réseaux sociaux
 const SO=Object.assign({},(LS.get('afa_cfg',{})||{}).social||{});

@@ -122,15 +122,40 @@ export async function renderPartners(content,supabase){
  });
 }
 
-export async function renderStats(content,supabase){
+export const renderStats=(content,supabase,st={})=>keep(content,()=>stats(content,supabase,st));
+async function stats(content,supabase,st){
+ st.p=st.p||"all";
  content.innerHTML="<h2>Statistiques</h2><p>Chargement…</p>";
- const {data,error}=await supabase.from("bookings").select("nationality,tour_name,status,party_size,created_at,preferred_date");
- if(error){content.innerHTML="<p>"+esc(error.message)+"</p>";return}
+ const [bk,it,vi]=await Promise.all([supabase.from("bookings").select("nationality,tour_name,status,party_size,created_at"),supabase.from("site_items").select("kind,slug,status,fr").in("kind",["circuit","sejour","event","transport"]).order("sort"),supabase.from("visits").select("visit_date,tour,pax,income_xof,expenses_xof")]);
+ if(bk.error){content.innerHTML="<p>"+esc(bk.error.message)+"</p>";return}
+ const now=new Date(),y=now.getFullYear(),pad=n=>String(n).padStart(2,"0"),iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+ let from="0000",to="9999-99",lab="Depuis le début";
+ if(st.p==="year"){from=y+"-01-01";to=y+"-12-31";lab="Année "+y}
+ if(st.p==="month"){from=y+"-"+pad(now.getMonth()+1)+"-01";to=y+"-"+pad(now.getMonth()+1)+"-31";lab="Mois en cours"}
+ if(st.p==="week"){const d=(now.getDay()+6)%7,s0=new Date(now);s0.setDate(now.getDate()-d);const e0=new Date(s0);e0.setDate(s0.getDate()+6);from=iso(s0);to=iso(e0);lab="Semaine en cours"}
+ const inR=d=>{const x=String(d||"").slice(0,10);return x>=from&&x<=to};
+ const B=bk.data.filter(r=>inR(r.created_at)),V=(vi.data||[]).filter(r=>inR(r.visit_date)),items=it.data||[];
+ const norm=v=>String(v||"").toLowerCase();
+ const money=n=>Math.round(n||0).toLocaleString("fr-FR")+" FCFA";
  const count=(arr,fn)=>{const m={};arr.forEach(r=>{const k=fn(r)||"Non précisé";m[k]=(m[k]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
- const bars=e=>{const mx=Math.max(1,...e.map(x=>x[1]));return e.length?e.slice(0,12).map(([k,v])=>'<div style="display:flex;gap:10px;align-items:center;margin:7px 0"><span class="sx-lb">'+esc(k)+'</span><span style="height:14px;border-radius:7px;background:#E8832F;width:'+Math.round(v/mx*100)+'%;min-width:6px"></span><b>'+v+"</b></div>").join(""):"<p>Pas encore de données.</p>"};
- const people=data.reduce((s,r)=>s+(r.party_size||0),0);
- const month=r=>(r.created_at||"").slice(0,7);
- content.innerHTML='<h2>Statistiques</h2><div class="booking-stats"><div><span>Demandes</span><strong>'+data.length+"</strong></div><div><span>Voyageurs</span><strong>"+people+"</strong></div><div><span>Confirmées</span><strong>"+data.filter(r=>r.status==="confirmed").length+"</strong></div></div><h3 class='sx-h'>Par nationalité</h3>"+bars(count(data,r=>r.nationality))+"<h3 class='sx-h'>Par mois</h3>"+bars(count(data,month).sort((a,b)=>a[0]<b[0]?1:-1))+"<h3 class='sx-h'>Par statut</h3>"+bars(count(data,r=>({new:"Nouvelles",contacted:"Contactées",quoted:"Devis envoyés",confirmed:"Confirmées",cancelled:"Annulées",completed:"Terminées"}[r.status]||r.status)));
+ const bars=e=>{const mx=Math.max(1,...e.map(x=>x[1]));return e.length?e.slice(0,15).map(([k,v])=>'<div class="st-b"><span class="sx-lb">'+esc(k)+'</span><span class="st-bar" style="width:'+Math.round(v/mx*100)+'%"></span><b>'+v+"</b></div>").join(""):"<p>Pas encore de données.</p>"};
+ const names=r=>norm(r.fr.title||r.fr.name);
+ const rowFor=(r)=>{const n=names(r),key=norm(String(r.fr.title||r.fr.name).replace(/\s*\d{4}\s*$/,""));const bb=B.filter(x=>key&&norm(x.tour_name).includes(key)),vv=V.filter(x=>key&&norm(x.tour).includes(key));return {n:r.fr.title||r.fr.name,on:r.status==="published",d:bb.length,p:bb.reduce((s,x)=>s+(x.party_size||0),0),c:bb.filter(x=>x.status==="confirmed"||x.status==="completed").length,v:vv.length,vp:vv.reduce((s,x)=>s+(x.pax||0),0),inc:vv.reduce((s,x)=>s+Number(x.income_xof||0)-Number(x.expenses_xof||0),0)}};
+ const G=[["circuit","Circuits et excursions"],["sejour","Séjours"],["event","Événements et festivals"],["transport","Offres de transport"]];
+ const tabs=G.map(([k,l])=>{const rs=items.filter(i=>i.kind===k).map(rowFor).sort((a,b)=>b.d-a.d||b.v-a.v);return {l,rs}});
+ const tbl=({l,rs})=>'<h3 class="sx-h">'+l+'</h3>'+(rs.length?'<div class="st-w"><table class="admin-table st-t"><thead><tr><th>Nom</th><th>Demandes</th><th>Voyageurs</th><th>Confirmées</th><th>Visites</th><th>Résultat visites</th></tr></thead><tbody>'+rs.map(r=>"<tr"+(r.d+r.v===0?' class="st-z"':"")+"><td><b>"+esc(r.n)+"</b>"+(r.on?"":' <small>(masqué)</small>')+(r.d+r.v===0?"<br><small>Jamais réservé ni visité</small>":"")+"</td><td>"+r.d+"</td><td>"+r.p+"</td><td>"+r.c+"</td><td>"+r.v+" ("+r.vp+" pers.)</td><td>"+money(r.inc)+"</td></tr>").join("")+"</tbody></table></div>":"<p>Rien d’enregistré.</p>");
+ const people=B.reduce((s,r)=>s+(r.party_size||0),0),SL={new:"Nouvelles",contacted:"Contactées",quoted:"Devis envoyés",confirmed:"Confirmées",cancelled:"Annulées",completed:"Terminées"};
+ const P=[["week","Semaine"],["month","Mois"],["year","Année"],["all","Tout"]];
+ const html='<div class="ad-head"><div><h2>Statistiques</h2><p class="ad-intro">Chaque circuit, séjour, événement et offre de transport figure ici, même s’il n’a jamais été réservé.</p></div><button class="sx-btn pri big" type="button" id="st-pdf">Télécharger en PDF</button></div><div class="vs-per">'+P.map(x=>'<button type="button" data-p="'+x[0]+'" class="'+(st.p===x[0]?"on":"")+'">'+x[1]+"</button>").join("")+'</div><p class="vs-lab"><b>'+lab+'</b></p><div class="booking-stats"><div><span>Demandes</span><strong>'+B.length+"</strong></div><div><span>Voyageurs</span><strong>"+people+"</strong></div><div><span>Confirmées</span><strong>"+B.filter(r=>r.status==="confirmed"||r.status==="completed").length+"</strong></div><div><span>Visites notées</span><strong>"+V.length+"</strong></div></div>"+tabs.map(tbl).join("")+"<h3 class='sx-h'>Par nationalité</h3>"+bars(count(B,r=>r.nationality))+"<h3 class='sx-h'>Par mois</h3>"+bars(count(B,r=>(r.created_at||"").slice(0,7)).sort((a,b)=>a[0]<b[0]?1:-1))+"<h3 class='sx-h'>Par statut</h3>"+bars(count(B,r=>SL[r.status]||r.status));
+ content.innerHTML=html;
+ content.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>stats(content,supabase,{p:b.dataset.p}));
+ content.querySelector("#st-pdf").onclick=()=>{
+  const body=html.replace(/<button[^>]*>.*?<\/button>/g,"").replace('<div class="vs-per"></div>',"");
+  const w=window.open("","_blank");
+  if(!w){toast("Autorisez les fenêtres pop-up pour télécharger le PDF",1);return}
+  w.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Statistiques AFA TOURS</title><style>body{font:14px/1.5 Arial,sans-serif;color:#2a0c07;margin:24px}h1{color:#B51D27;margin:0}h2{display:none}h3{margin:22px 0 6px;color:#2a0c07;border-bottom:2px solid #E8832F;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid #ddd;padding:6px;text-align:left}th{background:#fbf6ef}.st-z td{color:#888}.booking-stats{display:flex;gap:10px}.booking-stats>div{flex:1;border:1px solid #ddd;padding:8px;border-radius:8px}.booking-stats strong{display:block;font-size:20px}.st-b{display:flex;gap:8px;align-items:center;margin:4px 0}.sx-lb{width:200px}.st-bar{height:10px;background:#E8832F;border-radius:5px}.ad-intro,.vs-per{display:none}small{color:#777}@media print{tr{page-break-inside:avoid}h3{page-break-after:avoid}}</style></head><body><h1>AFA TOURS · Statistiques</h1><p>'+esc(lab)+" · édité le "+now.toLocaleDateString("fr-FR")+"</p>"+body+"<script>setTimeout(function(){print()},400)<\/script></body></html>");
+  w.document.close();
+ };
 }
 
 // Message de rappel prêt à envoyer (WhatsApp) pour une réservation
