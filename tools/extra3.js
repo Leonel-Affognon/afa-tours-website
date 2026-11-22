@@ -44,7 +44,7 @@ html.mo .h2[data-rv].in::after{width:64px}
 @keyframes tkk{0%{transform:translateY(-35%);opacity:.3}100%{transform:none;opacity:1}}
 .ann .go{display:inline-flex;align-items:center;font-weight:800;font-size:.84rem;color:#2A0C07;background:#fff;border-radius:999px;padding:.5em 1em;text-decoration:none;white-space:nowrap}
 .ann .go:hover{background:#F5B14A}
-@media(max-width:700px){.ann .wrap.av{gap:5px 10px;padding-block:6px}.ann .tag{font-size:.68rem}.ann .msg{order:3;flex-basis:100%;min-width:0;font-size:.76rem}.ann .msg span{white-space:normal;line-height:1.25}.ann .msg{height:2.5em}.ann .cd b{font-size:.84rem}.ann .go{display:none}}
+@media(max-width:700px){.ann .wrap.av{gap:5px 10px;padding-block:6px}.ann .tag{font-size:.68rem}.ann .msg{order:3;flex-basis:100%;min-width:0;font-size:.76rem}.ann .msg span{white-space:normal;line-height:1.25}.ann .msg{height:2.5em}.ann .cd b{font-size:.84rem}.ann .go{display:inline-flex;order:4;flex-basis:100%;justify-content:center;font-size:.92rem;padding:.7em 1em;min-height:44px}}
 @media(prefers-reduced-motion:reduce){.ann{animation:none}.ann .tag i{animation:none}}
 
 /* ===== Lisibilité sur photos ===== */

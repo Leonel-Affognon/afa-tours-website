@@ -1,4 +1,15 @@
 const css=String.raw`
+.pc.noimg{flex-direction:row;align-items:center}.pc.noimg .pi{width:68px;height:68px;min-width:68px;flex:none;margin:16px 0 16px 16px;border-radius:16px;font-size:1.7rem}.pc.noimg .pb{padding:16px 16px 16px 14px}
+@media(min-width:701px){.snav.inl{position:static!important;transform:none!important;opacity:1!important;pointer-events:auto!important;flex-direction:row!important;align-self:flex-end;right:auto!important;top:auto!important;bottom:auto!important;margin-bottom:2px}.snav.inl #sdn{display:grid!important}}
+.avtab{display:none}
+@media(max-width:700px){.avtab{display:flex;position:fixed;left:0;top:46%;z-index:43;transform:translateY(-50%);writing-mode:vertical-rl;transform-origin:center;background:#E8832F;color:#2A0C07;border:0;border-radius:0 12px 12px 0;padding:14px 8px;font:800 .82rem var(--b,inherit);letter-spacing:.04em;box-shadow:0 6px 18px rgba(30,8,4,.3);cursor:pointer;gap:6px;align-items:center;min-height:120px;justify-content:center}.avtab b{writing-mode:horizontal-tb;font-size:1rem}}
+
+.bqs{margin:0 0 22px}.bqs h3{margin:0 0 8px;font:600 1.15rem var(--d,inherit);color:#2A0C07}.bqg{border:1.5px solid #eadfd3;border-radius:14px;margin:0 0 10px;background:#fff}.bqg>summary{cursor:pointer;list-style:none;padding:13px 16px;font-weight:800;color:#2A0C07;display:flex;gap:8px;justify-content:space-between}.bqg>summary::-webkit-details-marker{display:none}.bqg>summary::after{content:'+';color:#E8832F;font-size:1.3rem;line-height:1}.bqg[open]>summary::after{content:'−'}.bqg .pck{padding:0 12px 12px}.bqn{margin-left:auto;margin-right:10px;color:#B51D27;font-weight:700;font-size:.85rem}
+.bqp{white-space:pre-wrap;font:inherit;font-size:.88rem;background:#FBF6EF;border-radius:12px;padding:12px;max-height:240px;overflow:auto;color:#2A0C07}
+.r3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:700px){.r3{grid-template-columns:1fr 1fr}.r3 .f:last-child{grid-column:1/-1}}
+.bqf{position:sticky;bottom:0;margin:0 -26px -26px;background:#2A0C07;color:#fff;padding:14px 22px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between}.bqf .tt{font-size:1.25rem;font-weight:800;color:#F5B27A}.bqf small{opacity:.8}.bqa{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+@media(max-width:700px){#bq{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;margin:0}.bqf{margin:0 -16px -20px}}
+
 .mbc{border:1.5px solid #eadfd3;border-radius:16px;padding:14px 16px;margin-bottom:12px;background:#fff;color:#2A0C07}.mbh{display:flex;justify-content:space-between;gap:8px;align-items:center}.mbs{background:#fff4e8;color:#B51D27;border-radius:999px;padding:4px 10px;font-weight:700;font-size:.78rem}.mbc h3{margin:6px 0 2px;font-size:1.05rem}.mbc p{margin:0 0 8px;color:#6b4a3f}.mbc pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:#FBF6EF;padding:10px;border-radius:10px}.mba{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .orow{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px}.orow input,.orow select{font:inherit;padding:10px;border:1.5px solid #d9c9b8;border-radius:10px;min-height:44px;min-width:0}.f .oth{margin-top:8px}.f .chks+input{margin-top:8px;width:100%;font:inherit;padding:10px;border:1.5px solid #d9c9b8;border-radius:10px;min-height:44px}@media(max-width:700px){.orow{grid-template-columns:1fr 1fr}.orow input:first-child{grid-column:1/-1}}
 #pl{max-width:980px;width:calc(100vw - 20px);max-height:calc(100dvh - 20px);padding:0}
@@ -90,12 +101,12 @@ x.r.forEach(id=>{const r=R.find(z=>z.id===id);if(!r)return;parts.push('Restauran
 x.t.forEach(id=>{const t=TT.find(z=>z.id===id);if(!t)return;parts.push('Transport : '+t.n);if(t.p)sub+=t.p;else quote.push('Jour '+(i+1)+' · '+t.n)});
 if(x.note)parts.push('Note : '+x.note);
 total+=sub;const el=$('[data-sub="'+i+'"]');if(el)el.textContent=sub?m(sub):'';
-txt.push('Jour '+(i+1)+(P.start?' ('+dateOf(i)+')':'')+(x.city?' — '+x.city:'')+'\n  '+(parts.join('\n  ')||'À définir avec AFA TOURS'))});
+txt.push('*Jour '+(i+1)+(P.start?' ('+dateOf(i)+')':'')+(x.city?' — '+x.city:'')+'*\n'+(parts.map(z=>'• '+z.replace(/^Note : (.*)$/,'_Note : $1_')).join('\n')||'• À définir avec AFA TOURS')+'\n')});
 const q=quote.length;
 $('#pltt').textContent=total?m(total)+(q?' + devis':''):'Sur devis';
 $('#plsm').textContent=P.n+' jours · '+P.pax+' voyageur'+(P.pax>1?'s':'')+' · '+P.rooms+' chambre'+(P.rooms>1?'s':'')+(q?' · '+q+' élément'+(q>1?'s':'')+' sans prix':'');
 $('#plq').textContent=q?'Sans prix affiché, donc inclus dans le devis : '+quote.slice(0,8).join(' ; ')+(q>8?'…':'')+'.':'';
-const full='SÉJOUR SUR MESURE — '+P.n+' jours'+(P.start?', arrivée le '+P.start:'')+'\nVoyageurs : '+P.pax+' · Chambres : '+P.rooms+'\n'+txt.join('\n')+'\n'+(total?'Estimation calculée : '+m(total)+(q?' (hors éléments sans prix)':''):'Prix à établir sur devis');
+const full='*SÉJOUR SUR MESURE — '+P.n+' jours*'+(P.start?' (arrivée le '+P.start+')':'')+'\n_Voyageurs : '+P.pax+' · Chambres : '+P.rooms+'_\n\n'+txt.join('\n')+'\n'+(total?'*Estimation calculée : '+m(total)+'*'+(q?' _(hors éléments sans prix)_':''):'*Prix à établir sur devis*');
 P.out={days:P.days.map((x,i)=>({i,city:x.city})),total:total,est:total,quote:!total||q>0,text:full};save();return P.out}
 d.addEventListener('input',e=>{const t=e.target;
 if(t.id==='pst'){P.start=t.value;days();return}
@@ -142,6 +153,97 @@ if(t.closest('[data-mbclose]')&&t.closest('#mb')){d.close();return}
 const i=t.closest('[data-ics]');if(i){const r=get()[+i.dataset.ics];const c=ics(r);if(!c)return;const u=URL.createObjectURL(new Blob([c],{type:'text/calendar'}));const a=document.createElement('a');a.href=u;a.download='afa-tours-'+r.ref+'.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return}
 const ag=t.closest('[data-again]');if(ag){const r=get()[+ag.dataset.again];d.close();window.openBook&&openBook(r.kind==='plan'?'circuit':r.kind);return}
 const rm=t.closest('[data-rm]');if(rm){const a=get();a.splice(+rm.dataset.rm,1);set(a);draw()}});
+})();
+
+/* ===== Réservation unique ===== */
+(function(){
+const W=window.__AFA;if(!W)return;
+const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const lg=()=>(typeof lang!=='undefined'?lang:'fr');
+const m=n=>typeof money==='function'?money(n):Number(n).toLocaleString('fr-FR')+' FCFA';
+const md=s=>String(s).replace(/\*([^*\n]+)\*/g,'$1').replace(/(^|\s)_([^_\n]+)_(?=\s|$|[.,;:])/g,'$1$2');
+const d=document.createElement('dialog');d.className='xd';d.id='bq';d.setAttribute('aria-labelledby','bqt');
+d.innerHTML='<div class="xh"><h2 id="bqt">Réserver</h2><p>Un seul formulaire. Cochez tout ce que vous voulez : plusieurs circuits, transport, hébergement…</p><button class="xx" type="button" aria-label="Fermer" data-x>×</button></div><div class="xb"><form id="bqf" novalidate><div id="bqw"></div></form></div>';
+document.body.appendChild(d);
+const $=s=>d.querySelector(s);
+let ST={pre:null,plan:null};
+const countries=()=>{try{const dn=new Intl.DisplayNames([lg()==='en'?'en':'fr'],{type:'region'});const o=[];for(let a=65;a<=90;a++)for(let b=65;b<=90;b++){const c=String.fromCharCode(a,b);let n;try{n=dn.of(c)}catch(e){continue}if(n&&n!==c&&!/Zone|Unknown|inconnue|Région/i.test(n))o.push(n)}return o.sort((x,y)=>x.localeCompare(y))}catch(e){return['Bénin','France','Togo','Nigeria','Côte d’Ivoire','Sénégal','Cameroun','Allemagne','États-Unis','Royaume-Uni','Canada','Belgique','Suisse','Brésil']}};
+function groups(){const en=lg()==='en';const G=[];
+const T=window.TRIPS||[];G.push({k:'c',t:'Circuits',open:1,items:T.map(x=>({id:'c:'+x.id,n:x.destination+' — '+x.title,p:x.priceValue||0,u:'pp'}))});
+if(typeof VD!=='undefined')G.push({k:'v',t:'Vodun Days 2027 (2 au 9 janvier, Ouidah)',items:VD.opts.map((o,i)=>({id:'v:'+i,n:'Vodun Days · '+o.n[lg()],p:o.p||0,u:'pp'}))});
+const S=(W.SEJ&&W.SEJ())||[];if(S.length)G.push({k:'s',t:'Séjours',items:S.map(x=>({id:'s:'+x.id,n:x.n,p:0,u:'q'}))});
+G.push({k:'t',t:'Transport',items:W.TR.map(x=>({id:'t:'+x.id,n:x.n,p:0,u:'q'})).concat(W.ALLP().filter(x=>x.k==='trans').map(x=>({id:'t:'+x.id,n:x.n,p:+x.p||0,u:'f'})))});
+const L=W.ALLP().filter(x=>x.k==='hotel'||x.k==='heb');if(L.length)G.push({k:'h',t:'Hôtels et hébergements',items:L.map(x=>({id:'h:'+x.id,n:x.n+(x.v?' — '+x.v:''),p:+x.p||0,u:'n'}))});
+const R=W.ALLP().filter(x=>x.k==='resto');if(R.length)G.push({k:'r',t:'Restaurants',items:R.map(x=>({id:'r:'+x.id,n:x.n+(x.v?' — '+x.v:''),p:+x.p||0,u:'pp'}))});
+return G}
+const UL={pp:'par personne',n:'par nuit',f:'forfait',q:''};
+function render(){const pre=ST.pre||{};const G=groups();const pay=[['q','Devis d’abord, paiement ensuite'],['momo','Mobile Money'],['card','Carte bancaire'],['transfer','Virement'],['agency','Paiement à l’agence']];
+const sel=new Set(pre.ids||[]);try{if(!ST.plan&&!sel.size&&typeof globalThis.__ENG_SEL==='function')globalThis.__ENG_SEL().forEach(i=>sel.add(/^vd\d/.test(i)?'v:'+i.slice(2):'c:'+i))}catch(e){}
+$('#bqw').innerHTML=
+(ST.plan?'<section class="bqs"><h3>Votre séjour sur mesure</h3><pre class="bqp">'+E(md(ST.plan.text))+'</pre><button type="button" class="btn btn-out btn-sm" data-plan data-bqclose>Modifier le séjour</button></section>'
+:'<section class="bqs"><h3>Que voulez-vous réserver ?</h3><p class="fnote">Cochez autant de choix que vous voulez. Sans prix affiché, nous vous envoyons un devis.</p>'+G.map(g=>'<details class="bqg"'+(g.open||g.items.some(i=>sel.has(i.id))?' open':'')+'><summary>'+E(g.t)+' <span class="bqn" data-cnt="'+g.k+'"></span></summary><div class="pck">'+g.items.map(i=>'<label><input type="checkbox" name="it" value="'+E(i.id)+'" data-p="'+i.p+'" data-u="'+i.u+'"'+(sel.has(i.id)?' checked':'')+'><span>'+E(i.n)+'<small>'+(i.p?'<em>'+m(i.p)+'</em> '+UL[i.u]:'Prix sur devis')+'</small></span></label>').join('')+'</div></details>').join('')+'<label class="f">Autre demande (écrivez ce que vous voulez)<textarea name="other" rows="3" placeholder="Un guide, une cérémonie, un lieu précis, une fête…"></textarea></label><button type="button" class="btn btn-out btn-sm" data-plan data-bqclose>Composer jour par jour</button></section>')+
+'<section class="bqs"><h3>Quand et combien ?</h3><div class="r3"><label class="f">Arrivée ou début<input type="date" name="d1"></label><label class="f">Fin (facultatif)<input type="date" name="d2"></label><label class="f">Voyageurs<input type="number" name="pax" min="1" max="100" value="'+(ST.plan?ST.plan.pax||2:2)+'"></label></div></section>'+
+'<section class="bqs"><h3>Vos coordonnées</h3><div class="r2"><label class="f">Nom complet *<input name="nm" autocomplete="name" required></label><label class="f">Nationalité *<input name="nat" list="bqc" autocomplete="country-name" placeholder="Bénin, France, Togo…" required></label></div><datalist id="bqc">'+countries().map(c=>'<option value="'+E(c)+'">').join('')+'</datalist><div class="r2"><label class="f">WhatsApp ou téléphone<input name="w" inputmode="tel" autocomplete="tel" placeholder="+229…"></label><label class="f">E-mail<input name="e" type="email" autocomplete="email"></label></div><p class="fnote" style="margin:0">Un seul des deux suffit : WhatsApp ou e-mail.</p><label class="f">Votre position (facultatif)<span class="geo"><input name="loc" id="bqloc" placeholder="Lien Google Maps, adresse ou quartier"><button type="button" class="btn btn-out btn-sm" data-geo="#bqloc" data-gst="#bqlst">📍 Utiliser ma position</button></span><small id="bqlst"></small></label><label class="f">Moyen de paiement souhaité<select name="pay">'+pay.map(p=>'<option value="'+p[0]+'">'+p[1]+'</option>').join('')+'</select></label><label class="f">Précisions (facultatif)<textarea name="nt" rows="3"></textarea></label></section>'+
+'<p class="err" id="bqerr" role="alert"></p><div class="bqf"><div><div class="tt" id="bqtt"></div><small id="bqsm"></small></div><button class="btn btn-red" type="submit" id="bqgo">Envoyer ma demande</button></div>';
+calc();if(window.__trDom)window.__trDom(d)}
+function val(n){const e=d.querySelector('[name="'+n+'"]');return e?(e.value||'').trim():''}
+function picked(){const G=groups(),all={};G.forEach(g=>g.items.forEach(i=>all[i.id]=Object.assign({g:g.k},i)));return[...d.querySelectorAll('input[name=it]:checked')].map(x=>all[x.value]).filter(Boolean)}
+function nights(){const a=val('d1'),b=val('d2');if(!a||!b)return 1;const n=Math.round((new Date(b)-new Date(a))/864e5);return Math.max(1,n)}
+function calc(){const pax=Math.max(1,+val('pax')||1),rooms=Math.ceil(pax/2),nn=nights();let tot=0,q=0;const lines=[];
+if(ST.plan){tot=ST.plan.total||0;q=ST.plan.quote?1:0}
+else picked().forEach(i=>{let s=0;if(i.p){s=i.u==='pp'?i.p*pax:i.u==='n'?i.p*rooms*nn:i.p;tot+=s}else q++;lines.push({i,s})});
+const n=ST.plan?1:lines.length;
+$('#bqtt')&&($('#bqtt').textContent=tot?m(tot)+(q?' + devis':''):(n||ST.plan?'Sur devis':'Choisissez un service'));
+$('#bqsm')&&($('#bqsm').textContent=(ST.plan?'Séjour sur mesure':n+' choix')+' · '+pax+' voyageur'+(pax>1?'s':''));
+d.querySelectorAll('[data-cnt]').forEach(s=>{const k=s.dataset.cnt;const c=lines.filter(l=>l.i.g===k).length;s.textContent=c?'· '+c+' choisi'+(c>1?'s':''):''});
+return{pax,rooms,nn,tot,q,lines}}
+function wa(rec,c,f){const B=t=>'*'+t+'*',I=t=>'_'+t+'_';const L=[];
+L.push(B('DEMANDE DE RÉSERVATION')+'  '+I(rec.ref),'');
+L.push(B('👤 Client'),'Nom : '+B(f.nm),'Nationalité : '+f.nat,f.w?'WhatsApp : '+f.w:'',f.e?'E-mail : '+f.e:'',f.loc?'Position : '+f.loc:'','');
+L.push(B('🧳 Demande'));
+if(ST.plan)L.push(ST.plan.text);else{c.lines.forEach(l=>L.push('• '+l.i.n+(l.s?'  '+I(m(l.s)):'  '+I('sur devis'))));if(f.other)L.push('• Autre : '+I(f.other))}
+L.push('');
+L.push(B('📅 Dates')+' : '+(f.d1||'à définir')+(f.d2?' → '+f.d2:''),B('👥 Voyageurs')+' : '+c.pax,B('💳 Paiement souhaité')+' : '+f.payL,B('💰 Total estimé')+' : '+(c.tot?B(m(c.tot))+(c.q?' '+I('+ éléments sur devis'):''):B('sur devis')));
+if(f.nt)L.push('',B('📝 Précisions'),I(f.nt));
+return L.filter((x,i,a)=>!(x===''&&a[i-1]==='')).join('\n')}
+function plain(rec,c,f){return md(wa(rec,c,f)).replace(/^([👤🧳📅👥💳💰📝]\s?)/gm,'')}
+function submit(ev){ev.preventDefault();const err=t=>{$('#bqerr').textContent=t;$('#bqerr').scrollIntoView({block:'center',behavior:'smooth'})};
+const f={nm:val('nm'),nat:val('nat'),w:val('w'),e:val('e'),loc:val('loc'),nt:val('nt'),other:val('other'),d1:val('d1'),d2:val('d2'),pay:val('pay')};
+const c=calc();
+if(!ST.plan&&!c.lines.length&&!f.other){err('Cochez au moins un choix, ou écrivez votre demande dans « Autre demande ».');return}
+if(!f.nm){err('Indiquez votre nom complet.');return}
+if(!f.nat){err('Indiquez votre nationalité.');return}
+if(!f.w&&!f.e){err('Laissez un numéro WhatsApp ou un e-mail pour que nous puissions vous répondre.');return}
+if(f.e&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.e)){err('Cet e-mail ne semble pas valide. Corrigez-le ou laissez seulement votre numéro.');return}
+$('#bqerr').textContent='';
+const payL={q:'Devis d’abord',momo:'Mobile Money',card:'Carte bancaire',transfer:'Virement',agency:'Paiement à l’agence'}[f.pay];f.payL=payL;
+const ref0='AFA-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+const label=ST.plan?('Séjour sur mesure · '+(ST.plan.days.length)+' jours'):(c.lines.length?c.lines[0].i.n+(c.lines.length>1?' (+'+(c.lines.length-1)+')':''):'Demande libre');
+const rec={ref:ref0,lang:lg(),at:new Date().toISOString(),kind:ST.plan?'plan':'multi',label:label,x:'',d1:f.d1,pax:c.pax,total:c.tot,pay:f.pay,nm:f.nm,nat:f.nat,w:f.w,e:f.e,nt:f.nt,loc:f.loc,status:c.tot&&!c.q?'À confirmer':'Devis à établir'};
+rec.x=plain(rec,c,f);
+const fin=(ref,ok)=>{rec.ref=ref;const a=JSON.parse(localStorage.getItem('afa_bookings')||'[]');a.unshift(rec);try{localStorage.setItem('afa_bookings',JSON.stringify(a))}catch(e){}
+const url='https://wa.me/'+(lg()==='en'?'2290161956804':'2290197165646')+'?text='+encodeURIComponent(wa(rec,c,f).replace(rec.ref,ref));
+$('#bqw').innerHTML='<div class="okb"><div class="ck">'+(ok?'✓':'!')+'</div><h3 style="font:600 1.5rem var(--d)">'+(ok?'Demande enregistrée':'Une dernière étape')+'</h3>'+(ok?'<p>Votre référence</p><div class="ref">'+E(ref)+'</div><p style="color:#5a4038;max-width:46ch;margin:6px auto 16px">'+(rec.status==='À confirmer'?'Notre équipe confirme les disponibilités et le paiement sous 24 h.':'Nous vous envoyons un devis détaillé sous 24 h.')+'</p>':'<p style="color:#5a4038;max-width:46ch;margin:8px auto 16px">La connexion à notre serveur a échoué. Votre demande est prête : envoyez-la sur WhatsApp, elle sera traitée tout de suite.</p>')+'<p class="bqa"><a class="btn btn-red" href="'+url+'" target="_blank" rel="noopener">'+(ok?'Envoyer aussi sur WhatsApp':'Envoyer sur WhatsApp')+'</a><button class="btn btn-out" type="button" data-mybk data-x>Voir mes réservations</button><button class="btn btn-out" type="button" data-bqagain>Nouvelle réservation</button></p>'+(lg()==='en'?'<p style="font-weight:700">English-speaking team: +229 01 61 95 68 04</p>':'')+'</div>';if(window.__trDom)window.__trDom(d);ST.plan=null};
+if(window.AFA_SUBMIT){$('#bqw').innerHTML='<div class="okb"><p style="font-weight:700;padding:26px 0">Envoi de votre demande…</p></div>';
+const pl={action:'booking',request_type:(!ST.plan&&c.lines.every(l=>l.i.g==='c'||l.i.g==='v')&&c.lines.length)?'existing_tour':'custom_trip',full_name:f.nm,email:f.e||'sans-email@afa-tours.site',phone:f.w||null,preferred_date:f.d1||null,party_size:c.pax,tour_name:label,nationality:f.nat,message:plain(rec,c,f)+'\nLangue : '+lg()};
+Promise.race([window.AFA_SUBMIT(pl),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),12000))]).then(r=>fin(r.reference||ref0,true)).catch(()=>fin(ref0,false))}else fin(ref0,false)}
+d.addEventListener('input',e=>{if(e.target.name==='it'||e.target.name==='pax'||e.target.name==='d1'||e.target.name==='d2')calc()});
+d.addEventListener('change',e=>{if(e.target.name==='it'||e.target.name==='d1'||e.target.name==='d2')calc()});
+d.querySelector('#bqf').addEventListener('submit',submit);
+d.addEventListener('click',e=>{const t=e.target;if(t.closest('[data-bqclose]')){d.close();return}if(t.closest('[data-bqagain]')){ST={pre:null,plan:null};render();d.scrollTo&&d.scrollTo(0,0);return}if(e.target===d)d.close()});
+function map(kind,id){if(!id)return[];const p={circuit:'c',transport:'t',hotel:'h',heb:'h',resto:'r',sejour:'s',vodun:'v',trans:'t'}[kind]||'c';if(kind==='circuit'&&/^vd\d/.test(id))return['v:'+id.slice(2)];return[p+':'+id]}
+window.openBook=function(kind,id){ST={pre:{ids:map(kind,id)},plan:null};const o=document.querySelector('dialog[open]');o&&o!==d&&o.close();render();d.showModal()};
+W.setPlan=function(plan,pax){ST={pre:null,plan:Object.assign({},plan,{pax:pax})};render();d.showModal()};
+window.__bq={open:window.openBook};
+})();
+
+/* ===== boutons flottants & avis mobile ===== */
+(function(){
+const sn=document.querySelector('.snav'),fb=document.querySelector('.fabs');
+function place(){if(!sn||!fb)return;const wide=matchMedia('(min-width:701px)').matches;if(wide&&!sn.classList.contains('inl')){fb.insertBefore(sn,fb.firstChild);sn.classList.add('inl')}else if(!wide&&sn.classList.contains('inl')){document.body.appendChild(sn);sn.classList.remove('inl')}}
+place();addEventListener('resize',place);
+const b=document.createElement('button');b.type='button';b.className='avtab';b.setAttribute('data-rvgo','');b.setAttribute('aria-label','Donner votre avis');b.innerHTML='<b>★</b> Votre avis';document.body.appendChild(b);
+if(window.__trDom)window.__trDom(document.body);
 })();
 `;
 module.exports={css,js:'window.__EN='+JSON.stringify(require('./en.json'))+';'+js};
