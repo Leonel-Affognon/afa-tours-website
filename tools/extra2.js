@@ -44,6 +44,29 @@ dialog.xd{width:100vw!important;max-width:100vw;max-height:100dvh;height:100dvh;
 .igv .top{padding:calc(10px + env(safe-area-inset-top)) 12px 8px}
 .count{flex-wrap:wrap}.count div{padding:4px 12px!important}.count b{font-size:2.3rem!important}
 }
+@media(max-width:700px){
+html{font-size:15px}body{font-size:15px;line-height:1.5}
+.wrap{padding-inline:18px}
+.ann{font-size:.76rem}.ann .wrap{padding-block:6px;gap:0 10px;line-height:1.35}
+.hd .wrap{height:56px}.brand img{width:38px;height:38px}.hd .tools{gap:5px}
+.cursel{font-size:.72rem;padding:.38em .3em .38em .5em;max-width:78px;text-overflow:clip}.seg button{padding:.34em .55em;font-size:.72rem}.menub{padding:.42em .8em;font-size:.78rem}
+.hero{min-height:calc(100svh - 30px);padding:92px 0 104px}
+.hero h1{font-size:clamp(2rem,9vw,2.6rem);line-height:1.06;margin-top:12px}
+.hero .sub{font-size:.98rem;line-height:1.5;margin-top:14px}
+.hero .acts{margin-top:20px;gap:10px}.hero .acts .btn{flex:1 1 100%;justify-content:center}
+.btn{padding:.78em 1.2em;font-size:.95rem}
+.trust{padding:22px 0 0}.trust ul{grid-template-columns:1fr 1fr;gap:0}.trust li{padding:14px 12px;border-left:0!important;border-bottom:1px solid var(--line)}.trust li:nth-child(odd){padding-left:0;border-right:1px solid var(--line)}.trust li:last-child{grid-column:1/-1;border-right:0;border-bottom:0;padding-left:0}.trust b{font-size:1.08rem}.trust span{font-size:.8rem}
+.filters{gap:6px 14px}.chip{font-size:.85rem;padding:.35em 0}
+.bar{gap:10px;margin-top:22px}.ctl{width:100%}.ctl .search{flex:1 1 100%}.ctl .search input{width:100%}.sel2,.ctl .chip.box{font-size:.85rem;padding:.5em .9em}
+.grid3{grid-template-columns:minmax(0,1fr);gap:26px}
+.cimg{aspect-ratio:4/3}.peek{display:none!important}
+.cb{padding-top:12px}.cb h3{font-size:1.45rem}.cd{font-size:.9rem}.cft{flex-wrap:wrap;font-size:.92rem}.add{font-size:.92rem}
+.snav{right:6px;bottom:calc(env(safe-area-inset-bottom) + 86px)}.snav button{width:32px;height:32px}.snav svg{width:16px;height:16px}
+.mbar{padding:8px 12px calc(8px + env(safe-area-inset-bottom));gap:8px}.mbar .btn{padding:.7em 1em}.mbar .rb{width:44px;height:44px}.mbar .rb svg{width:22px;height:22px}
+body{padding-bottom:68px}
+.h2,.xs h2{font-size:clamp(1.6rem,7vw,2rem)!important}.lede{font-size:.95rem}
+.pgrid{grid-template-columns:minmax(0,1fr)}
+}
 @media(max-width:380px){.cursel{max-width:84px}.seg button{padding:.38em .55em;font-size:.74rem}}
 @media(min-width:701px){.mbar{display:none!important}}
 @media(min-width:701px) and (max-width:1099px){.snav{right:8px}.fabs{right:12px;bottom:12px}}
