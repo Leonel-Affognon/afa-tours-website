@@ -3,8 +3,8 @@ const css=`
 main>section{position:relative;isolation:isolate}
 .kt{height:12px;background:repeating-linear-gradient(90deg,#E8832F 0 44px,#2A0C07 44px 58px,#B51D27 58px 104px,#FBF6EF 104px 112px,#2A0C07 112px 126px)}
 main>section.kts::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;z-index:2;background:repeating-linear-gradient(90deg,#E8832F 0 44px,#2A0C07 44px 58px,#B51D27 58px 104px,#FBF6EF 104px 112px,#2A0C07 112px 126px)}
-.wm{position:absolute;z-index:-1;pointer-events:none;font:700 clamp(8rem,23vw,21rem)/.78 var(--d,Georgia,serif);letter-spacing:-.045em;color:transparent;background:linear-gradient(180deg,rgba(232,131,47,.24),rgba(232,131,47,0) 82%);-webkit-background-clip:text;background-clip:text;-webkit-text-stroke:2px rgba(181,29,39,.12);white-space:nowrap;top:.32em;right:-2vw;will-change:transform}
-.wm.l{right:auto;left:-2vw}
+.wm{position:absolute;z-index:-1;pointer-events:none;font:700 clamp(8rem,23vw,21rem)/.78 var(--d,Georgia,serif);letter-spacing:-.045em;color:transparent;background:linear-gradient(180deg,rgba(232,131,47,.24),rgba(232,131,47,0) 82%);-webkit-background-clip:text;background-clip:text;-webkit-text-stroke:2px rgba(181,29,39,.12);white-space:nowrap;top:.32em;right:3vw;will-change:transform}
+.wm.l{right:auto;left:3vw}
 .dk .wm,#approche .wm,#agenda .wm{background-image:linear-gradient(180deg,rgba(232,131,47,.3),rgba(232,131,47,0) 82%);-webkit-text-stroke-color:rgba(232,131,47,.3)}
 main>section{overflow-x:clip}
 /* titres : plus de caractère */
@@ -151,11 +151,11 @@ const js=String.raw`
 (function(){
 var D=document;
 function wm(id,fr,en,left){var s=D.getElementById(id);if(!s||s.querySelector('.wm'))return;var c=D.createElement('div');c.className='wmw';c.setAttribute('aria-hidden','true');var w=D.createElement('span');w.className='wm'+(left?' l':'');w.textContent=fr;w.dataset.fr=fr;w.dataset.en=en;c.appendChild(w);s.insertBefore(c,s.firstChild)}
-function fit(){var vw=D.documentElement.clientWidth||innerWidth;D.querySelectorAll('.wm').forEach(function(w){w.style.fontSize='100px';var bw=w.getBoundingClientRect().width||1;var f=Math.min(100*vw*.9/bw,vw*.23,336);w.style.fontSize=Math.max(f,48).toFixed(1)+'px'})}
+function fit(){var vw=D.documentElement.clientWidth||innerWidth;D.querySelectorAll('.wm').forEach(function(w){w.style.fontSize='100px';var bw=w.getBoundingClientRect().width||1;var f=Math.min(100*vw*.84/bw,vw*.23,336);w.style.fontSize=Math.max(f,48).toFixed(1)+'px'})}
 function lg(){return document.documentElement.lang==='en'}
 function sync(){var ch=0;D.querySelectorAll('.wm').forEach(function(w){var t=lg()?w.dataset.en:w.dataset.fr;if(w.textContent!==t){w.textContent=t;ch=1}});if(ch)fit()}
 [['circuits','BÉNIN','BENIN',0],['agenda','VODUN','VODUN',1],['sejours','AFRIQUE','AFRICA',0],['galerie','IMAGES','IMAGES',1],['blog','RÉCITS','STORIES',0],['partenaires','ACCUEIL','WELCOME',1],['pratique','ASTUCES','TIPS',0],['approche','AUTHENTIQUE','AUTHENTIC',1],['equipe','NOUS','US',0],['avis','MERCI','THANKS',1],['devis','PARLONS','HELLO',0]].forEach(function(a){wm(a[0],a[1],a[2],a[3])});
-var tk=0;var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(fit,120)});addEventListener('orientationchange',function(){setTimeout(fit,250)});if(D.fonts&&D.fonts.ready)D.fonts.ready.then(fit);addEventListener('load',fit);function par(){tk=0;var vh=innerHeight;D.querySelectorAll('.wm').forEach(function(w){var s=w.parentNode,r=s.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)return;var p=(r.top+r.height/2-vh/2)/vh;w.style.transform='translate3d('+(p*-70)+'px,'+(p*40)+'px,0)'})}
+var tk=0;var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(fit,120)});addEventListener('orientationchange',function(){setTimeout(fit,250)});if(D.fonts&&D.fonts.ready)D.fonts.ready.then(fit);addEventListener('load',fit);function par(){tk=0;var vh=innerHeight;D.querySelectorAll('.wm').forEach(function(w){var s=w.parentNode,r=s.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)return;var p=(r.top+r.height/2-vh/2)/vh;w.style.transform='translate3d('+(p*-22)+'px,'+(p*40)+'px,0)'})}
 addEventListener('scroll',function(){if(!tk){tk=1;requestAnimationFrame(par)}},{passive:true});
 ['galerie','partenaires','approche','avis','devis','pratique'].forEach(function(i){var s=D.getElementById(i);if(s)s.classList.add('kts')});
 var sj=D.getElementById('sejours');
