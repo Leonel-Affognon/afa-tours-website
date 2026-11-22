@@ -14,8 +14,7 @@ html .appsec .apl{top:150px}
 .dock .finder>button,.dock .finder .btn{grid-column:1/-1;border-radius:14px;padding:15px;font-size:1.02rem}
 }
 html[data-pg="2"] .ann,html[data-pg="3"] .ann,html[data-pg="4"] .ann{display:none}
-html[data-pg="2"] main,html[data-pg="3"] main,html[data-pg="4"] main{padding-top:84px}
-html.pgfx[data-pg="2"] main,html.pgfx[data-pg="3"] main,html.pgfx[data-pg="4"] main{padding-top:134px}
+html[data-pg="2"] main,html[data-pg="3"] main,html[data-pg="4"] main,html.pgfx[data-pg="2"] main,html.pgfx[data-pg="3"] main,html.pgfx[data-pg="4"] main{padding-top:0}
 html.pgfx{scroll-padding-top:128px}
 .pgfix{position:fixed;left:0;right:0;z-index:48;display:none;justify-content:center;gap:6px;padding:6px 10px;background:rgba(251,246,239,.97);backdrop-filter:blur(8px);border-bottom:1px solid rgba(42,12,7,.12);box-shadow:0 6px 16px rgba(42,12,7,.08)}
 html.pgfx .pgfix{display:flex}
@@ -44,22 +43,29 @@ const js=String.raw`
 (function(){
 var D=document,H=D.documentElement;
 var PG=[
- {id:1,fr:'Voyager',en:'Travel',sf:'Circuits, séjours, Vodun Days',ids:['circuits','agenda','sejours']},
- {id:2,fr:'S’inspirer',en:'Get inspired',sf:'Photos et récits de voyage',ids:['galerie','blog']},
- {id:3,fr:'Pratique',en:'Practical',sf:'Hôtels, restaurants, transport, questions',ids:['partenaires','pratique']},
- {id:4,fr:'L’agence',en:'The agency',sf:'Équipe, avis, devis',ids:['approche','equipe','avis','devis']}];
+ {id:1,fr:'Circuits',en:'Tours',sf:'Circuits, séjours, Vodun Days',ids:['circuits','agenda','sejours']},
+ {id:2,fr:'Bibliothèque',en:'Library',sf:'Photos, récits, souvenirs',ids:['phero2','galerie','blog']},
+ {id:3,fr:'Réservations',en:'Bookings',sf:'Devis, partenaires, questions',ids:['phero3','devis','partenaires','pratique']},
+ {id:4,fr:'Notre équipe',en:'Our team',sf:'Approche, équipe, avis',ids:['phero4','approche','equipe','avis']}];
+var HERO={
+ 2:{c:'pb',fr:{e:'Bibliothèque',t:'Photos, récits et souvenirs du Bénin',l:'Regardez, lisez, partagez : les images de nos voyages, les histoires du pays et vos propres photos.',ch:[['Photos','#galerie'],['Récits','#blog'],['Partager mes photos','#galerie']]},en:{e:'Library',t:'Photos, stories and memories of Benin',l:'Look, read, share: pictures from our trips, stories from the country and your own photos.',ch:[['Photos','#galerie'],['Stories','#blog'],['Share my photos','#galerie']]}},
+ 3:{c:'po',fr:{e:'Réservations',t:'Réservez votre voyage, sans stress',l:'Choisissez un circuit ou décrivez votre envie : nous répondons sous 24 h et nous organisons le reste.',ch:[['Demander un devis','#devis'],['Hôtels, restaurants, transport','#partenaires'],['Questions fréquentes','#pratique']]},en:{e:'Bookings',t:'Book your trip, stress-free',l:'Pick a tour or describe what you want: we reply within 24 hours and organise the rest.',ch:[['Request a quote','#devis'],['Hotels, restaurants, transport','#partenaires'],['Frequently asked questions','#pratique']]}},
+ 4:{c:'pr',fr:{e:'Notre équipe',t:'Des Béninois qui vous accueillent',l:'Une équipe jeune et passionnée, qui connaît chaque lieu et chaque personne que vous allez rencontrer.',ch:[['Notre approche','#approche'],['L’équipe','#equipe'],['Avis des voyageurs','#avis']]},en:{e:'Our team',t:'Beninese hosts who welcome you',l:'A young, passionate team that knows every place and every person you will meet.',ch:[['Our approach','#approche'],['The team','#equipe'],['Traveller reviews','#avis']]}}};
+
 var main=D.getElementById('top');if(!main)return;
+[2,3,4].forEach(function(n){if(D.getElementById('phero'+n))return;var s=D.createElement('section');s.id='phero'+n;s.className='phero '+HERO[n].c;s.dataset.pg=n;s.innerHTML='<div class="wrap"></div>';main.appendChild(s)});
+function heroes(){var L=(typeof lang!=='undefined'&&lang==='en')?'en':'fr';[2,3,4].forEach(function(n){var s=D.getElementById('phero'+n);if(!s)return;var h=HERO[n][L];s.firstChild.innerHTML='<p class="eyebrow">'+h.e+'</p><h1>'+h.t+'</h1><p class="lede">'+h.l+'</p><div class="chips">'+h.ch.map(function(c){return '<a href="'+c[1]+'">'+c[0]+'</a>'}).join('')+'</div>'})}
 var secs=[].slice.call(main.children).filter(function(e){return e.tagName==='SECTION'&&!e.classList.contains('rvs')});
 var rvs=main.querySelector('.rvs'),rvs2=null;
 var map={};PG.forEach(function(p){p.ids.forEach(function(i){map[i]=p.id})});
-secs.forEach(function(s){s.dataset.pg=map[s.id]||1});
+secs.forEach(function(s){s.dataset.pg=map[s.id]||s.dataset.pg||1});heroes();
 PG.forEach(function(p){p.ids.forEach(function(i){var e=D.getElementById(i);if(e&&e.parentNode===main)main.appendChild(e)})});
 H.classList.add('pgs');
 var SAVE={},RS=false,fx=D.createElement('nav');fx.className='pgfix';fx.setAttribute('aria-label','Pages du site');fx.addEventListener('click',function(){RS=true});D.body.appendChild(fx);
 var cur=1,bar=D.createElement('nav'),nx=D.createElement('div');bar.className='pgbar';bar.setAttribute('aria-label','Pages du site');nx.className='pgnext';
 function lg(){return (typeof lang!=='undefined'&&lang==='en')?'en':'fr'}
 function nm(p){return p[lg()]}
-function draw(){
+function draw(){try{heroes()}catch(e){}
  bar.innerHTML=PG.map(function(p){return '<a href="#page-'+p.id+'"'+(p.id===cur?' aria-current="page"':'')+'><b>'+nm(p)+'</b><small>'+p.sf+'</small></a>'}).join('');
  fx.innerHTML=PG.map(function(p){return '<a href="#page-'+p.id+'"'+(p.id===cur?' aria-current="page"':'')+'>'+nm(p)+'</a>'}).join('');
  var pv=PG[cur-2],n=PG[cur];
