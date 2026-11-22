@@ -16,13 +16,19 @@ main .sec .h2,main .xs h2{font-size:clamp(2.1rem,4.6vw,3.7rem);line-height:1.02;
 @media(min-width:1000px){
  #grid.coll>*:nth-child(n+6){display:none!important}
  #grid{grid-auto-flow:dense}
- #grid>.card:first-child{grid-column:span 2;grid-row:span 2;position:relative;color:#fff;background:#2A0C07;border:0;min-height:560px}
- #grid>.card:first-child .cimg{position:absolute;inset:0;height:100%!important;aspect-ratio:auto;border-radius:0}
- #grid>.card:first-child .cb{position:relative;margin-top:auto;padding:150px 30px 30px;background:linear-gradient(180deg,transparent,rgba(42,12,7,.55) 38%,rgba(42,12,7,.94));color:#fff}
- #grid>.card:first-child .cb *{color:#fff}
- #grid>.card:first-child h3{font-size:clamp(2.2rem,3.4vw,3.2rem);line-height:1}
+ #grid>.card:first-child{grid-column:1/-1;display:grid;grid-template-columns:1.15fr 1fr;background:#2A0C07;color:#FBF6EF;border:0;min-height:0;overflow:hidden}
+ #grid>.card:first-child .cimg{position:relative;inset:auto;height:100%!important;min-height:440px;aspect-ratio:auto;border-radius:0}
+ #grid>.card:first-child .cimg img{object-position:50% 52%}
+ #grid>.card:first-child .cb{display:flex;flex-direction:column;justify-content:center;padding:44px 44px 40px;background:none;color:#FBF6EF}
+ #grid>.card:first-child .cb *{color:#FBF6EF}
+ #grid>.card:first-child h3{font-size:clamp(2.4rem,3.6vw,3.4rem);line-height:1}
+ #grid>.card:first-child .ct{font-size:1.15rem;margin:6px 0 14px;opacity:.85}
+ #grid>.card:first-child .cd{font-size:1.02rem;line-height:1.6;max-width:44ch}
  #grid>.card:first-child .ctheme{color:#E8832F!important}
- #grid>.card:first-child .add,#grid>.card:first-child .cb a{color:#fff!important;text-decoration:underline}
+ #grid>.card:first-child .cft{border-top:1px solid rgba(251,246,239,.25)!important;margin-top:20px}
+ #grid>.card:first-child .price{color:#E8832F!important}
+ #grid>.card:first-child .add{align-self:flex-start;margin-top:18px;background:#E8832F;color:#2A0C07!important;text-decoration:none!important;padding:13px 24px;border-radius:999px;font-weight:800}
+ #grid>.card:first-child .add.is-in{background:#2f9e5b;color:#fff!important}
 }
 #grid>.card .heart{z-index:5}
 #dlg ul.stops{display:grid;gap:8px;padding:0;margin:8px 0 14px;list-style:none}#dlg ul.stops li{display:grid;gap:2px;width:100%;border-radius:16px;padding:10px 14px;background:#FFF1E0;border:0}#dlg ul.stops li b{color:#B51D27;font-weight:700}#dlg ul.stops li span{color:#4a2a23;font-size:.96rem}
@@ -135,6 +141,12 @@ main .sec .h2,main .xs h2{font-size:clamp(2.1rem,4.6vw,3.7rem);line-height:1.02;
 #galerie .shcard{border-radius:18px;box-shadow:0 14px 34px rgba(42,12,7,.1)}
 @media(min-width:900px){#galerie .share{grid-template-columns:1fr 1.1fr;align-items:start}}
 
+#grid .add.is-in{color:#1c7a3d!important;text-decoration:none!important;font-weight:800;cursor:default;opacity:1}
+#dbk:disabled{background:#2f9e5b!important;border-color:#2f9e5b!important;color:#fff!important;opacity:1;cursor:default}
+/* PROTECTION LEGERE DES IMAGES */
+img,.ph,.cimg,.ig a{-webkit-touch-callout:none;-webkit-user-drag:none}
+img{user-select:none;-webkit-user-select:none}
+@media print{body>*{display:none!important}body::before{content:"© AFA TOURS — Afrique Authentique Innovant";display:block;padding:40px;font:700 20px Georgia,serif}}
 /* ALLEGEMENT : moins de boutons flottants, séjours sur une ligne, bandeau de confiance sobre */
 .fabs .mb.ph1,.fabs .mb.ml,.fabs .mb.mr,.snav #sup,.snav #sdn{display:none!important}
 #sejours .sjc.hl .dn{font-size:clamp(1.9rem,2.5vw,2.7rem)!important;-webkit-text-stroke:0!important;color:#fff!important;line-height:1.02;overflow-wrap:anywhere;hyphens:auto}
