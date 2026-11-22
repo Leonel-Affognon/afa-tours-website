@@ -3,6 +3,16 @@ html.pgs .pgoff{display:none!important}
 .segs{display:none!important}
 #grid.coll>*:nth-child(n+5){display:none}@media(min-width:701px){#grid.coll>*:nth-child(n+5){display:initial}#grid.coll>*:nth-child(n+7){display:none}}
 .cmore{display:block;margin:22px auto 0;border:2px solid #2A0C07;background:#fff;color:#2A0C07;border-radius:99px;padding:14px 28px;font:700 1rem inherit;cursor:pointer}.cmore:active,.cmore.tp{transform:scale(.97);background:#E8832F}
+html .appsec .apl{top:150px}
+@media(max-width:859px){
+.dock{margin-top:-48px}
+.dock .finder{grid-template-columns:1fr 1fr;gap:0;border-radius:24px;padding:14px;background:#fff;border:0;box-shadow:0 26px 60px -18px rgba(42,12,7,.55);overflow:visible}
+.dock .finder label{padding:0;border:0;gap:5px;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#8a6a60;margin:0 0 12px}
+.dock .finder label:first-of-type{grid-column:1/-1}
+.dock .finder label:nth-of-type(2){padding-right:6px}.dock .finder label:nth-of-type(3){padding-left:6px}
+.dock .finder select{width:100%;padding:13px 12px;border:2px solid #f0e4d6;border-radius:14px;background:#FBF6EF;font:700 .98rem var(--b,inherit);color:#2A0C07;text-transform:none;letter-spacing:0}
+.dock .finder>button,.dock .finder .btn{grid-column:1/-1;border-radius:14px;padding:15px;font-size:1.02rem}
+}
 html[data-pg="2"] .ann,html[data-pg="3"] .ann,html[data-pg="4"] .ann{display:none}
 html[data-pg="2"] main,html[data-pg="3"] main,html[data-pg="4"] main{padding-top:84px}
 html.pgfx[data-pg="2"] main,html.pgfx[data-pg="3"] main,html.pgfx[data-pg="4"] main{padding-top:134px}
@@ -35,7 +45,7 @@ var D=document,H=D.documentElement;
 var PG=[
  {id:1,fr:'Voyager',en:'Travel',sf:'Circuits et séjours',ids:['circuits','sejours']},
  {id:2,fr:'S’inspirer',en:'Get inspired',sf:'Vodun Days, galerie, blog',ids:['agenda','galerie','blog']},
- {id:3,fr:'Préparer',en:'Plan ahead',sf:'Partenaires, infos pratiques',ids:['partenaires','pratique']},
+ {id:3,fr:'Votre voyage',en:'Your trip',sf:'AFA Tours vous aide à préparer votre voyage',ids:['partenaires','pratique']},
  {id:4,fr:'AFA Tours',en:'AFA Tours',sf:'Approche, équipe, avis, devis',ids:['approche','equipe','avis','devis']}];
 var main=D.getElementById('top');if(!main)return;
 var secs=[].slice.call(main.children).filter(function(e){return e.tagName==='SECTION'&&!e.classList.contains('rvs')});
