@@ -1,4 +1,5 @@
-const css=`.grp{display:block;font-size:.78rem;font-weight:600;color:#7a5a4a;margin-top:2px}.grp small{font-size:inherit}
+const css=`#dlg ul.stops{counter-reset:stp}#dlg ul.stops li{counter-increment:stp;position:relative;padding-left:54px!important;min-height:48px;align-content:center}#dlg ul.stops li::before{content:counter(stp);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:#B51D27;color:#fff;font:800 .88rem/1 system-ui,sans-serif;display:grid;place-items:center}
+.grp{display:block;font-size:.78rem;font-weight:600;color:#7a5a4a;margin-top:2px}.grp small{font-size:inherit}
 
 /* ===== couche design : rythme, contrastes, compositions variées ===== */
 main>section{position:relative;isolation:isolate}
