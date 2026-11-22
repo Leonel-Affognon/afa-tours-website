@@ -1,4 +1,6 @@
 const css=String.raw`
+.mbc{border:1.5px solid #eadfd3;border-radius:16px;padding:14px 16px;margin-bottom:12px;background:#fff;color:#2A0C07}.mbh{display:flex;justify-content:space-between;gap:8px;align-items:center}.mbs{background:#fff4e8;color:#B51D27;border-radius:999px;padding:4px 10px;font-weight:700;font-size:.78rem}.mbc h3{margin:6px 0 2px;font-size:1.05rem}.mbc p{margin:0 0 8px;color:#6b4a3f}.mbc pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:#FBF6EF;padding:10px;border-radius:10px}.mba{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.orow{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px}.orow input,.orow select{font:inherit;padding:10px;border:1.5px solid #d9c9b8;border-radius:10px;min-height:44px;min-width:0}.f .oth{margin-top:8px}.f .chks+input{margin-top:8px;width:100%;font:inherit;padding:10px;border:1.5px solid #d9c9b8;border-radius:10px;min-height:44px}@media(max-width:700px){.orow{grid-template-columns:1fr 1fr}.orow input:first-child{grid-column:1/-1}}
 #pl{max-width:980px;width:calc(100vw - 20px);max-height:calc(100dvh - 20px);padding:0}
 #pl .xb{padding:0}
 .plw{display:grid;grid-template-columns:1fr;gap:0}
@@ -29,6 +31,27 @@ const css=String.raw`
 @media(max-width:700px){#pl{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;margin:0}.pls,.pld{padding:14px}.plf{padding:12px 14px}.pck{grid-template-columns:1fr}}
 `;
 const js=String.raw`
+/* ===== Traduction EN ===== */
+(function(){
+const D=window.__EN||{};
+const RX=[[/^Jour (\d+)$/,'Day $1'],[/^Étape (\d) sur (\d)$/,'Step $1 of $2'],[/(\d+) jours$/,'$1 days'],[/^(\d+) jours · (\d+) voyageurs? · (\d+) chambres?/,'$1 days · $2 traveller(s) · $3 room(s)'],[/^Jours (\d+)-(\d+) · /,'Days $1-$2 · '],[/^Jours? (\d+) · /,'Day $1 · '],[/^Prix sur devis, établi selon vos dates et vos choix/,'Price on request, based on your dates and choices']];
+const SUB=[['Sur les traces du Danxomè','In the footsteps of Dahomey'],['Les Secrets de la Rivière Noire','Secrets of the Black River'],['Cotonou, entre Amazone et Atlantique','Cotonou, between Amazon and Atlantic'],['La Vie entre ciel et eau','Life between sky and water'],['À la rencontre du fleuve et de l’océan','Meeting the river and the ocean'],['La Route des mémoires','The Route of Memory'],['Sur les pistes de la Pendjari','On the Pendjari trails'],['L’Axe du pouvoir','The Axis of Power'],[' retour et détente',' return and relaxation'],[' le programme d’une semaine',' the one-week programme'],[' route vers le Nord',' road north'],[' et Adjarra',' and Adjarra'],['Accueil à l’aéroport de Cotonou','Cotonou airport pickup'],['Véhicule avec chauffeur à la journée','Vehicle with driver by the day'],['Que voulez-vous réserver ?','What do you want to book?'],['Écrivez un message','Write a message'],['Porto-Novo, Ouidah et Cotonou : patrimoine, mémoire et lagune.','Porto-Novo, Ouidah and Cotonou: heritage, memory and lagoon.'],['Découvrez les paysages de la Bouche du Roy, les mangroves, les villages de pêcheurs et le littoral.','Discover the landscapes of the Bouche du Roy, mangroves, fishing villages and the coast.'],['Lien à renseigner dans l’espace admin','Link to be set in the admin area'],[' sur devis',' on request'],['/nuit','/night'],['personne(s)','person(s)'],[' jours',' days'],[' jour',' day'],[' voyageurs',' travellers'],[' voyageur',' traveller'],[' chambres',' rooms'],[' chambre',' room'],[' élément',' item'],['avis d’exemple','sample review'],[' avis',' reviews'],['Sans prix affiché, donc inclus dans le devis','No price shown, so included in the quote'],['Sans prix','No price'],['Sur devis','On request'],['Arrivée','Arrival']];
+const lg=()=>(typeof lang!=='undefined'?lang:'fr');
+function conv(s){const k=s.trim();if(!k)return s;let o=D[k];if(!o){let c=k,ch=false;for(const [r,v] of RX){if(r.test(c)){c=c.replace(r,v);ch=true;break}}for(const [a,b] of SUB)if(c.includes(a)){c=c.split(a).join(b);ch=true}if(ch)o=c}
+if(!o)return s;return s.replace(k,o)}
+let busy=false;
+function node(n){if(n.nodeType===3){const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.tagName))return;if(n.__o===undefined||n.nodeValue!==n.__t)n.__o=n.nodeValue;const v=lg()==='en'?conv(n.__o):n.__o;n.__t=v;if(v!==n.nodeValue)n.nodeValue=v}
+else if(n.nodeType===1){if(/^(SCRIPT|STYLE)$/.test(n.tagName))return;for(const a of ['placeholder','aria-label','title','alt']){if(n.hasAttribute(a)){const k='__o_'+a;const kt='__t_'+a;if(n[k]===undefined||n.getAttribute(a)!==n[kt])n[k]=n.getAttribute(a);const v=lg()==='en'?conv(n[k]):n[k];n[kt]=v;if(v!==n.getAttribute(a))n.setAttribute(a,v)}}
+n.childNodes.forEach(node)}}
+function run(root){busy=true;try{node(root||document.body)}finally{busy=false}}
+window.__trDom=run;
+let tm;const mo=new MutationObserver(ms=>{if(busy)return;clearTimeout(tm);tm=setTimeout(()=>{if(lg()==='en'||document.__trWas){busy=true;try{ms.forEach(m=>{m.addedNodes.forEach(node);if(m.type==='characterData')node(m.target)})}finally{busy=false}}},30)});
+mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+function all(){document.__trWas=lg()==='en';run(document.body)}
+document.addEventListener('click',e=>{if(e.target.closest('[data-lang]'))setTimeout(all,60);setTimeout(()=>{if(lg()==='en')run(document.body)},200)});
+all();
+})();
+
 (function(){
 const W=window.__AFA;if(!W)return;
 const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -93,5 +116,32 @@ function open(){setup();days();d.showModal()}
 window.__plan={open:open};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-plan],.cw [data-bk="plan"]');if(b){e.preventDefault();open()}});
 })();
+
+/* ===== Mes réservations ===== */
+(function(){
+const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const get=()=>{try{return JSON.parse(localStorage.getItem('afa_bookings')||'[]')}catch(e){return[]}};
+const set=a=>{try{localStorage.setItem('afa_bookings',JSON.stringify(a))}catch(e){}};
+const m=n=>typeof money==='function'?money(n):n+' FCFA';
+const d=document.createElement('dialog');d.className='xd';d.id='mb';d.setAttribute('aria-labelledby','mbt');
+d.innerHTML='<div class="xh"><h2 id="mbt">Mes réservations</h2><p>Toutes vos demandes faites depuis cet appareil. Réservez autant de fois que vous voulez, pour vous, votre famille ou vos amis.</p><button class="xx" type="button" aria-label="Fermer" data-x>×</button></div><div class="xb"><div id="mbl"></div><p style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><button class="btn btn-red" type="button" data-mbnew>Nouvelle réservation</button><button class="btn btn-out" type="button" data-plan data-mbclose>Composer un séjour</button></p></div>';
+document.body.appendChild(d);
+function ics(r){const dt=r.d1||'';if(!dt)return null;const s=dt.replace(/-/g,'');const e=new Date(dt+'T12:00:00');e.setDate(e.getDate()+1);const en=e.toISOString().slice(0,10).replace(/-/g,'');
+return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//AFA TOURS//FR','BEGIN:VEVENT','UID:'+r.ref+'@afa-tours','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','DTSTART;VALUE=DATE:'+s,'DTEND;VALUE=DATE:'+en,'SUMMARY:AFA TOURS : '+(r.label||'Réservation'),'DESCRIPTION:Référence '+r.ref+'. Contact : +229 01 97 16 56 46','BEGIN:VALARM','TRIGGER:-P2D','ACTION:DISPLAY','DESCRIPTION:Dans 2 jours : '+(r.label||'')+'. Pensez au paiement et à vos documents.','END:VALARM','BEGIN:VALARM','TRIGGER:-P7D','ACTION:DISPLAY','DESCRIPTION:Dans 7 jours : '+(r.label||'')+'. Confirmez votre paiement.','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n')}
+function draw(){const a=get();$('#mbl')&&0;const L=d.querySelector('#mbl');
+L.innerHTML=a.length?a.map((r,i)=>'<article class="mbc"><div class="mbh"><b>'+E(r.ref)+'</b><span class="mbs">'+E(r.status||'')+'</span></div><h3>'+E(r.label||'')+'</h3><p>'+E([r.d1,(r.pax||1)+' personne(s)',r.total?m(r.total):'Sur devis'].filter(Boolean).join(' · '))+'</p>'+(r.x?'<details><summary>Détails</summary><pre>'+E(r.x)+'</pre></details>':'')+'<div class="mba"><a class="btn btn-out btn-sm" target="_blank" rel="noopener" href="https://wa.me/2290197165646?text='+encodeURIComponent('Bonjour AFA TOURS, je voudrais des nouvelles de ma demande '+r.ref+' ('+(r.label||'')+').')+'">Écrire à l’équipe</a>'+(r.d1?'<button class="btn btn-out btn-sm" data-ics="'+i+'">Ajouter un rappel au calendrier</button>':'')+'<button class="btn btn-out btn-sm" data-again="'+i+'">Réserver à nouveau</button><button class="btn btn-out btn-sm" data-rm="'+i+'">Retirer</button></div></article>').join(''):'<p style="text-align:center;padding:30px 0;color:#6b4a3f">Aucune réservation pour le moment. Vos prochaines demandes apparaîtront ici.</p>';
+if(window.__trDom)window.__trDom(d)}
+function open(){draw();d.showModal()}
+window.__myBk={open:open};
+function nav(){document.querySelectorAll('.nav,#mm').forEach(n=>{if(n.querySelector('[data-mybk]'))return;const a=document.createElement('a');a.href='#';a.setAttribute('data-mybk','');a.textContent='Mes réservations';n.appendChild(a)});if(window.__trDom)window.__trDom(document.body)}
+nav();
+document.addEventListener('click',e=>{const t=e.target;
+if(t.closest('[data-mybk]')){e.preventDefault();const mm=document.getElementById('mm');mm&&mm.classList.remove('open');open();return}
+if(t.closest('[data-mbnew]')){d.close();window.openBook&&openBook('circuit');return}
+if(t.closest('[data-mbclose]')&&t.closest('#mb')){d.close();return}
+const i=t.closest('[data-ics]');if(i){const r=get()[+i.dataset.ics];const c=ics(r);if(!c)return;const u=URL.createObjectURL(new Blob([c],{type:'text/calendar'}));const a=document.createElement('a');a.href=u;a.download='afa-tours-'+r.ref+'.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return}
+const ag=t.closest('[data-again]');if(ag){const r=get()[+ag.dataset.again];d.close();window.openBook&&openBook(r.kind==='plan'?'circuit':r.kind);return}
+const rm=t.closest('[data-rm]');if(rm){const a=get();a.splice(+rm.dataset.rm,1);set(a);draw()}});
+})();
 `;
-module.exports={css,js};
+module.exports={css,js:'window.__EN='+JSON.stringify(require('./en.json'))+';'+js};
