@@ -1,0 +1,1 @@
+export function pdf(){return new Promise((ok,ko)=>{if(window.AFAPDF)return ok();const s=document.createElement("script");s.src=new URL("./afa-pdf.js",import.meta.url).href;s.onload=ok;s.onerror=()=>ko(new Error("PDF indisponible"));document.head.appendChild(s)})}

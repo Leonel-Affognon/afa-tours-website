@@ -25,6 +25,7 @@ html.pgfx .pgfix{display:flex}
 .pgfix a.tp{transform:scale(.96)}
 @media(max-width:700px){.pgfix{gap:3px;padding:5px 6px}.pgfix a{flex:1 1 0;padding:9px 2px;font-size:.8rem}}
 .rvs.rvs2{margin:0}
+html:not([data-pg="1"]) .pgbar{display:none}
 .pgbar{max-width:1180px;margin:0 auto;padding:18px clamp(18px,4vw,56px) 0;display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
 .pgbar a{flex:1 1 180px;display:flex;flex-direction:column;gap:2px;padding:12px 18px;border-radius:18px;background:#fff;border:2px solid rgba(42,12,7,.14);color:#2A0C07;text-decoration:none;transition:transform .2s,border-color .2s,background .2s}
 .pgbar a b{font:800 1.02rem var(--d,Georgia,serif)}.pgbar a small{font-size:.8rem;opacity:.72}
@@ -45,7 +46,7 @@ var D=document,H=D.documentElement;
 var PG=[
  {id:1,fr:'Voyager',en:'Travel',sf:'Circuits et séjours',ids:['circuits','sejours']},
  {id:2,fr:'S’inspirer',en:'Get inspired',sf:'Vodun Days, galerie, blog',ids:['agenda','galerie','blog']},
- {id:3,fr:'Votre voyage',en:'Your trip',sf:'AFA Tours vous aide à préparer votre voyage',ids:['partenaires','pratique']},
+ {id:3,fr:'Pratique',en:'Practical',sf:'Partenaires, FAQ : tout pour bien partir',ids:['partenaires','pratique']},
  {id:4,fr:'AFA Tours',en:'AFA Tours',sf:'Approche, équipe, avis, devis',ids:['approche','equipe','avis','devis']}];
 var main=D.getElementById('top');if(!main)return;
 var secs=[].slice.call(main.children).filter(function(e){return e.tagName==='SECTION'&&!e.classList.contains('rvs')});
@@ -78,7 +79,7 @@ function show(n,keep){if(n!==cur)SAVE[cur]=scrollY;cur=n;
  H.dataset.pg=n;draw();place();
  window.dispatchEvent(new Event('resize'));fxu();
 }
-function fxu(){var hd=D.querySelector('.hd');H.classList.toggle('pgfx',cur!==1||scrollY>260);if(hd)fx.style.top=Math.round(hd.getBoundingClientRect().bottom)+'px'}
+function fxu(){var hd=D.querySelector('.hd');var hb=hd?Math.round(hd.getBoundingClientRect().bottom):76;H.classList.toggle('pgfx',cur!==1||(bar.isConnected&&bar.getBoundingClientRect().bottom<hb+4));fx.style.top=hb+'px'}
 addEventListener('scroll',fxu,{passive:true});addEventListener('resize',fxu);
 function reveal(el){var pn=pageOfEl(el);if(pn&&pn!==cur)show(pn)}
 function pageOfEl(el){var s=el&&el.closest&&el.closest('main>section');return s?+s.dataset.pg:(el&&el.closest&&el.closest('.hero,.trust')?1:0)}
@@ -159,5 +160,21 @@ var bar=document.querySelector('#circuits .bar'),fd=document.getElementById('fin
 addEventListener('resize',apply);apply();
 var al=window.applyLang;if(typeof al==='function')window.applyLang=function(){var r=al.apply(this,arguments);apply();return r};
 })();
+/* réserver = ajouter à la demande ; retour sur la fiche du circuit */
+(function(){
+document.addEventListener('click',function(e){var b=e.target.closest('#dbk');if(!b)return;try{if(!sel.has(cur2.id)){sel.add(cur2.id);renderSel()}window.__retD=cur2.id}catch(x){}},true);
+var d=document.getElementById('bq');
+if(d)d.addEventListener('close',function(){var id=window.__retD;window.__retD=null;if(id&&typeof openD==='function')setTimeout(function(){try{openD(id)}catch(e){}},60)});
+function pdfbtn(after){var o=document.getElementById('dpdf');if(o)o.remove();var b=document.createElement('button');b.type='button';b.id='dpdf';b.className='btn btn-out';b.style.cssText='margin-top:10px;justify-self:start';b.textContent=(typeof lang!=='undefined'&&lang==='en')?'Download the PDF sheet':'Télécharger la fiche PDF';after.insertAdjacentElement('afterend',b)}
+function lp(){return new Promise(function(ok,ko){if(window.AFAPDF)return ok();var s=document.createElement('script');s.src='afa-pdf.js';s.onload=ok;s.onerror=function(){ko()};document.head.appendChild(s)})}
+document.addEventListener('click',function(e){var b=e.target.closest('#dpdf');if(!b)return;var en=typeof lang!=='undefined'&&lang==='en',t0=b.textContent;b.disabled=true;b.textContent=en?'Preparing…':'Préparation…';
+ var q=function(s){var n=document.querySelector(s);return n?n.textContent.trim():''};
+ lp().then(function(){var st=[].map.call(document.querySelectorAll('#ds li'),function(l){return l.textContent.trim()});
+  return window.AFAPDF.make({lang:en?'en':'fr',title:q('#dt'),subtitle:q('#dp'),file:'afa-tours-'+q('#dt').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40),blocks:[{t:'h',v:en?'About this tour':'Présentation'},{t:'p',v:q('#dd')},{t:'h',v:en?'Itinerary':'Programme'},{t:'list',v:st},{t:'box',v:en?'Prices are indicative and confirmed by our team. To book, write to us on WhatsApp or by email: transport, guide and meals can be adjusted to your group.':'Les prix sont indicatifs et confirmés par notre équipe. Pour réserver, écrivez-nous sur WhatsApp ou par e-mail : transport, guide et repas s’adaptent à votre groupe.'}]})}).catch(function(){}).then(function(){b.disabled=false;b.textContent=t0})});
+function hint(){var da=document.getElementById('da');if(!da)return;var old=document.getElementById('dhint');if(old)old.remove();var p=document.createElement('p');p.id='dhint';p.className='fnote';p.style.cssText='margin:10px 0 0;font-size:.86rem;opacity:.8';p.innerHTML=(typeof lang!=='undefined'&&lang==='en')?'<b>Book</b>: you send your request for this tour. <b>Add</b>: you keep it in your request to combine several tours before sending.':'<b>Réserver</b> : vous envoyez votre demande pour ce circuit. <b>Ajouter</b> : vous le gardez dans ma demande pour en combiner plusieurs avant d’envoyer.';var k=document.getElementById('dbk');if(k)k.insertAdjacentElement('afterend',da);da.style.marginTop='10px';da.insertAdjacentElement('afterend',p);pdfbtn(p);if(window.__trDom)try{window.__trDom(document.getElementById('dlg'))}catch(e){}}
+var o=window.openD;if(typeof o==='function')window.openD=function(){var r=o.apply(this,arguments);setTimeout(hint,0);return r};
+setTimeout(hint,2000);
+})();
+
 `;
 module.exports={css,js};

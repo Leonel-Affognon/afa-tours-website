@@ -1,0 +1,43 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Votre proposition · AFA TOURS</title>
+<style>
+:root{--o:#E8832F;--b:#2A0C07;--r:#B51D27;--c:#FBF6EF}*{box-sizing:border-box}body{margin:0;background:var(--c);color:var(--b);font:400 1.05rem/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:var(--b);color:#fff;border-bottom:4px solid var(--o)}header .in{max-width:860px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;gap:14px}header img{width:52px;height:52px;border-radius:50%}header b{letter-spacing:.12em}header small{display:block;color:var(--o)}
+main{max-width:860px;margin:0 auto;padding:28px 20px 60px}h1{font:700 clamp(1.7rem,5vw,2.4rem)/1.15 Georgia,serif;color:var(--r);margin:.2em 0 .3em}
+.hi{color:#6e5a54;margin:0 0 18px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}.stats div{background:#fff;border:1px solid #e2d6c8;border-radius:16px;padding:14px 16px}.stats span{display:block;font-size:.8rem;color:#6e5a54}.stats strong{font:700 1.3rem Georgia,serif;color:var(--r)}
+h2{font:700 1.3rem Georgia,serif;margin:30px 0 10px;border-bottom:3px solid var(--o);display:inline-block;padding-bottom:2px}
+.day{background:#fff;border:1px solid #e2d6c8;border-left:6px solid var(--o);border-radius:14px;padding:14px 18px;margin:10px 0}.day b{display:block}.day p{margin:4px 0 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--b);background:#fff;color:var(--b);border-radius:99px;padding:13px 24px;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none}.btn.red{background:var(--r);border-color:var(--r);color:#fff}.btn.ok{background:#1f7a4a;border-color:#1f7a4a;color:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}form{background:#fff;border:1px solid #e2d6c8;border-radius:18px;padding:18px;display:grid;gap:12px}label{display:grid;gap:5px;font-weight:700;font-size:.9rem}input,textarea{font:inherit;padding:12px;border:2px solid #e2d6c8;border-radius:12px;background:var(--c)}textarea{min-height:110px}
+.sg{background:#fff4e8;border-radius:12px;padding:10px 14px;margin:8px 0;font-size:.95rem}.sg small{color:#6e5a54}.note{color:#6e5a54;font-size:.9rem}.st{display:inline-block;padding:4px 12px;border-radius:99px;background:var(--o);font-weight:700;font-size:.85rem}
+footer{max-width:860px;margin:0 auto;padding:0 20px 40px;color:#6e5a54;font-size:.9rem}
+</style></head><body>
+<header><div class="in"><img src="afa-tours-logo.jpg" alt="AFA TOURS"><div><b>AFA TOURS</b><small>Afrique Authentique Innovant</small></div></div></header>
+<main id="m"><p>Chargement…</p></main>
+<footer>+229 01 97 16 56 46 (Français) · +229 01 61 95 68 04 (English) · afatours23@gmail.com</footer>
+<script type="module">
+import {supabase} from "./backend.js";
+const T={fr:{hi:"Proposition préparée pour",days:"Durée",price:"Budget indicatif",per:"Statut",prog:"Programme",day:"Jour",sum:"Présentation",pdf:"Télécharger en PDF",ok:"Je valide cette proposition",okd:"Proposition validée. Notre équipe vous contacte.",sug:"Vos suggestions",sugh:"Dites-nous ce que vous voulez changer : jours, lieux, budget, hébergement…",name:"Votre nom",txt:"Votre suggestion",send:"Envoyer ma suggestion",sent:"Merci, votre suggestion est envoyée. Nous revenons vers vous.",on:"Sur devis",d:"jours",st:{sent:"En attente de votre avis",changes:"Modifications demandées",accepted:"Validée"},wa:"Écrire sur WhatsApp",none:"Cette proposition est introuvable. Vérifiez le lien reçu.",mine:"Vos messages",lang:"English"},en:{hi:"Proposal prepared for",days:"Duration",price:"Indicative budget",per:"Status",prog:"Itinerary",day:"Day",sum:"Overview",pdf:"Download as PDF",ok:"I approve this proposal",okd:"Proposal approved. Our team will contact you.",sug:"Your suggestions",sugh:"Tell us what you would like to change: days, places, budget, accommodation…",name:"Your name",txt:"Your suggestion",send:"Send my suggestion",sent:"Thank you, your suggestion has been sent. We will get back to you.",on:"On quote",d:"days",st:{sent:"Waiting for your feedback",changes:"Changes requested",accepted:"Approved"},wa:"Write on WhatsApp",none:"This proposal could not be found. Please check your link.",mine:"Your messages",lang:"Français"}};
+const tok=new URLSearchParams(location.search).get("p")||"";const m=document.getElementById("m");let P=null,L="fr";
+const E=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money=n=>n?new Intl.NumberFormat(L==="en"?"en-US":"fr-FR").format(n)+" FCFA":T[L].on;
+async function load(){const {data}=await supabase.rpc("get_proposal",{p_token:tok});P=data;if(P)L=P.lang==="en"?"en":"fr";draw()}
+function draw(){const t=T[L];document.documentElement.lang=L;if(!P){m.innerHTML="<p>"+t.none+"</p>";return}
+ document.title=P.title+" · AFA TOURS";
+ const it=Array.isArray(P.itinerary)?P.itinerary:[],sg=Array.isArray(P.suggestions)?P.suggestions:[];const wa=L==="en"?"2290161956804":"2290197165646";
+ m.innerHTML='<p class="hi">'+t.hi+" <b>"+E(P.client_name||"—")+'</b> · <button class="btn" id="lg" style="padding:4px 14px;font-size:.85rem">'+t.lang+'</button></p><h1>'+E(P.title)+'</h1><span class="st">'+t.st[P.status]+'</span>'+
+ '<div class="stats"><div><span>'+t.days+'</span><strong>'+(P.days?P.days+" "+t.d:"—")+'</strong></div><div><span>'+t.price+'</span><strong>'+money(P.price_xof)+'</strong></div></div>'+(P.price_note?'<p class="note">'+E(P.price_note)+'</p>':'')+
+ (P.summary?'<h2>'+t.sum+'</h2><p>'+E(P.summary).replace(/\n/g,"<br>")+'</p>':'')+
+ (it.length?'<h2>'+t.prog+'</h2>'+it.map((d,i)=>'<div class="day"><b>'+t.day+" "+(i+1)+(d.title?" · "+E(d.title):"")+'</b>'+(d.text?'<p>'+E(d.text)+'</p>':'')+'</div>').join(""):'')+
+ '<div class="row"><button class="btn" id="pdf">'+t.pdf+'</button>'+(P.status==="accepted"?'<span class="btn ok">'+t.okd+'</span>':'<button class="btn ok" id="acc">'+t.ok+'</button>')+'<a class="btn" href="https://wa.me/'+wa+'?text='+encodeURIComponent(P.title)+'">'+t.wa+'</a></div>'+
+ '<h2>'+t.sug+'</h2><form id="f"><p class="note" style="margin:0">'+t.sugh+'</p><label>'+t.name+'<input name="n" value="'+E(P.client_name)+'" maxlength="80"></label><label>'+t.txt+'<textarea name="t" required maxlength="2000"></textarea></label><button class="btn red" type="submit">'+t.send+'</button><p class="note" id="fm" style="margin:0"></p></form>'+
+ (sg.length?'<h2>'+t.mine+'</h2>'+sg.map(s=>'<div class="sg"><b>'+E(s.name)+'</b><br>'+E(s.text)+'<br><small>'+new Date(s.at).toLocaleDateString(L==="en"?"en-GB":"fr-FR")+'</small></div>').join(""):'');
+ document.getElementById("lg").onclick=()=>{L=L==="fr"?"en":"fr";draw()};
+ document.getElementById("pdf").onclick=async()=>{const b=document.getElementById("pdf");b.disabled=true;await new Promise((ok,ko)=>{if(window.AFAPDF)return ok();const s=document.createElement("script");s.src="afa-pdf.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)});
+  const bl=[];if(P.days||P.price_xof)bl.push({t:"stats",v:[[t.days,P.days?P.days+" "+t.d:"-"],[t.price,money(P.price_xof)]]});if(P.price_note)bl.push({t:"p",v:P.price_note});if(P.summary){bl.push({t:"h",v:t.sum});bl.push({t:"p",v:P.summary})}
+  if(it.length){bl.push({t:"h",v:t.prog});bl.push({t:"list",v:it.map((d,i)=>t.day+" "+(i+1)+(d.title?" - "+d.title:"")+(d.text?" : "+d.text:""))})}
+  bl.push({t:"box",v:L==="en"?"To approve or adjust this proposal, use the link you received or write to us on WhatsApp.":"Pour valider ou ajuster cette proposition, utilisez le lien reçu ou écrivez-nous sur WhatsApp."});
+  await window.AFAPDF.make({lang:L,title:P.title,subtitle:t.hi+" "+(P.client_name||""),file:"proposition-afa-tours",blocks:bl});b.disabled=false};
+ const a=document.getElementById("acc");if(a)a.onclick=async()=>{a.disabled=true;await supabase.rpc("proposal_accept",{p_token:tok});load()};
+ document.getElementById("f").onsubmit=async e=>{e.preventDefault();const f=e.target,fm=document.getElementById("fm");const {error}=await supabase.rpc("proposal_suggest",{p_token:tok,p_name:f.n.value,p_text:f.t.value});if(error){fm.textContent=error.message;return}await load();document.getElementById("f").insertAdjacentHTML("beforeend","<p class='note'><b>"+t.sent+"</b></p>")}}
+load();
+</script></body></html>
