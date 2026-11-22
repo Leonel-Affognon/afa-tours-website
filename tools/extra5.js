@@ -1,8 +1,13 @@
 const css=String.raw`
+.avlb{position:absolute;right:calc(100% + 7px);top:50%;transform:translateY(-50%);font:700 .64rem/1 var(--b,inherit);letter-spacing:.02em;background:rgba(255,255,255,.94);color:#6b4a3f;padding:5px 9px;border-radius:999px;box-shadow:0 2px 8px rgba(30,8,4,.18);white-space:nowrap;pointer-events:none}
+.pop:not(.avp){left:auto!important;right:18px!important;top:92px!important;bottom:auto!important;transform:translateY(-26px) scale(.96)}.pop.on:not(.avp){transform:none}
+@media(max-width:700px){.pop:not(.avp){left:12px!important;right:12px!important;width:auto!important;top:calc(env(safe-area-inset-top) + 76px)!important}}
+.pop.avp{top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;width:min(310px,calc(100vw - 86px))!important;transform:translateX(18px) scale(.96)}.pop.avp.on{transform:none}
+
 .pc.noimg{flex-direction:row;align-items:center}.pc.noimg .pi{width:68px;height:68px;min-width:68px;flex:none;margin:16px 0 16px 16px;border-radius:16px;font-size:1.7rem}.pc.noimg .pb{padding:16px 16px 16px 14px}
 @media(min-width:701px){.snav.inl{position:static!important;transform:none!important;opacity:1!important;pointer-events:auto!important;flex-direction:row!important;align-self:flex-end;right:auto!important;top:auto!important;bottom:auto!important;margin-bottom:2px}.snav.inl #sdn{display:grid!important}}
 .avtab{display:none}
-@media(max-width:700px){.avtab{display:grid;place-items:center;position:fixed;right:8px;bottom:calc(env(safe-area-inset-bottom) + 204px);z-index:43;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);color:#C77A12;border:1px solid rgba(42,12,7,.12);box-shadow:0 4px 14px rgba(30,8,4,.22);cursor:pointer;padding:0;font-size:1.15rem;line-height:1;opacity:.9}.avtab b{font-size:1.15rem}.avtab span{display:none}}
+@media(max-width:700px){.avtab{display:grid;place-items:center;position:fixed;right:8px;bottom:calc(env(safe-area-inset-bottom) + 204px);z-index:43;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);color:#C77A12;border:1px solid rgba(42,12,7,.12);box-shadow:0 4px 14px rgba(30,8,4,.22);cursor:pointer;padding:0;font-size:1.15rem;line-height:1;opacity:.9}.avtab b{font-size:1.15rem}}
 
 .bqs{margin:0 0 22px}.bqs h3{margin:0 0 8px;font:600 1.15rem var(--d,inherit);color:#2A0C07}.bqg{border:1.5px solid #eadfd3;border-radius:14px;margin:0 0 10px;background:#fff}.bqg>summary{cursor:pointer;list-style:none;padding:13px 16px;font-weight:800;color:#2A0C07;display:flex;gap:8px;justify-content:space-between}.bqg>summary::-webkit-details-marker{display:none}.bqg>summary::after{content:'+';color:#E8832F;font-size:1.3rem;line-height:1}.bqg[open]>summary::after{content:'−'}.bqg .pck{padding:0 12px 12px}.bqn{margin-left:auto;margin-right:10px;color:#B51D27;font-weight:700;font-size:.85rem}
 .bqp{white-space:pre-wrap;font:inherit;font-size:.88rem;background:#FBF6EF;border-radius:12px;padding:12px;max-height:240px;overflow:auto;color:#2A0C07}
@@ -242,10 +247,29 @@ window.__bq={open:window.openBook};
 const sn=document.querySelector('.snav'),fb=document.querySelector('.fabs');
 function place(){if(!sn||!fb)return;const wide=matchMedia('(min-width:701px)').matches;if(wide&&!sn.classList.contains('inl')){fb.insertBefore(sn,fb.firstChild);sn.classList.add('inl')}else if(!wide&&sn.classList.contains('inl')){document.body.appendChild(sn);sn.classList.remove('inl')}}
 place();addEventListener('resize',place);
-const b=document.createElement('button');b.type='button';b.className='avtab';b.setAttribute('data-rvgo','');b.setAttribute('aria-label','Donner votre avis');b.innerHTML='<b>★</b><span>Votre avis</span>';document.body.appendChild(b);
+const b=document.createElement('button');b.type='button';b.className='avtab';b.setAttribute('data-rvgo','');b.setAttribute('aria-label','Donner votre avis');b.innerHTML='<b>★</b>';document.body.appendChild(b);
 function avp(){if(!sn||!matchMedia('(max-width:700px)').matches){b.style.bottom='';return}const r=sn.getBoundingClientRect();if(r.height)b.style.bottom=(innerHeight-r.top+10)+'px'}
 avp();addEventListener('resize',avp);addEventListener('load',avp);setTimeout(avp,600);setTimeout(avp,2000);
 if(window.__trDom)window.__trDom(document.body);
+})();
+
+/* ===== étiquette « Votre avis » + popup d'avis ancré ===== */
+(function(){
+const pop=document.getElementById('pop');if(!pop)return;
+function star(){return [...document.querySelectorAll('.avtab,.fabs [data-rvgo]')].find(e=>{const r=e.getBoundingClientRect();const s=getComputedStyle(e);return r.width>10&&s.display!=='none'&&s.visibility!=='hidden'})}
+function label(){document.querySelectorAll('.avtab,.fabs [data-rvgo]').forEach(e=>{if(!e.querySelector('.avlb')){const l=document.createElement('span');l.className='avlb';l.textContent='Votre avis';e.appendChild(l)}});if(window.__trDom)window.__trDom(document.body)}
+label();setTimeout(label,800);
+function isRv(){const c=document.getElementById('pcta');return c&&/#avis$/.test(c.getAttribute('href')||'')}
+function place(){const on=pop.classList.contains('on');const rv=on&&isRv();pop.classList.toggle('avp',rv);
+if(!rv){['left','top','right','bottom','width'].forEach(p=>pop.style.removeProperty(p));return}
+const s=star();if(!s){pop.classList.remove('avp');return}
+const l=s.querySelector('.avlb'),r=s.getBoundingClientRect(),lr=l?l.getBoundingClientRect():r;
+const ar=Math.min(lr.left,r.left),w=Math.max(200,Math.min(310,ar-26)),left=Math.max(10,ar-w-14);pop.style.setProperty('width',w+'px','important');
+const h=pop.offsetHeight||190;let top=Math.min(r.bottom-h+8,innerHeight-h-12);top=Math.max(top,80);
+pop.style.setProperty('left',left+'px','important');pop.style.setProperty('top',top+'px','important');pop.style.setProperty('bottom','auto','important');pop.style.setProperty('right','auto','important')}
+new MutationObserver(()=>place()).observe(pop,{attributes:true,attributeFilter:['class']});
+const ct=document.getElementById('ptx');ct&&new MutationObserver(()=>setTimeout(place,0)).observe(ct,{childList:true,characterData:true,subtree:true});
+addEventListener('resize',place);
 })();
 `;
 module.exports={css,js:'window.__EN='+JSON.stringify(require('./en.json'))+';'+js};
