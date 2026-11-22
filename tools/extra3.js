@@ -5,10 +5,10 @@ const css=String.raw`
 .sprog{position:fixed;left:0;top:0;height:3px;width:100%;z-index:70;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,#E8832F,#B51D27);pointer-events:none}
 .hd{transition:box-shadow .35s,background-color .35s,transform .4s cubic-bezier(.2,.8,.2,1)}
 .hd.hdc{box-shadow:0 6px 24px rgba(42,12,7,.16)}
-html.mo [data-rv]{opacity:0;transform:translate3d(0,28px,0);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0ms);will-change:opacity,transform}
+html.mo [data-rv]{opacity:0;transform:translate3d(0,28px,0);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1);transition-delay:var(--rd,0ms);will-change:opacity,transform}
 html.mo [data-rv="l"]{transform:translate3d(-34px,0,0)}html.mo [data-rv="r"]{transform:translate3d(34px,0,0)}html.mo [data-rv="z"]{transform:scale(.94)}
 html.mo [data-rv].in{opacity:1;transform:none}
-html.mo .card[data-rv] .cimg{clip-path:inset(0 0 100% 0 round 18px);transition:clip-path 1s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--d,0ms) + 120ms)}
+html.mo .card[data-rv] .cimg{clip-path:inset(0 0 100% 0 round 18px);transition:clip-path 1s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--rd,0ms) + 120ms)}
 html.mo .card[data-rv].in .cimg{clip-path:inset(0 0 0 0 round 18px)}
 .h2{position:relative}
 html.mo .h2[data-rv]::after{content:"";display:block;height:3px;width:0;margin-top:12px;border-radius:3px;background:linear-gradient(90deg,#E8832F,#B51D27);transition:width .9s .3s cubic-bezier(.2,.8,.2,1)}
@@ -130,7 +130,7 @@ const h1=$('.hero h1');if(h1&&!h1.querySelector('.w')){let i=0;h1.setAttribute('
 de.classList.add('mo');
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);const c=e.target.matches('.trust li')?$('b',e.target):null;if(c)cnt(c)}}),{threshold:.12,rootMargin:'0px 0px -6% 0px'});
 const SEL=[['.xs .eyebrow,.sec .eyebrow','',0],['.h2','',0],['.lede','',80],['.trust li','',70,1],['.card','',90,1],['.tm','',90,1],['.sjc','',80,1],['.pc','z',70,1],['.val','',100,1],['.pgrid .pc','z',70,1],['.rv > *','',120,1],['.vlist > *','',70,1],['.steps > *','',90,1],['.agenda > *','',120,1],['.dgrid > *','',100,1],['.igg button','z',35,1]];
-function tag(root){SEL.forEach(([s,k,st,stag])=>{$$(s,root).forEach((el,i)=>{if(el.hasAttribute('data-rv')||el.closest('dialog,.igv,.pop,.rvt,.hero'))return;el.setAttribute('data-rv',k);if(stag)el.style.setProperty('--d',Math.min(i%6,5)*st+'ms');else if(st)el.style.setProperty('--d',st+'ms');io.observe(el)})})}
+function tag(root){SEL.forEach(([s,k,st,stag])=>{$$(s,root).forEach((el,i)=>{if(el.hasAttribute('data-rv')||el.closest('dialog,.igv,.pop,.rvt,.hero'))return;el.setAttribute('data-rv',k);if(stag)el.style.setProperty('--rd',Math.min(i%6,5)*st+'ms');else if(st)el.style.setProperty('--rd',st+'ms');io.observe(el)})})}
 tag(document);
 const g=$('#grid');if(g)new MutationObserver(()=>tag(g)).observe(g,{childList:true});
 ['#forms','.pgrid','#ig','#avis'].forEach(s=>{const n=$(s);if(n)new MutationObserver(()=>tag(n)).observe(n,{childList:true,subtree:true})});
