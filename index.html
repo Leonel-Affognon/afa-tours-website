@@ -1609,7 +1609,7 @@ var map={};PG.forEach(function(p){p.ids.forEach(function(i){map[i]=p.id})});
 secs.forEach(function(s){s.dataset.pg=map[s.id]||s.dataset.pg||1});heroes();
 PG.forEach(function(p){p.ids.forEach(function(i){var e=D.getElementById(i);if(e&&e.parentNode===main)main.appendChild(e)})});
 H.classList.add('pgs');
-var SAVE={},RS=false,fx=D.createElement('nav');fx.className='pgfix';fx.setAttribute('aria-label','Pages du site');fx.addEventListener('click',function(){RS=true});D.body.appendChild(fx);
+var SAVE={},RS=false,TAB=false,fx=D.createElement('nav');fx.className='pgfix';fx.setAttribute('aria-label','Pages du site');D.body.appendChild(fx);
 var cur=1,bar=D.createElement('nav'),nx=D.createElement('div');bar.className='pgbar';bar.setAttribute('aria-label','Pages du site');nx.className='pgnext';
 function lg(){return (typeof lang!=='undefined'&&lang==='en')?'en':'fr'}
 function nm(p){return p[lg()]}
@@ -1638,9 +1638,10 @@ addEventListener('scroll',fxu,{passive:true});addEventListener('resize',fxu);
 function reveal(el){var pn=pageOfEl(el);if(pn&&pn!==cur)show(pn)}
 function pageOfEl(el){var s=el&&el.closest&&el.closest('main>section');return s?+s.dataset.pg:(el&&el.closest&&el.closest('.hero,.trust')?1:0)}
 function scrollTo(el){var y=el.getBoundingClientRect().top+scrollY-(parseFloat(getComputedStyle(H).scrollPaddingTop)||76);window.scrollTo({top:Math.max(0,y),behavior:'auto'})}
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.pgfix a,.pgbar a,.pgnext a');if(!a)return;var m=/#page-(\d)$/.exec(a.getAttribute('href')||'');if(!m)return;if(+m[1]===cur){e.preventDefault();window.scrollTo({top:0,behavior:'smooth'});return}TAB=true},true);
 function route(first){
  var h=decodeURIComponent((location.hash||'').slice(1));var m=/^page-([1234])$/.exec(h);
- if(m){var to=+m[1];show(to);if(!first){var y=RS?(SAVE[to]||0):0;RS=false;window.scrollTo({top:y,behavior:'auto'})}return}
+ if(m){var to=+m[1];show(to);if(!first){var y=TAB?0:(SAVE[to]||0);TAB=false;window.scrollTo({top:y,behavior:'auto'})}return}
  if(!h){if(first)show(1);return}
  var el=D.getElementById(h);if(!el)return;
  var pn=pageOfEl(el);if(pn&&pn!==cur)show(pn);
