@@ -44,10 +44,10 @@ const js=String.raw`
 (function(){
 var D=document,H=D.documentElement;
 var PG=[
- {id:1,fr:'Voyager',en:'Travel',sf:'Circuits et séjours',ids:['circuits','sejours']},
- {id:2,fr:'S’inspirer',en:'Get inspired',sf:'Vodun Days, galerie, blog',ids:['agenda','galerie','blog']},
- {id:3,fr:'Pratique',en:'Practical',sf:'Partenaires, FAQ : tout pour bien partir',ids:['partenaires','pratique']},
- {id:4,fr:'AFA Tours',en:'AFA Tours',sf:'Approche, équipe, avis, devis',ids:['approche','equipe','avis','devis']}];
+ {id:1,fr:'Voyager',en:'Travel',sf:'Circuits, séjours, Vodun Days',ids:['circuits','agenda','sejours']},
+ {id:2,fr:'S’inspirer',en:'Get inspired',sf:'Photos et récits de voyage',ids:['galerie','blog']},
+ {id:3,fr:'Pratique',en:'Practical',sf:'Hôtels, restaurants, transport, questions',ids:['partenaires','pratique']},
+ {id:4,fr:'L’agence',en:'The agency',sf:'Équipe, avis, devis',ids:['approche','equipe','avis','devis']}];
 var main=D.getElementById('top');if(!main)return;
 var secs=[].slice.call(main.children).filter(function(e){return e.tagName==='SECTION'&&!e.classList.contains('rvs')});
 var rvs=main.querySelector('.rvs'),rvs2=null;
@@ -171,7 +171,7 @@ document.addEventListener('click',function(e){var b=e.target.closest('#dpdf');if
  var q=function(s){var n=document.querySelector(s);return n?n.textContent.trim():''};
  lp().then(function(){var st=[].map.call(document.querySelectorAll('#ds li'),function(l){return l.textContent.trim()});
   return window.AFAPDF.make({lang:en?'en':'fr',title:q('#dt'),subtitle:q('#dp'),file:'afa-tours-'+q('#dt').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40),blocks:[{t:'h',v:en?'About this tour':'Présentation'},{t:'p',v:q('#dd')},{t:'h',v:en?'Itinerary':'Programme'},{t:'list',v:st},{t:'box',v:en?'Prices are indicative and confirmed by our team. To book, write to us on WhatsApp or by email: transport, guide and meals can be adjusted to your group.':'Les prix sont indicatifs et confirmés par notre équipe. Pour réserver, écrivez-nous sur WhatsApp ou par e-mail : transport, guide et repas s’adaptent à votre groupe.'}]})}).catch(function(){}).then(function(){b.disabled=false;b.textContent=t0})});
-function hint(){var da=document.getElementById('da');if(!da)return;var old=document.getElementById('dhint');if(old)old.remove();var p=document.createElement('p');p.id='dhint';p.className='fnote';p.style.cssText='margin:10px 0 0;font-size:.86rem;opacity:.8';p.innerHTML=(typeof lang!=='undefined'&&lang==='en')?'<b>Book</b>: you send your request for this tour. <b>Add</b>: you keep it in your request to combine several tours before sending.':'<b>Réserver</b> : vous envoyez votre demande pour ce circuit. <b>Ajouter</b> : vous le gardez dans ma demande pour en combiner plusieurs avant d’envoyer.';var k=document.getElementById('dbk');if(k)k.insertAdjacentElement('afterend',da);da.style.marginTop='10px';da.insertAdjacentElement('afterend',p);pdfbtn(p);if(window.__trDom)try{window.__trDom(document.getElementById('dlg'))}catch(e){}}
+function hint(){var da=document.getElementById('da');if(!da)return;var old=document.getElementById('dhint');if(old)old.remove();var p=document.createElement('p');p.id='dhint';p.className='fnote';p.style.cssText='margin:10px 0 0;font-size:.86rem;opacity:.8';p.innerHTML=(typeof lang!=='undefined'&&lang==='en')?'<b>Book</b>: you send your request for this tour. <b>Add</b>: you keep it in your request to combine several tours before sending.':'<b>Réserver</b> : vous envoyez votre demande pour ce circuit. <b>Ajouter</b> : vous le gardez dans ma demande pour en combiner plusieurs avant d’envoyer.';var k=document.getElementById('dbk');if(k)k.insertAdjacentElement('afterend',da);da.style.display='none';pdfbtn(k||da);if(window.__trDom)try{window.__trDom(document.getElementById('dlg'))}catch(e){}}
 var o=window.openD;if(typeof o==='function')window.openD=function(){var r=o.apply(this,arguments);setTimeout(hint,0);return r};
 setTimeout(hint,2000);
 })();
