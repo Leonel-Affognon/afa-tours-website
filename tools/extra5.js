@@ -1,4 +1,5 @@
-const css=String.raw`
+const css=String.raw` .appsec .vlist h3{font:600 clamp(1.25rem,2.4vw,1.55rem)/1.2 var(--d);color:var(--ink);margin-bottom:8px}.appsec .apl .lede{max-width:32em;margin-top:18px;font-size:1.12rem;line-height:1.6;color:#4a2a23}.appsec .apc{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.appsec .vlist p{max-width:48ch;line-height:1.6}.appsec .vlist>div{padding:22px 0}@media(min-width:960px){.appsec .appgrid{align-items:start}.appsec .apl{position:sticky;top:110px}}
+
 .avlb{position:absolute;right:calc(100% + 7px);top:50%;transform:translateY(-50%);font:700 .64rem/1 var(--b,inherit);letter-spacing:.02em;background:rgba(255,255,255,.94);color:#6b4a3f;padding:5px 9px;border-radius:999px;box-shadow:0 2px 8px rgba(30,8,4,.18);white-space:nowrap;pointer-events:none}
 .pop:not(.avp){left:auto!important;right:18px!important;top:92px!important;bottom:auto!important;transform:translateY(-26px) scale(.96)}.pop.on:not(.avp){transform:none}
 @media(max-width:700px){.pop:not(.avp){left:12px!important;right:12px!important;width:auto!important;top:calc(env(safe-area-inset-top) + 76px)!important}}

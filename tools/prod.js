@@ -33,4 +33,5 @@ h=h.replace('<a href="#" data-i="priv">','<a href="confidentialite.html" data-i=
 h=h.replace(/<article class="tm"><div class="av"[^>]*>\?<\/div>.*?<\/article>/gs,'');
 h=h.replace('</div></div></section><section class="sec rvsec"',()=>'<article class="tm"><div class="av" aria-hidden="true" style="background:linear-gradient(135deg,#25D366,#128C7E)">✉</div><h3>Parlons de votre voyage</h3><p class="ro">Réponse sous 24 h</p><p>Dites-nous vos dates et vos envies : nous construisons votre programme avec vous.</p><p style="margin-top:12px"><a class="btn btn-red btn-sm" href="https://wa.me/2290197165646" target="_blank" rel="noopener">Écrire sur WhatsApp</a></p></article></div></div></section><section class="sec rvsec"');
 h=h.replace('<span class="badge-ex">Fiches d’exemple en attendant vos partenaires</span>','');
+h=h.replace('<head>','<head>'+String.raw`<script>(function(){var h=location.hash||"";if(/(^|[#&])type=(invite|recovery|signup|magiclink)/.test(h)||/error_code=/.test(h)&&/otp_expired|access_denied/.test(h))location.replace("admin.html"+h)})()</script>`);
 fs.writeFileSync(ROOT+'index.html',h);console.log('index.html',h.length);
