@@ -1,10 +1,12 @@
 import { supabase } from "./backend.js";
+import { keep } from "./admin-site.js";
 const TYPES=[["tour","Circuit"],["excursion","Excursion"],["experience","Expérience"],["festival","Festival"],["event","Événement"]];
 const STATES=[["draft","Brouillon"],["published","Publié"],["archived","Archivé"]];
 const safeHttpUrl=(value,label)=>{if(!value)return null;let url;try{url=new URL(value);}catch{throw new Error(label+" : URL invalide.");}if(!["https:","http:"].includes(url.protocol))throw new Error(label+" : utilisez une adresse HTTPS ou HTTP.");return url.href;};
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const opts=(a,s)=>a.map(x=>'<option value="'+x[0]+'" '+(x[0]===s?'selected':'')+'>'+x[1]+'</option>').join("");
-export async function renderContentManager(root){
+export async function renderContentManager(root){return keep(root,()=>renderContentManager0(root))}
+async function renderContentManager0(root){
  const [loaded,destinationResult]=await Promise.all([supabase.from("tours").select("*").order("updated_at",{ascending:false}).limit(500),supabase.from("destinations").select("id,name,slug,status").order("sort_order")]);
  if(loaded.error){root.innerHTML="<h2>Catalogue complet</h2><p>"+esc(loaded.error.message)+"</p>";return;}
  const rows=loaded.data||[];

@@ -177,7 +177,7 @@ let ST={pre:null,plan:null};
 const countries=()=>{try{const dn=new Intl.DisplayNames([lg()==='en'?'en':'fr'],{type:'region'});const o=[];for(let a=65;a<=90;a++)for(let b=65;b<=90;b++){const c=String.fromCharCode(a,b);let n;try{n=dn.of(c)}catch(e){continue}if(n&&n!==c&&!/Zone|Unknown|inconnue|Région/i.test(n))o.push(n)}return o.sort((x,y)=>x.localeCompare(y))}catch(e){return['Bénin','France','Togo','Nigeria','Côte d’Ivoire','Sénégal','Cameroun','Allemagne','États-Unis','Royaume-Uni','Canada','Belgique','Suisse','Brésil']}};
 function groups(){const en=lg()==='en';const G=[];
 const T=window.TRIPS||[];G.push({k:'c',t:'Circuits',open:1,items:T.map(x=>({id:'c:'+x.id,n:x.destination+' — '+x.title,p:x.priceValue||0,u:'pp'}))});
-if(typeof VD!=='undefined')G.push({k:'v',t:'Vodun Days 2027 (2 au 9 janvier, Ouidah)',items:VD.opts.map((o,i)=>({id:'v:'+i,n:'Vodun Days · '+o.n[lg()],p:o.p||0,u:'pp'}))});
+if(typeof VD!=='undefined'&&!window.__noEvent)G.push({k:'v',t:VD.title+(VD.when?' ('+VD.when+')':' (2 au 9 janvier, Ouidah)'),items:VD.opts.map((o,i)=>({id:'v:'+i,n:VD.short+' · '+o.n[lg()],p:o.p||0,u:'pp'}))});
 const S=(W.SEJ&&W.SEJ())||[];if(S.length)G.push({k:'s',t:'Séjours',items:S.map(x=>({id:'s:'+x.id,n:x.n,p:0,u:'q'}))});
 G.push({k:'t',t:'Transport',items:W.TR.map(x=>({id:'t:'+x.id,n:x.n,p:0,u:'q'})).concat(W.ALLP().filter(x=>x.k==='trans'&&!x.std).map(x=>({id:'t:'+x.id,n:x.n,p:+x.p||0,u:'f'})))});
 const L=W.ALLP().filter(x=>x.k==='hotel'||x.k==='heb');if(L.length)G.push({k:'h',t:'Hôtels et hébergements',items:L.map(x=>({id:'h:'+x.id,n:x.n+(x.v?' — '+x.v:''),p:+x.p||0,u:'n'}))});

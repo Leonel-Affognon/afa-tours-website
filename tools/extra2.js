@@ -115,7 +115,7 @@ const rt=$('#rvt');if(rt&&!$('.rl',rt)){const a=document.createElement('a');a.cl
 const hd=$('.hd');if(rt&&hd){const pos=()=>{rt.style.top=Math.round(hd.getBoundingClientRect().bottom+12)+'px'};pos();addEventListener('scroll',pos,{passive:true});addEventListener('resize',pos)}
 // galerie façon Photos
 const ig=$('#ig');if(ig&&typeof G!=='undefined'){
-const ALB=[['Histoire et mémoire',g=>g.x.theme==='memoire'&&g.x.destination!=='Vodun Days'],['Villes et patrimoine',g=>g.x.theme==='ville'],['Eau et savoir-faire',g=>g.x.theme==='eau'],['Nature et safari',g=>g.x.theme==='nature'],['Vodun Days',g=>g.x.destination==='Vodun Days']].map(([n,f])=>({n,it:G.map((g,i)=>({g,i})).filter(o=>f(o.g))})).filter(a=>a.it.length);
+let ALB;const mkAlb=()=>{ALB=[['Histoire et mémoire',g=>g.x.theme==='memoire'&&g.x.destination!=='Vodun Days'],['Villes et patrimoine',g=>g.x.theme==='ville'],['Eau et savoir-faire',g=>g.x.theme==='eau'],['Nature et safari',g=>g.x.theme==='nature'],['Vodun Days',g=>g.x.destination==='Vodun Days']].map(([n,f])=>({n,it:G.map((g,i)=>({g,i})).filter(o=>f(o.g))})).filter(a=>a.it.length)};mkAlb();
 let view='photos',alb=null,cur=0,list=[];
 const sq=(o)=>'<button type="button" data-ph="'+o.i+'" aria-label="'+esc(o.g.cap)+'">'+ph(o.g.x)+'</button>';
 function draw(){const all=G.map((g,i)=>({g,i}));let h='';
@@ -136,7 +136,7 @@ const s=e.target.closest('[data-st]');if(s){const d=+s.dataset.st-cur;cur=+s.dat
 if(e.target.closest('#igc'))close();if(e.target.closest('#igp'))step(-1);if(e.target.closest('#ign'))step(1)});
 document.addEventListener('keydown',e=>{if(!$('#igv').classList.contains('on'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')step(-1);if(e.key==='ArrowRight')step(1)});
 let sx=0,sy=0,dn=false;const st=$('#igs');st.addEventListener('pointerdown',e=>{if(e.target.closest('.ar'))return;dn=true;sx=e.clientX;sy=e.clientY});st.addEventListener('pointerup',e=>{if(!dn)return;dn=false;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))step(dx<0?1:-1);else if(dy>90&&Math.abs(dy)>Math.abs(dx))close()});
-draw()}
+window.__drawGal=()=>{mkAlb();alb=null;view='photos';draw()};draw()}
 })();
 `;
 module.exports={css,fabs,soc,igv,js};

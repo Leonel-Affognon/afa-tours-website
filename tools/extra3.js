@@ -144,7 +144,7 @@ setTimeout(()=>$$('[data-rv]:not(.in)').forEach(el=>{const r=el.getBoundingClien
 /* ===== Bandeau Vodun Days : chrono vivant ===== */
 (function(){
 const an=document.querySelector('.ann');if(!an)return;const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const T=new Date('2027-01-02T00:00:00+01:00').getTime(),E=new Date('2027-01-09T23:59:59+01:00').getTime();
+let T=new Date('2027-01-02T00:00:00+01:00').getTime(),E=new Date('2027-01-09T23:59:59+01:00').getTime();
 const M={fr:{tag:'Vodun Days 2027',m:['Ouidah · du 2 au 9 janvier : le rendez-vous vodun à ne pas manquer','Places limitées : réservez votre accompagnement dès maintenant','Guide, transport, hébergement : nous nous occupons de tout'],u:['jours','heures','min','sec'],go:'Réserver ma place',live:'Vodun Days a commencé à Ouidah !',end:'Merci d’avoir fêté les Vodun Days. Rendez-vous en 2028.'},en:{tag:'Vodun Days 2027',m:['Ouidah · January 2–9: the vodun festival you cannot miss','Limited places: book your guided visit now','Guide, transport, stay: we take care of everything'],u:['days','hours','min','sec'],go:'Book my place',live:'Vodun Days is on in Ouidah!',end:'Thank you for celebrating Vodun Days. See you in 2028.'}};
 let mi=0,mt=null,last=[];
 const L=()=>(typeof lang!=='undefined'&&lang==='en')?'en':'fr';
@@ -155,7 +155,7 @@ if(now>=T){const msg=an.querySelector('.msg');if(msg&&!msg.dataset.live){msg.dat
 let d=Math.floor((T-now)/1000);const v=[Math.floor(d/86400),Math.floor(d%86400/3600),Math.floor(d%3600/60),d%60];
 $$('b',cd).forEach((b,i)=>{const val=i===0?String(v[i]):pad(v[i]);if(last[i]!==val){b.firstChild.nodeValue=val;if(last.length){b.classList.remove('tk');void b.offsetWidth;b.classList.add('tk')}last[i]=val}})}
 function rot(){const sp=$$('.msg span',an);if(sp.length<2)return;sp[mi].classList.remove('on');mi=(mi+1)%sp.length;sp[mi].classList.add('on')}
-build();setInterval(tick,1000);mt=setInterval(rot,4200);
+window.__annSet=function(o){T=new Date(o.start+'T00:00:00+01:00').getTime();E=new Date(o.end+'T23:59:59+01:00').getTime();['fr','en'].forEach(l=>{const x=o[l];M[l].tag=x.short;M[l].m[0]=x.line;M[l].live=x.short+' '+(l==='fr'?'a commencé à ':'has started in ')+o.place+' !';M[l].end=(l==='fr'?'Merci d’avoir fêté ':'Thank you for celebrating ')+x.short+'.'});last=[];build()};build();setInterval(tick,1000);mt=setInterval(rot,4200);
 if(typeof applyLang==='function'){const o=applyLang;applyLang=function(){o.apply(this,arguments);build()}}
 })();
 
