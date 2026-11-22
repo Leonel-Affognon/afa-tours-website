@@ -55,7 +55,7 @@ h=h.replace(/<style>([\s\S]*?)<\/style>/g,(m,css)=>{
  function block(start){let d=0,j=start;for(;j<n;j++){const c=css[j];if(c==='{')d++;else if(c==='}'){d--;if(d===0)return j+1}}return n}
  function proc(txt){let o='',k=0;const L=txt.length;while(k<L){const b=txt.indexOf('{',k);if(b<0){o+=txt.slice(k);break}const sel=txt.slice(k,b);let d=0,j=b;for(;j<L;j++){if(txt[j]==='{')d++;else if(txt[j]==='}'){d--;if(d===0){j++;break}}}const body=txt.slice(b,j);const st=sel.trim();
   if(st[0]==='@'){if(/^@(media|supports)/.test(st)&&!/hover/.test(st)){o+=sel+'{'+proc(body.slice(1,-1))+'}'}else o+=sel+body}
-  else if(sel.indexOf('body.sc')>=0){const v=sel.split(',').filter(x=>x.indexOf('body.sc')>=0).map(x=>x.trim()).map(x=>['2','3'].map(n=>x.replace('body.sc','html[data-pg="'+n+'"] body')).join(',')).join(',');o+=sel+body+v+body}
+  else if(sel.indexOf('body.sc')>=0){const v=sel.split(',').filter(x=>x.indexOf('body.sc')>=0).map(x=>x.trim()).map(x=>['2','3','4'].map(n=>x.replace('body.sc','html[data-pg="'+n+'"] body')).join(',')).join(',');o+=sel+body+v+body}
   else if(sel.indexOf(':hover')>=0){const tp=sel.split(',').filter(x=>x.indexOf(':hover')>=0).map(x=>x.split(':hover').join('.tp')).join(',');o+='@media(hover:hover){'+sel+body+'}'+tp+body}
   else o+=sel+body;k=j}return o}
  return '<style>'+proc(css)+'</style>'});
