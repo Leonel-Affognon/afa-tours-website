@@ -132,7 +132,7 @@ const n=t.closest('[data-n]');if(n){P.n=+n.dataset.n;setup();days();return}
 const det=t.closest('[data-det]');if(det){e.preventDefault();e.stopPropagation();d.close();setTimeout(()=>{window.openD&&openD(det.dataset.det)},50);return}
 if(t.id==='plgo'){const o=calc();d.close();W.setPlan({days:o.days,total:o.total,est:o.est,quote:o.quote,text:o.text},P.pax)}});
 d.addEventListener('click',e=>{if(e.target===d)d.close()});
-function open(){setup();days();d.showModal()}
+function open(){setup();days();d.showModal();if(window.__trDom)window.__trDom(d)}
 window.__plan={open:open};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-plan],.cw [data-bk="plan"]');if(b){e.preventDefault();open()}});
 })();
