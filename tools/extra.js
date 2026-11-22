@@ -64,7 +64,7 @@ const DEMO=PROD?[]:[
 {id:'t9',k:'trans',n:'Transporteur exemple — Cotonou',v:'Cotonou',p:25000,u:'trajet',d:'Berline climatisée avec chauffeur, accueil à l’aéroport et transferts entre villes.'},
 {id:'b2',k:'heb',n:'Auberge exemple — Abomey',v:'Abomey',p:15000,u:'nuit',d:'Hébergement simple et accueillant à proximité des palais royaux.'}];
 const KL={hotel:'Hôtel',resto:'Restaurant',heb:'Hébergement',trans:'Transport',other:'Service'},KI={hotel:'🏨',resto:'🍽',heb:'🏡',trans:'🚐',other:'✨'};
-const approved=()=>PROD?[]:LS.get('afa_partners_ok',[]);
+const approved=()=>PROD?(window.__dbP||[]):LS.get('afa_partners_ok',[]);
 const ALLP=()=>DEMO.concat(approved());
 let pk='all';
 const AM={hotel:['Petit-déjeuner','Wi-Fi','Navette possible'],resto:['Cuisine locale','Réservation','Groupes'],heb:['Calme','Famille','Proche des circuits'],trans:['Chauffeur','Climatisé','Sur réservation'],other:['Local','Sur réservation']};
