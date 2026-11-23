@@ -728,6 +728,17 @@ label.chip.box:has(#priced),#sort,#mapb{display:none!important}
 #chips .chip{font-size:.82rem!important;padding:.4em .85em!important}
 #circuits .bar{margin-top:18px!important;gap:10px 16px!important}
 }
+/* Circuits sur téléphone : version plus serrée. Même contenu, les thèmes tiennent sur une seule ligne défilante. */
+@media(max-width:700px){
+#circuits{padding-top:22px!important;padding-bottom:16px!important}
+#circuits .eyebrow{font-size:.7rem!important;margin-bottom:2px}
+#circuits .h2{font-size:clamp(1.45rem,6.2vw,1.8rem)!important;line-height:1.08!important;margin-top:2px}
+#circuits .lede{font-size:.86rem!important;line-height:1.4!important;margin-top:8px!important;max-width:none}
+#chips.filters{flex-wrap:nowrap!important;overflow-x:auto!important;justify-content:flex-start!important;gap:8px!important;margin-top:4px!important;padding:2px 0 6px!important;scrollbar-width:none}
+#chips.filters::-webkit-scrollbar{display:none}
+#chips .chip{flex:0 0 auto!important;white-space:nowrap}
+#circuits .bar{margin-top:10px!important;padding-bottom:10px!important}
+}
 </style></head><body class="p3">
 <div class="ann"><div class="wrap"><span data-i="ann"></span><a href="#agenda" data-i="annl"></a></div></div>
 <header class="hd"><div class="wrap"><a class="brand" href="#top" aria-label="AFA Tours"><img src="afa-tours-logo.jpg" alt="" width="50" height="50"><span><b>AFA TOURS</b><small>Afrique Authentique Innovant</small></span></a>
