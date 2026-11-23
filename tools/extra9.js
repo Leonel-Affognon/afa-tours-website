@@ -188,7 +188,8 @@ document.addEventListener('click',function(e){var a=e.target.closest('[data-agai
  if(d&&d.open)d.close();var g=document.getElementById('circuits');if(g)g.scrollIntoView({behavior:'smooth'})});
 function sv(){try{sessionStorage.setItem('afa_rn',rn)}catch(x){}}
 function hide(){var o=document.getElementById('rmd');if(o)o.remove()}
-function show(added){if(!sel.size)return;hide();var n=sel.size,en=EN(),nm=names(),last=added?nm[nm.length-1]:'';
+function snz(){try{return +localStorage.getItem('afa_rmd_snz')>Date.now()}catch(x){return false}}
+function show(added){if(!sel.size)return;if(!added&&snz())return;hide();var n=sel.size,en=EN(),nm=names(),last=added?nm[nm.length-1]:'';
  var box=document.createElement('div');box.id='rmd';box.setAttribute('role','status');
  var t=added?(en?'✓ '+last+' added to your booking':'✓ '+last+' ajouté à votre réservation'):(en?'Your booking is not finished':'Votre réservation n’est pas terminée');
  var p=added?(en?n+' choice'+(n>1?'s':'')+' saved. Keep exploring, then finish: dates, travellers and contact.':n+' choix enregistré'+(n>1?'s':'')+'. Continuez à explorer, puis terminez : dates, voyageurs et contact.'):(en?n+' choice'+(n>1?'s':'')+' waiting: '+nm.slice(0,3).join(', ')+'. Add more, send your request, or write to us.':n+' choix en attente : '+nm.slice(0,3).join(', ')+'. Ajoutez-en d’autres, envoyez votre demande ou écrivez-nous.');
@@ -196,7 +197,7 @@ function show(added){if(!sel.size)return;hide();var n=sel.size,en=EN(),nm=names(
  box.innerHTML='<button class="x" type="button" aria-label="'+(en?'Close':'Fermer')+'">×</button><b></b><p></p><div class="rb"><button type="button" class="btn btn-or" data-fin>'+(en?'Finish my booking':'Finaliser ma réservation')+'</button>'+(added?'<button type="button" class="btn btn-out" data-more style="color:#FBF6EF;border-color:#FBF6EF">'+(en?'Keep exploring':'Voir d’autres circuits')+'</button>':'<a class="btn btn-w" target="_blank" rel="noopener" href="'+wa+'">WhatsApp</a>')+'</div>';
  box.querySelector('b').textContent=t;box.querySelector('p').textContent=p;
  var dl=document.getElementById('dlg');(dl&&dl.open?dl:document.body).appendChild(box);
- box.addEventListener('click',function(e){if(e.target.closest('.x,[data-fin],a.btn-w'))rn=99;sv();if(e.target.closest('.x,[data-more]')){hide();var d=document.getElementById('dlg');if(e.target.closest('[data-more]')&&d&&d.open)d.close()}else if(e.target.closest('[data-fin]')){hide();var d2=document.getElementById('dlg');if(d2&&d2.open)d2.close();window.__retD=null;if(window.openBook)openBook('circuit')}});
+ box.addEventListener('click',function(e){if(e.target.closest('.x,[data-fin],a.btn-w'))rn=99;if(e.target.closest('.x')&&!added){try{localStorage.setItem('afa_rmd_snz',Date.now()+216e5)}catch(x){}}sv();if(e.target.closest('.x,[data-more]')){hide();var d=document.getElementById('dlg');if(e.target.closest('[data-more]')&&d&&d.open)d.close()}else if(e.target.closest('[data-fin]')){hide();var d2=document.getElementById('dlg');if(d2&&d2.open)d2.close();window.__retD=null;if(window.openBook)openBook('circuit')}});
  clearTimeout(rt);rt=setTimeout(function(){if(added)hide()},added?14000:30000);}
 window.__remind=function(){lastAct=Date.now();show(true)};
 document.addEventListener('click',function(e){var b=e.target.closest('#dbk');if(!b)return;e.preventDefault();e.stopImmediatePropagation();try{if(b.disabled||sel.has(cur2.id))return;sel.add(cur2.id);renderSel()}catch(x){}dbkSync();window.__remind()},true);
