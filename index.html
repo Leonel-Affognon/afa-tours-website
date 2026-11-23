@@ -1416,7 +1416,7 @@ function plData(){
  const DB=window.__dbP||[];
  const hotels=DB.filter(x=>x.k==='hotel'||x.k==='heb').map(pl);
  const restos=DB.filter(x=>x.k==='resto').map(pl);
- const veh=(W.TR||[]).map(x=>({id:x.id,n:x.n,p:0})).concat(A.filter(x=>x.k==='trans').map(x=>({id:x.id,n:x.n,p:+x.p||0})));
+ const veh=((W.TR||[]).map(x=>({id:x.id,n:x.n,p:0})).concat(A.filter(x=>x.k==='trans').map(x=>({id:x.id,n:x.n,p:+x.p||0})))).filter((x,i,arr)=>arr.findIndex(y=>y.n===x.n)===i);
  const zones=['Porto-Novo'];
  circuits.concat(hotels,restos).forEach(x=>{if(x.z&&!zones.includes(x.z))zones.push(x.z)});
  return{zones,circuits,hotels,restos,veh,rates:RATES_24H,margin:MARGIN};
