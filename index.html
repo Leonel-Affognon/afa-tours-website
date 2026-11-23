@@ -744,6 +744,13 @@ label.chip.box:has(#priced),#sort,#mapb{display:none!important}
 section[id]>.wrap>.h2{font-size:clamp(1.3rem,5.4vw,1.6rem)!important;line-height:1.1!important}
 section[id]>.wrap>.eyebrow{margin-bottom:4px}
 }
+/* Lisibilité sur téléphone : tailles minimales pour les lecteurs âgés ou malvoyants (titres, intro, thèmes). */
+@media(max-width:700px){
+section[id]>.wrap>.h2,#circuits .h2{font-size:clamp(1.6rem,6.6vw,2rem)!important;line-height:1.12!important}
+#circuits .eyebrow{font-size:.8rem!important;letter-spacing:.14em!important}
+#circuits .lede{font-size:1rem!important;line-height:1.5!important}
+#chips .chip{font-size:.95rem!important;padding:.45em .95em!important}
+}
 </style></head><body class="p3">
 <div class="ann"><div class="wrap"><span data-i="ann"></span><a href="#agenda" data-i="annl"></a></div></div>
 <header class="hd"><div class="wrap"><a class="brand" href="#top" aria-label="AFA Tours"><img src="afa-tours-logo.jpg" alt="" width="50" height="50"><span><b>AFA TOURS</b><small>Afrique Authentique Innovant</small></span></a>
