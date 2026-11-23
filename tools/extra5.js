@@ -103,7 +103,7 @@ function calc(){
 ensure();let total=0,quote=[],lines=[],txt=[];
 const C=circuits(),L=lodgings(),R=restos(),TT=trans();
 P.days.forEach((x,i)=>{let sub=0,parts=[];
-x.c.forEach(id=>{const t=C.find(z=>z.id===id);if(!t)return;parts.push('Circuit : '+t.destination+' — '+t.title);if(t.priceValue)sub+=(P.pax>=7&&typeof gprice==='function'?gprice(t.priceValue):t.priceValue)*P.pax;else quote.push('Jour '+(i+1)+' · '+t.destination)});
+x.c.forEach(id=>{const t=C.find(z=>z.id===id);if(!t)return;parts.push('Circuit : '+t.destination+' — '+t.title);if(t.priceValue)sub+=t.pg?+t.priceValue:(P.pax>=7&&typeof gprice==='function'?gprice(t.priceValue):t.priceValue)*P.pax;else quote.push('Jour '+(i+1)+' · '+t.destination)});
 const lv=resolveLod(i);
 if(lv==='afa')parts.push('Hébergement : à proposer par AFA TOURS');else if(lv==='own')parts.push('Hébergement : déjà réservé par le client');else if(lv!=='none'){const h=L.find(z=>z.id===lv);if(h){parts.push('Hébergement : '+h.n+(i&&x.lod==='prev'?' (même qu’avant)':''));if(h.p)sub+=h.p*P.rooms;else quote.push('Jour '+(i+1)+' · '+h.n)}}
 x.r.forEach(id=>{const r=R.find(z=>z.id===id);if(!r)return;parts.push('Restaurant : '+r.n);if(r.p)sub+=r.p*P.pax;else quote.push('Jour '+(i+1)+' · '+r.n)});
@@ -178,9 +178,9 @@ const $=s=>d.querySelector(s);
 let ST={pre:null,plan:null};
 const countries=()=>{try{const dn=new Intl.DisplayNames([lg()==='en'?'en':'fr'],{type:'region'});const o=[];for(let a=65;a<=90;a++)for(let b=65;b<=90;b++){const c=String.fromCharCode(a,b);let n;try{n=dn.of(c)}catch(e){continue}if(n&&n!==c&&!/Zone|Unknown|inconnue|Région/i.test(n))o.push(n)}return o.sort((x,y)=>x.localeCompare(y))}catch(e){return['Bénin','France','Togo','Nigeria','Côte d’Ivoire','Sénégal','Cameroun','Allemagne','États-Unis','Royaume-Uni','Canada','Belgique','Suisse','Brésil']}};
 function groups(){const en=lg()==='en';const G=[];
-const T=window.TRIPS||[];G.push({k:'c',t:'Circuits',open:1,items:T.map(x=>({id:'c:'+x.id,n:x.destination+' — '+x.title+(x.priceFrom&&x.priceValue?(document.documentElement.lang==='en'?' (from)':' (à partir de)'):''),p:x.priceValue||0,u:'pp',days:(()=>{const m=String(x.duration||'').match(/(\d+)/);return /jour|day/i.test(x.duration||'')&&m?+m[1]:0})()}))});
+const T=window.TRIPS||[];G.push({k:'c',t:'Circuits',open:1,items:T.map(x=>({id:'c:'+x.id,n:x.destination+' — '+x.title+(x.priceFrom&&x.priceValue?(document.documentElement.lang==='en'?' (from)':' (à partir de)'):''),p:x.priceValue||0,u:x.pg?'g':'pp',days:(()=>{const m=String(x.duration||'').match(/(\d+)/);return /jour|day/i.test(x.duration||'')&&m?+m[1]:0})()}))});
 if(typeof VD!=='undefined'&&!window.__noEvent)G.push({k:'v',t:VD.title+(VD.when?' ('+(lg()==='en'&&VD.whenEn?VD.whenEn:VD.when)+')':' (2 au 9 janvier, Ouidah)'),items:VD.opts.map((o,i)=>({id:'v:'+i,n:VD.short+' · '+o.n[lg()],p:o.p||0,u:'pp'}))});
-const S=(W.SEJ&&W.SEJ())||[];if(S.length)G.push({k:'s',t:'Séjours',items:S.map(x=>({id:'s:'+x.id,n:x.n+(x.pf&&x.pv?(document.documentElement.lang==='en'?' (from)':' (à partir de)'):''),p:x.pv||0,u:x.pv?'pp':'q',days:+x.days||0}))});
+const S=(W.SEJ&&W.SEJ())||[];if(S.length)G.push({k:'s',t:'Séjours',items:S.map(x=>({id:'s:'+x.id,n:x.n+(x.pf&&x.pv?(document.documentElement.lang==='en'?' (from)':' (à partir de)'):''),p:x.pv||0,u:x.pv?(x.pg?'g':'pp'):'q',days:+x.days||0}))});
 G.push({k:'t',t:'Transport',items:W.TR.map(x=>({id:'t:'+x.id,n:x.n,p:0,u:'q'})).concat(W.ALLP().filter(x=>x.k==='trans'&&!x.std).map(x=>({id:'t:'+x.id,n:x.n,p:+x.p||0,u:'f'})))});
 const L=W.ALLP().filter(x=>x.k==='hotel'||x.k==='heb');if(L.length)G.push({k:'h',t:'Hôtels et hébergements',items:L.map(x=>({id:'h:'+x.id,n:x.n+(x.v?' — '+x.v:''),p:+x.p||0,u:'n'}))});
 const R=W.ALLP().filter(x=>x.k==='resto');if(R.length)G.push({k:'r',t:'Restaurants',items:R.map(x=>({id:'r:'+x.id,n:x.n+(x.v?' — '+x.v:''),p:+x.p||0,u:'pp'}))});
