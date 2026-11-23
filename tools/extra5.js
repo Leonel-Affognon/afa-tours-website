@@ -187,7 +187,7 @@ const R=W.ALLP().filter(x=>x.k==='resto');if(R.length)G.push({k:'r',t:'Restauran
 return G}
 const UL={pp:'par personne',n:'par nuit',f:'forfait',q:''};
 function render(){const pre=ST.pre||{};const G=groups();const pay=[['q','Devis d’abord, paiement ensuite'],['momo','Mobile Money'],['card','Carte bancaire'],['transfer','Virement'],['agency','Paiement à l’agence']];
-const sel=new Set(pre.ids||[]);try{if(!ST.plan&&!sel.size&&typeof globalThis.__ENG_SEL==='function')globalThis.__ENG_SEL().forEach(i=>sel.add(/^vd\d/.test(i)?'v:'+i.slice(2):'c:'+i))}catch(e){}
+const sel=new Set(pre.ids||[]);try{if(!ST.plan&&typeof globalThis.__ENG_SEL==='function')globalThis.__ENG_SEL().forEach(i=>sel.add(/^vd\d/.test(i)?'v:'+i.slice(2):'c:'+i))}catch(e){}
 $('#bqw').innerHTML=
 (ST.plan?'<section class="bqs"><h3>Votre séjour sur mesure</h3><pre class="bqp">'+E(md(ST.plan.text))+'</pre><button type="button" class="btn btn-out btn-sm" data-plan data-bqclose>Modifier le séjour</button></section>'
 :'<section class="bqs"><h3>Que voulez-vous réserver ?</h3><p class="fnote">Cochez autant de choix que vous voulez. Sans prix affiché, nous vous envoyons un devis.</p>'+G.map(g=>'<details class="bqg"'+(((g.open&&!(pre.ids&&pre.ids.length))||g.items.some(i=>sel.has(i.id)))?' open':'')+'><summary>'+E(g.t)+' <span class="bqn" data-cnt="'+g.k+'"></span></summary><div class="pck">'+g.items.map(i=>'<label><input type="checkbox" name="it" value="'+E(i.id)+'" data-p="'+i.p+'" data-u="'+i.u+'"'+(sel.has(i.id)?' checked':'')+'><span>'+E(i.n)+'<small>'+(i.p?'<em>'+m(i.p)+'</em> '+UL[i.u]:'Prix sur devis')+'</small></span></label>').join('')+'</div></details>').join('')+'<label class="f">Autre demande (écrivez ce que vous voulez)<textarea name="other" rows="3" placeholder="Un guide, une cérémonie, un lieu précis, une fête…"></textarea></label><button type="button" class="btn btn-out btn-sm" data-plan data-bqclose>Composer jour par jour</button></section>')+
@@ -249,6 +249,7 @@ d.addEventListener('change',e=>{if(e.target.name==='it'||e.target.name==='d1'||e
 d.querySelector('#bqf').addEventListener('submit',submit);
 d.addEventListener('click',e=>{const t=e.target;if(t.closest('[data-bqclose]')){d.close();return}if(t.closest('[data-bqagain]')){ST={pre:null,plan:null};render();d.scrollTo&&d.scrollTo(0,0);return}if(e.target===d)d.close()});
 function map(kind,id){if(!id)return[];const p={circuit:'c',transport:'t',hotel:'h',heb:'h',resto:'r',sejour:'s',vodun:'v',trans:'t'}[kind]||'c';if(kind==='circuit'&&/^vd\d/.test(id))return['v:'+id.slice(2)];return[p+':'+id]}
+d.addEventListener('close',()=>{try{if(d.querySelector('.okb')||!globalThis.__ENG_SET||ST.plan)return;const ids=[...d.querySelectorAll('input[name=it]:checked')].map(x=>x.value).filter(v=>/^[cv]:/.test(v)).map(v=>v[0]==='v'?'vd'+v.slice(2):v.slice(2));const other=[...d.querySelectorAll('input[name=it]:checked')].length>ids.length;globalThis.__ENG_SET(ids)}catch(e){}});
 window.openBook=function(kind,id){ST={pre:{ids:map(kind,id)},plan:null};const o=document.querySelector('dialog[open]');o&&o!==d&&o.close();render();d.showModal();setTimeout(()=>{const k=d.querySelector('input[name=it]:checked');if(k&&k.scrollIntoView)k.scrollIntoView({block:'center'})},60)};
 W.setPlan=function(plan,pax){ST={pre:null,plan:Object.assign({},plan,{pax:pax})};render();d.showModal()};
 window.__bq={open:window.openBook};
