@@ -71,8 +71,10 @@ const pax=()=>S.adults+S.kids;
 const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const fdt=v=>{if(!v)return'';const p=v.split('-');return (+p[2])+' '+MOIS[+p[1]-1]+' '+p[0]};
 const money=n=>Math.round(n).toLocaleString('fr-FR')+' FCFA';
-const EUR_XOF=655.957,USD_XOF=580;
-const money3=n=>money(n)+' · '+Math.round(n/USD_XOF).toLocaleString('fr-FR')+' $ · '+Math.round(n/EUR_XOF).toLocaleString('fr-FR')+' €';
+let RATES={EUR:1},MRG=1.07,PRESET=null;
+/* Même règle que le site : 1 € = 655,957 FCFA, taux 24 h, marge 7 %, arrondi à l'unité supérieure */
+const fxOf=(n,c)=>RATES[c]?Math.ceil(n/655.957*RATES[c]*MRG):null;
+const money3=n=>{const parts=[money(n)];const u=fxOf(n,'USD'),e=fxOf(n,'EUR');if(u!==null)parts.push('≈ '+u.toLocaleString('fr-FR')+' $');if(e!==null)parts.push('≈ '+e.toLocaleString('fr-FR')+' €');return parts.join(' · ')};
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const cOf=id=>CIRC.find(c=>c.id===id);
 const priceTxt=c=>!c.p?'Tarif sur demande':money3(c.p)+(c.unit==='groupe'?' / groupe':' / pers.')+(c.from?' (à partir de)':'');
@@ -160,9 +162,11 @@ app().addEventListener('change',e=>{
  if(f==='kids'){S.kids=Math.max(0,+t.value||0);render();return}
 });
 window.addEventListener('message',e=>{
- const m=e.data;if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}
+ const m=e.data;if(m&&m.type==='afa-rates'){RATES=m.rates||RATES;MRG=m.margin||MRG;render();return}
+ if(m&&m.type==='afa-preset'){PRESET=m.id;if(CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null;render()}return}
+ if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}
  if(!m||m.type!=='afa-data')return;
- CIRC=m.circuits||[];READY=true;render();
+ CIRC=m.circuits||[];if(m.rates){RATES=m.rates;MRG=m.margin||MRG}if(PRESET&&CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null}READY=true;render();
 });
 render();
 </script>

@@ -808,7 +808,7 @@ let RATES_24H={EUR:1};
 const conv=(n,c)=>RATES_24H[c]?Math.ceil(n/PEG*RATES_24H[c]*MARGIN):null;
 const fmtAmt=(v,c)=>(c==='XOF'||c==='XAF')?v.toLocaleString(loc())+' FCFA':'≈ '+v.toLocaleString(loc(),{style:'currency',currency:c,maximumFractionDigits:0,minimumFractionDigits:0});
 const money=n=>{if(cur==='XOF'||cur==='XAF')return n.toLocaleString(loc())+' FCFA';const v=conv(n,cur);return v===null?n.toLocaleString(loc())+' FCFA':fmtAmt(v,cur)};
-(function(){fetch('https://lyynaepphjrszkpcytgl.supabase.co/rest/v1/fx_rates?select=currency,per_eur',{headers:{apikey:'sb_publishable_2DA0GRjPsS36TcShJuve8A_txGFGO35',Authorization:'Bearer sb_publishable_2DA0GRjPsS36TcShJuve8A_txGFGO35'}}).then(r=>r.json()).then(rows=>{if(!Array.isArray(rows)||!rows.length)return;const next={EUR:1};rows.forEach(x=>{if(+x.per_eur>0)next[x.currency]=+x.per_eur});RATES_24H=next;applyLang()}).catch(()=>{})})();
+(function(){fetch('https://lyynaepphjrszkpcytgl.supabase.co/rest/v1/fx_rates?select=currency,per_eur',{headers:{apikey:'sb_publishable_2DA0GRjPsS36TcShJuve8A_txGFGO35',Authorization:'Bearer sb_publishable_2DA0GRjPsS36TcShJuve8A_txGFGO35'}}).then(r=>r.json()).then(rows=>{if(!Array.isArray(rows)||!rows.length)return;const next={EUR:1};rows.forEach(x=>{if(+x.per_eur>0)next[x.currency]=+x.per_eur});RATES_24H=next;try{const f=document.getElementById('rcf');f&&f.contentWindow.postMessage({type:'afa-rates',rates:RATES_24H,margin:MARGIN},'*')}catch(e){}applyLang()}).catch(()=>{})})();
 /* Taux : lus côté serveur (24 h), plus d'appel direct depuis le navigateur. */
 const dur=s=>lang==='fr'?s:s.replace('à','to').replace('Environ','About').replace('À définir selon le safari','Depends on the safari');
 const isLg=s=>/^(Départ|Déjeuner|Retour|Trajets?|Departure|Lunch|Return|Travel)\b/i.test(String(s).trim());const nAct=x=>(x.stopsList||[]).filter(s=>!isLg(s)).length;const actTxt=x=>{const n=nAct(x);return n?n+' '+t(n>1?'actN':'act1'):''};const gprice=v=>Math.round(+v*0.85/500)*500;const fxLine=x=>{const v=+x.priceValue;if(!v)return'';return '<span class="fx">'+['XOF','EUR','USD'].filter(c=>c!==cur&&(c==='XOF'||conv(v,c)!==null)).map(c=>'<span class="fx-chip"><b>'+(c==='XOF'?'FCFA':c)+'</b>'+(c==='XOF'?v.toLocaleString(loc()):fmtAmt(conv(v,c),c).replace('≈ ',''))+'</span>').join('')+'</span>'};const fxAmt=v=>{v=+v;if(!v)return'';return '<span class="fx">'+['XOF','EUR','USD'].filter(c=>c!==cur&&(c==='XOF'||conv(v,c)!==null)).map(c=>'<span class="fx-chip"><b>'+(c==='XOF'?'FCFA':c)+'</b>'+(c==='XOF'?v.toLocaleString(loc()):fmtAmt(conv(v,c),c).replace('≈ ',''))+'</span>').join('')+'</span>'};
@@ -970,7 +970,7 @@ $('#bbody').innerHTML='<div class="okb"><div class="ck">'+(ok?'✓':'!')+'</div>
 if(window.AFA_SUBMIT||PROD){$('#bbody').innerHTML='<div class="okb"><p style="font-weight:700;padding:26px 0">Envoi de votre demande…</p></div>';
 const pl={action:'booking',request_type:S.kind==='circuit'?'existing_tour':'custom_trip',full_name:S.nm||'Visiteur du site',email:S.e||'sans-email@afa-tours.site',phone:S.w||null,budget:null,preferred_date:S.d1||null,party_size:S.pax,tour_name:rec.label,message:[KN[S.kind],rec.x,'Paiement : '+payL,tot?'Total : '+tot+' FCFA':'Sur devis','Langue : '+lang,S.w?'Contact : '+S.w:'',S.e?'':'(pas d’e-mail)',S.loc?'Position : '+S.loc:'',S.nt].filter(Boolean).join(' | ')};
 Promise.race([SUB(pl),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),12000))]).then(r=>fin(r.reference||ref0,true)).catch(()=>fin(ref0,false))}else fin(ref0,true)}
-window.openBook=function(kind,id){if(window.__rc){window.__rc.open();return}S={kind:kind||'circuit',id:id||null,pax:2,nights:1,rooms:1,lodge:'partner'};const l=listFor(S.kind);if(!id||!l.some(x=>x.id===S.id))S.id=l[0]&&l[0].id;$('#bkt').textContent='Réserver';s1();const d=document.querySelector('#dlg');d&&d.open&&d.close();bk.showModal()};
+window.openBook=function(kind,id){if(window.__rc){window.__rc.open(id);return}S={kind:kind||'circuit',id:id||null,pax:2,nights:1,rooms:1,lodge:'partner'};const l=listFor(S.kind);if(!id||!l.some(x=>x.id===S.id))S.id=l[0]&&l[0].id;$('#bkt').textContent='Réserver';s1();const d=document.querySelector('#dlg');d&&d.open&&d.close();bk.showModal()};
 window.submitComposer=function(m,tgt){const c=m.contact||{},plan=m.plan||{},tot=+plan.total||0,pax=m.pax||2;
 const ref0='AFA-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
 const payL={momo:'Mobile Money',card:'Carte bancaire',bank:'Virement',agency:'Paiement à l’agence'}[c.pay]||c.pay||'';
@@ -1417,7 +1417,7 @@ function plData(){
  const veh=(W.TR||[]).map(x=>({id:x.id,n:x.n,p:0})).concat(A.filter(x=>x.k==='trans').map(x=>({id:x.id,n:x.n,p:+x.p||0})));
  const zones=['Porto-Novo'];
  circuits.concat(hotels,restos).forEach(x=>{if(x.z&&!zones.includes(x.z))zones.push(x.z)});
- return{zones,circuits,hotels,restos,veh};
+ return{zones,circuits,hotels,restos,veh,rates:RATES_24H,margin:MARGIN};
 }
 fr.addEventListener('load',()=>{try{fr.contentWindow.postMessage(Object.assign({type:'afa-data'},plData()),'*')}catch(e){}});
 window.addEventListener('message',e=>{
@@ -1440,7 +1440,7 @@ window.addEventListener('message',e=>{
  if(m.type==='afa-plan'){window.submitComposer&&window.submitComposer(m,'rcf');return}
  if(m.type==='afa-mybk'){const mb=document.querySelector('[data-mybk]');if(mb)mb.click();return}
 });
-window.__rc={open:function(){dr.showModal()}};
+window.__rc={open:function(id){dr.showModal();if(id){try{fr2.contentWindow.postMessage({type:'afa-preset',id:id},'*')}catch(e){}}}};
 window.__plan={open:open};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-plan],.cw [data-bk="plan"]');if(b){e.preventDefault();open()}});
 })();
