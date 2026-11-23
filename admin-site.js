@@ -16,7 +16,7 @@ const KINDS={
   {k:"title",l:"Nom de l’offre (ex. Cotonou ⇄ Porto-Novo)",tr:1,req:1},{k:"description",l:"Détail",tr:1,area:1},{k:"price",l:"Prix affiché (ex. 25 000 FCFA / trajet)",tr:1}]},
  partner:{label:"Fiches partenaires",one:"partenaire",intro:"Hôtels, restaurants, hébergements et transporteurs partenaires.",fields:[
   {k:"name",l:"Nom du partenaire",req:1},{k:"ptype",l:"Type",sel:[["hotel","Hôtel"],["resto","Restaurant"],["heb","Hébergement"],["trans","Transport"],["other","Autre"]]},
-  {k:"city",l:"Ville"},{k:"description",l:"Présentation",tr:1,area:1},{k:"price",l:"Tarif indicatif",tr:1},{k:"img",l:"Photo (lien https)"},{k:"link",l:"Lien (site, Facebook, vidéo)"}]},
+  {k:"city",l:"Ville"},{k:"description",l:"Présentation",tr:1,area:1},{k:"price",l:"Tarif indicatif",tr:1},{k:"img",l:"Photo (lien https)"},{k:"link",l:"Lien (site, Facebook, vidéo)"},{k:"note",l:"Note sur 5 (ex. 4,5)"}]},
  social:{label:"Réseaux sociaux",one:"réseau social",intro:"Les liens vers vos pages. Ils apparaissent au pied du site.",fields:[
   {k:"net",l:"Réseau",sel:[["facebook","Facebook"],["instagram","Instagram"],["tiktok","TikTok"],["youtube","YouTube"],["linkedin","LinkedIn"]],req:1},{k:"url",l:"Lien complet de votre page (https://…)",req:1}]},
  blog:{label:"Blog",one:"article",intro:"De vrais articles : titre, photo de couverture, intertitres, images dans le texte, citations. Utilisez la barre d’outils au-dessus du texte : aucun code à connaître.",fields:[
