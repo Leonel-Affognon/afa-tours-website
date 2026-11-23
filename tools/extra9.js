@@ -180,7 +180,7 @@ setInterval(dbkSync,400);
 document.addEventListener('contextmenu',function(e){if(e.target.closest('img,.ph,.cimg,.ig,.gimg,#lb'))e.preventDefault()});
 document.addEventListener('dragstart',function(e){if(e.target.tagName==='IMG')e.preventDefault()});
 var bb0=document.getElementById('bqw');
-if(bb0)new MutationObserver(function(){var ok=bb0.querySelector('.okb .ck'),en=EN();if(!ok||ok.textContent.indexOf('✓')<0||bb0.querySelector('[data-again]'))return;
+if(bb0)new MutationObserver(function(){if(bb0.querySelector('.okb')){rn=99;hide()}var ok=bb0.querySelector('.okb .ck'),en=EN();if(!ok||ok.textContent.indexOf('✓')<0||bb0.querySelector('[data-again]'))return;
  try{var ids=Array.from(sel);if(ids.length){sel.clear();renderSel()}}catch(e){}hide();
  var bqa=bb0.querySelector('.bqa');if(!bqa)return;var mb=document.createElement('button');mb.type='button';mb.className='btn btn-out';mb.setAttribute('data-again','more');mb.textContent=en?'Book another tour':'Réserver un autre circuit';bqa.appendChild(mb);var nb=bqa.querySelector('[data-bqagain]');if(nb)nb.textContent=en?'New booking for other people':'Nouvelle réservation pour d’autres personnes'
  }).observe(bb0,{childList:true,subtree:true});
@@ -195,7 +195,7 @@ function show(added){if(!sel.size)return;hide();var n=sel.size,en=EN(),nm=names(
  box.innerHTML='<button class="x" type="button" aria-label="'+(en?'Close':'Fermer')+'">×</button><b></b><p></p><div class="rb"><button type="button" class="btn btn-or" data-fin>'+(en?'Finish my booking':'Finaliser ma réservation')+'</button>'+(added?'<button type="button" class="btn btn-out" data-more style="color:#FBF6EF;border-color:#FBF6EF">'+(en?'Keep exploring':'Voir d’autres circuits')+'</button>':'<a class="btn btn-w" target="_blank" rel="noopener" href="'+wa+'">WhatsApp</a>')+'</div>';
  box.querySelector('b').textContent=t;box.querySelector('p').textContent=p;
  var dl=document.getElementById('dlg');(dl&&dl.open?dl:document.body).appendChild(box);
- box.addEventListener('click',function(e){if(e.target.closest('.x,[data-more]')){hide();var d=document.getElementById('dlg');if(e.target.closest('[data-more]')&&d&&d.open)d.close()}else if(e.target.closest('[data-fin]')){hide();var d2=document.getElementById('dlg');if(d2&&d2.open)d2.close();window.__retD=null;if(window.openBook)openBook('circuit')}});
+ box.addEventListener('click',function(e){if(e.target.closest('.x,[data-fin],a.btn-w'))rn=99;if(e.target.closest('.x,[data-more]')){hide();var d=document.getElementById('dlg');if(e.target.closest('[data-more]')&&d&&d.open)d.close()}else if(e.target.closest('[data-fin]')){hide();var d2=document.getElementById('dlg');if(d2&&d2.open)d2.close();window.__retD=null;if(window.openBook)openBook('circuit')}});
  clearTimeout(rt);rt=setTimeout(function(){if(added)hide()},added?14000:30000);}
 window.__remind=function(){lastAct=Date.now();show(true)};
 document.addEventListener('click',function(e){var b=e.target.closest('#dbk');if(!b)return;e.preventDefault();e.stopImmediatePropagation();try{if(b.disabled||sel.has(cur2.id))return;sel.add(cur2.id);renderSel()}catch(x){}dbkSync();window.__remind()},true);
