@@ -119,10 +119,10 @@ function subOpt(key,label){
 function s2(){let h=head('Réserver un circuit','Étape 2 sur 4 · Vos circuits et options')+'<div class="bd">';
  h+='<p class="sub">Circuits (un ou plusieurs)</p>';
  const cardC=c=>'<label class="opt card'+(S.circs.includes(c.id)?' on':'')+'"><span class="cimg">'+(c.img?'<img src="'+esc(c.img)+'" alt="" loading="lazy">':'Photo à venir')+'</span><span class="t"><b>'+esc(c.n)+'</b><small>'+priceTxt(c)+'</small></span><input type="checkbox" data-k="circ" value="'+c.id+'"'+(S.circs.includes(c.id)?' checked':'')+'></label>';
- const catOf=c=>{const w=String(c.cat||'').trim().split(/[\s·]+/)[0]||'Autres';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()};
- const groups={};CIRC.forEach(c=>{const k=catOf(c);(groups[k]=groups[k]||[]).push(c)});
+ const kindOf=c=>c.ev?'Festivals et événements':(/vodun/i.test(c.cat||'')?'Circuits Vodun':'Circuits par destination');
+ const groups={};CIRC.forEach(c=>{const k=kindOf(c);(groups[k]=groups[k]||[]).push(c)});
  if(!CIRC.length)h+='<p class="fmt">Chargement des circuits…</p>';
- Object.keys(groups).forEach(k=>{h+='<p class="sub">'+esc(k)+'</p>'+groups[k].map(cardC).join('')});
+ ['Circuits par destination','Circuits Vodun','Festivals et événements'].forEach(k=>{if(!groups[k])return;h+='<p class="sub">'+k+'</p>';if(k==='Circuits par destination'){[...new Set(groups[k].map(c=>c.dest||'Autres'))].forEach(d=>{h+='<p class="lbl">'+esc(d)+'</p>'+groups[k].filter(c=>(c.dest||'Autres')===d).map(cardC).join('')})}else h+=groups[k].map(cardC).join('')});
  h+='<p class="sub">Options facultatives</p>';
  [['resto','Restauration','Repas proposés avec votre circuit','Choisissez un restaurant'],['transport','Transport','Véhicule avec chauffeur','Choisissez un véhicule'],['heb','Hébergement','Nuits à organiser avec AFA TOURS','Choisissez un hébergement']].forEach(o=>{
   h+='<label class="opt'+(S.opt[o[0]]?' on':'')+'"><input type="checkbox" data-k="opt" value="'+o[0]+'"'+(S.opt[o[0]]?' checked':'')+'><span class="t"><b>'+o[1]+'</b><small>'+o[2]+'</small></span></label>';
