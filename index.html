@@ -1411,7 +1411,7 @@ const fr=d.querySelector('#plf');
 function plData(){
  const A=W.ALLP(),T=window.TRIPS||[];
  const circuits=T.map(t=>({id:t.id,n:t.title,img:t.img||'',cat:t.category||'',dest:t.destination,z:ZID[t.id]||t.destination,dur:t.duration||'',h:hnum(t.duration),p:+t.priceValue||0,unit:t.pg?'groupe':'pers',from:!!t.priceFrom}));
- circuits.push(...(window.__dbE||[]).map(e=>({id:e.id,n:e.n,img:e.img,cat:'Festival · Événement',dest:e.place,z:e.place,dur:e.dates,h:0,p:e.p,unit:'pers',from:true,ev:true,desc:e.desc})));
+ circuits.push(...(window.__dbE||[]).map(e=>({id:e.id,n:e.n,img:e.img,cat:'Festival · Événement',dest:e.place,z:e.place,dur:e.dates,h:0,p:e.p,unit:'pers',from:true,ev:true,desc:e.desc,pk:e.pk})));
  const pl=x=>({id:x.id,n:x.n,z:x.v||'Porto-Novo',p:+x.p||0});
  const DB=window.__dbP||[];
  const hotels=DB.filter(x=>x.k==='hotel'||x.k==='heb').map(pl);
