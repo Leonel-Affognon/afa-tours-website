@@ -970,16 +970,16 @@ $('#bbody').innerHTML='<div class="okb"><div class="ck">'+(ok?'✓':'!')+'</div>
 if(window.AFA_SUBMIT||PROD){$('#bbody').innerHTML='<div class="okb"><p style="font-weight:700;padding:26px 0">Envoi de votre demande…</p></div>';
 const pl={action:'booking',request_type:S.kind==='circuit'?'existing_tour':'custom_trip',full_name:S.nm||'Visiteur du site',email:S.e||'sans-email@afa-tours.site',phone:S.w||null,budget:null,preferred_date:S.d1||null,party_size:S.pax,tour_name:rec.label,message:[KN[S.kind],rec.x,'Paiement : '+payL,tot?'Total : '+tot+' FCFA':'Sur devis','Langue : '+lang,S.w?'Contact : '+S.w:'',S.e?'':'(pas d’e-mail)',S.loc?'Position : '+S.loc:'',S.nt].filter(Boolean).join(' | ')};
 Promise.race([SUB(pl),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),12000))]).then(r=>fin(r.reference||ref0,true)).catch(()=>fin(ref0,false))}else fin(ref0,true)}
-window.openBook=function(kind,id){if(window.__plan){window.__plan.open();return}S={kind:kind||'circuit',id:id||null,pax:2,nights:1,rooms:1,lodge:'partner'};const l=listFor(S.kind);if(!id||!l.some(x=>x.id===S.id))S.id=l[0]&&l[0].id;$('#bkt').textContent='Réserver';s1();const d=document.querySelector('#dlg');d&&d.open&&d.close();bk.showModal()};
-window.submitComposer=function(m){const c=m.contact||{},plan=m.plan||{},tot=+plan.total||0,pax=m.pax||2;
+window.openBook=function(kind,id){if(window.__rc){window.__rc.open();return}S={kind:kind||'circuit',id:id||null,pax:2,nights:1,rooms:1,lodge:'partner'};const l=listFor(S.kind);if(!id||!l.some(x=>x.id===S.id))S.id=l[0]&&l[0].id;$('#bkt').textContent='Réserver';s1();const d=document.querySelector('#dlg');d&&d.open&&d.close();bk.showModal()};
+window.submitComposer=function(m,tgt){const c=m.contact||{},plan=m.plan||{},tot=+plan.total||0,pax=m.pax||2;
 const ref0='AFA-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
 const payL={momo:'Mobile Money',card:'Carte bancaire',bank:'Virement',agency:'Paiement à l’agence'}[c.pay]||c.pay||'';
-const label='Séjour sur mesure';
+const label=m.label||'Séjour sur mesure';
 const rec={ref:ref0,lang:lang,at:new Date().toISOString(),kind:'plan',label:label,x:plan.text||'',d1:'',pax:pax,total:tot,pay:c.pay,deposit:0,nm:c.nm||'Visiteur du site',w:c.w,e:c.e,nt:c.nt||'',loc:'',status:tot?'À confirmer':'Devis à établir'};
 const fin=(ref,ok)=>{rec.ref=ref;if(ok){try{localStorage.setItem('afa_booked','1');PDONE('resa')}catch(err){}}
  const a=LS.get('afa_bookings',[]);a.unshift(rec);LS.set('afa_bookings',a);
  const wa='https://wa.me/'+waNum()+'?text='+encodeURIComponent(['Bonjour AFA TOURS, ma demande '+ref+' :','Service : '+label,plan.text||'',pax+' personne(s)',tot?'Total estimé : '+tot+' FCFA':'Prix : sur devis','Paiement souhaité : '+payL,'Nom : '+(c.nm||'—'),c.w?'WhatsApp / téléphone : '+c.w:'',c.e?'E-mail : '+c.e:''].filter(Boolean).join('\n'));
- const f=document.getElementById('plf');try{f.contentWindow.postMessage({type:'afa-done',ok:ok,ref:ref,wa:wa},'*')}catch(err){}};
+ const f=document.getElementById(tgt||'plf');try{f.contentWindow.postMessage({type:'afa-done',ok:ok,ref:ref,wa:wa},'*')}catch(err){}};
 const pl={action:'booking',request_type:'custom_trip',full_name:c.nm||'Visiteur du site',email:c.e||'sans-email@afa-tours.site',phone:c.w||null,budget:null,preferred_date:null,party_size:pax,tour_name:label,message:[plan.text||'',tot?'Total : '+tot+' FCFA':'Sur devis','Paiement : '+payL,'Langue : '+lang,c.w?'Contact : '+c.w:''].filter(Boolean).join(' | ')};
 Promise.race([SUB(pl),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),12000))]).then(r=>fin((r&&r.reference)||ref0,true)).catch(()=>fin(ref0,false));};
 window.__AFA={setPlan:(plan,pax)=>{S={kind:'plan',plan:plan,pax:pax||2,nights:1,rooms:1,lodge:'partner',id:'plan'};$('#bkt').textContent='Votre séjour';s3();bk.showModal()},ALLP:()=>ALLP(),TR:TR,SEJ:()=>SEJ,TRIPS:()=>window.TRIPS,KL:KL,KI:KI};
@@ -1427,6 +1427,20 @@ window.addEventListener('message',e=>{
  if(m.type==='afa-plan'){window.submitComposer&&window.submitComposer(m);return}if(m.type==='afa-mybk'){const mb=document.querySelector('[data-mybk]');if(mb)mb.click();return}
 });
 function open(){d.showModal();if(window.__trDom)window.__trDom(d)}
+const dr=document.createElement('dialog');dr.className='xd hasfx';dr.id='rc';dr.setAttribute('aria-label','Réserver un circuit');
+dr.style.cssText='width:min(520px,calc(100% - 16px));height:min(92vh,880px);max-height:92vh;padding:0;border:0;border-radius:18px;overflow:hidden';
+dr.innerHTML='<iframe id="rcf" title="Réserver un circuit" src="reserver-circuit.html" style="width:100%;height:100%;border:0;display:block"></iframe>';
+document.body.appendChild(dr);
+const fr2=dr.querySelector('#rcf');
+fr2.addEventListener('load',()=>{try{fr2.contentWindow.postMessage(Object.assign({type:'afa-data'},plData()),'*')}catch(e){}});
+window.addEventListener('message',e=>{
+ if(e.source!==fr2.contentWindow)return;
+ const m=e.data||{};
+ if(m.type==='afa-close'){dr.close();return}
+ if(m.type==='afa-plan'){window.submitComposer&&window.submitComposer(m,'rcf');return}
+ if(m.type==='afa-mybk'){const mb=document.querySelector('[data-mybk]');if(mb)mb.click();return}
+});
+window.__rc={open:function(){dr.showModal()}};
 window.__plan={open:open};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-plan],.cw [data-bk="plan"]');if(b){e.preventDefault();open()}});
 })();

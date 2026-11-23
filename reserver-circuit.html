@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Réserver un circuit · AFA Tours</title>
+<style>
+:root{--brown:#2A0C07;--red:#B51D27;--or:#E8832F;--cream:#FBF6EF;--ink:#2F1A14;--mute:#7a6258;--line:#e6d8cc;--d:Georgia,'Times New Roman',serif}
+*{box-sizing:border-box}
+body{margin:0;background:#ddd3c8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink);display:flex;justify-content:center;padding:24px 12px}
+.app{width:min(480px,100%);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(20,5,2,.35);display:flex;flex-direction:column}
+.hd{background:linear-gradient(120deg,var(--brown),#5b1a10);color:#fff;padding:20px 22px;position:sticky;top:0;z-index:5}
+.hd h1{font:600 1.45rem var(--d);margin:0}.hd p{margin:2px 0 0;opacity:.8;font-size:.9rem}
+.x{position:absolute;right:14px;top:14px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:1.2rem;cursor:pointer}
+.bd{padding:18px 20px;flex:1}
+.lbl{font-weight:700;font-size:.9rem;margin:12px 0 6px;display:block}
+.sub{font:600 1.02rem var(--d);color:var(--red);margin:14px 0 6px}
+input,select{width:100%;padding:.65em .85em;border:1.5px solid #d9c9b8;border-radius:12px;font:inherit;background:#fff;color:var(--ink);margin-top:0}
+input:focus,select:focus{outline:3px solid rgba(232,131,47,.35);border-color:var(--or)}
+input[type=checkbox],input[type=radio]{width:18px;height:18px;flex:none;margin:0;accent-color:#B51D27;padding:0}
+.fmt{display:block;font-size:.84rem;color:var(--mute);font-weight:600;margin-top:4px}
+.fmt a{color:var(--red)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:flex;gap:10px;align-items:center;padding:9px 11px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;margin-top:8px}
+.opt.on{border-color:var(--red);background:#fff7f4}
+.opt .t{flex:1;min-width:0;display:grid;gap:2px}.opt .t b{font-size:.93rem}.opt .t small{color:var(--mute);font-size:.8rem}
+.day{border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.day>summary{list-style:none;cursor:pointer;padding:13px 15px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;background:#fff}
+.day>summary::-webkit-details-marker{display:none}
+.day>summary b{font:600 1.05rem var(--d)}.day>summary small{color:var(--mute);font-weight:600}
+.day .in{padding:0 15px 15px}
+.card{background:var(--cream);border-radius:14px;padding:12px 14px;margin-top:10px}
+.card.draft{border:2px solid var(--or);background:#fffaf5}
+.card h4{margin:0 0 8px;font:600 .98rem var(--d)}
+.tl{list-style:none;padding:0;margin:6px 0}
+.tl li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.btn{border-radius:999px;padding:.75em 1.3em;font:inherit;font-weight:700;cursor:pointer;border:1.5px solid transparent;display:inline-block;text-align:center;background:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.red{background:var(--red);color:#fff}.out{background:#fff;color:var(--ink);border-color:var(--brown)}.sm{padding:.45em .9em;font-size:.86rem}
+.rm{background:none;border:0;color:var(--red);font-weight:700;cursor:pointer;padding:4px 0;white-space:nowrap}
+.sum{background:var(--cream);border-top:1px solid var(--line);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sum .amt{font:700 1.1rem var(--d);color:var(--red)}
+.nv{display:flex;justify-content:space-between;gap:10px;padding:14px 20px 20px}
+.box{background:var(--cream);border-radius:14px;padding:13px 15px;margin:10px 0}
+.box h3{font:600 1.02rem var(--d);color:var(--red);margin:0 0 6px}
+.ln{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:.92rem}
+.pay{display:grid;gap:8px;margin:8px 0}.pay label{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:14px;padding:11px 13px;cursor:pointer}.pay label:has(input:checked){border-color:var(--red);background:#fff7f4}.pay small{display:block;color:var(--mute)}
+.ok{text-align:center;padding:30px 20px}.ck{width:74px;height:74px;border-radius:50%;background:#e6f6ea;color:#1b8a3b;display:grid;place-items:center;margin:0 auto 14px;font-size:2.2rem}
+.ref{font:800 1.4rem ui-monospace,Menlo,monospace;letter-spacing:.06em;background:var(--cream);border-radius:12px;padding:.5em 1em;display:inline-block;margin:8px 0}
+.note{font-size:.88rem;color:var(--mute);margin:6px 0 0}
+.err{color:#b51d27;font-weight:700;font-size:.88rem;min-height:1.2em;margin-top:8px}
+.alert{border-radius:12px;padding:8px 11px;font-size:.88rem;margin:6px 0}
+.alert.err2{background:#fdecec;color:#8a1520;font-weight:600}.alert.warn{background:#fff4e6;color:#7a4300}.alert.info{background:#eef4fb;color:#24476b}
+.blocking{border:2px solid #B51D27;border-radius:14px;padding:10px 12px;margin:10px 0;background:#fff}
+.blocking h3{margin:0 0 6px;color:#B51D27;font:700 1rem var(--d)}
+.stat{font-weight:700;font-size:.9rem;margin:10px 0 0}
+.cat{font-size:.84rem;color:var(--mute);background:var(--cream);border-radius:12px;padding:9px 11px;margin-top:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+/* Réserver un circuit : parcours court (4 étapes) distinct du Composer séjour sur mesure.
+   Reçoit les circuits du site (afa-data), renvoie la demande (afa-plan). */
+let CIRC=[],READY=false;
+const S={step:1,start:'',adults:2,kids:0,circs:[],opt:{resto:false,transport:false,heb:false},diet:[],dietNote:'',
+ nm:'',nat:'',w:'',e:'',pay:'momo',done:false,closed:false,ref:'',okSent:true,waUrl:''};
+const app=()=>document.getElementById('app');
+const pax=()=>S.adults+S.kids;
+const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const fdt=v=>{if(!v)return'';const p=v.split('-');return (+p[2])+' '+MOIS[+p[1]-1]+' '+p[0]};
+const money=n=>Math.round(n).toLocaleString('fr-FR')+' FCFA';
+const EUR_XOF=655.957,USD_XOF=580;
+const money3=n=>money(n)+' · '+Math.round(n/USD_XOF).toLocaleString('fr-FR')+' $ · '+Math.round(n/EUR_XOF).toLocaleString('fr-FR')+' €';
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const cOf=id=>CIRC.find(c=>c.id===id);
+const priceTxt=c=>!c.p?'Tarif sur demande':money3(c.p)+(c.unit==='groupe'?' / groupe':' / pers.')+(c.from?' (à partir de)':'');
+const head=(t,s)=>'<div class="hd"><h1>'+t+'</h1><p>'+s+'</p><button class="x" data-a="close" aria-label="Fermer">×</button></div>';
+const nav=(back,next,label)=>'<p class="err" id="err"></p><div class="nv">'+(back?'<button class="btn out" data-a="go" data-to="'+back+'">Retour</button>':'<span></span>')+'<button class="btn red" data-a="go" data-to="'+next+'">'+label+'</button></div>';
+const OPTS=[['resto','Restauration','Repas proposés avec votre circuit'],['transport','Transport','Véhicule avec chauffeur'],['heb','Hébergement','Nuits à organiser avec AFA TOURS']];
+function calc(){
+ let tot=0,devis=0;
+ S.circs.forEach(id=>{const c=cOf(id);if(!c)return;if(!c.p){devis++;return}tot+=c.unit==='groupe'?c.p:c.p*S.adults});
+ devis+=OPTS.filter(o=>S.opt[o[0]]).length;
+ return{tot,devis};
+}
+function summary(){const{tot,devis}=calc();return'<div class="sum"><div><small style="color:var(--mute)">Estimation</small><div class="amt">'+(tot?money3(tot):'Sur devis')+'</div><small style="color:var(--mute)">'+(devis?devis+' élément(s) à confirmer':'')+'</small></div></div>'}
+function s1(){return head('Réserver un circuit','Étape 1 sur 4 · Dates et voyageurs')+'<div class="bd">'+
+ '<label class="lbl">Date d’arrivée</label><input type="date" data-f="start" value="'+S.start+'"><span class="fmt">'+(S.start?fdt(S.start):'Choisissez une date')+'</span>'+
+ '<div class="row"><div><label class="lbl">Adultes</label><input type="number" min="1" data-f="adults" value="'+S.adults+'"></div><div><label class="lbl">Enfants</label><input type="number" min="0" data-f="kids" value="'+S.kids+'"></div></div>'+
+ '</div>'+nav(0,2,'Continuer')}
+function s2(){let h=head('Réserver un circuit','Étape 2 sur 4 · Vos circuits et options')+'<div class="bd">';
+ h+='<p class="sub">Circuits (un ou plusieurs)</p>';
+ h+=CIRC.map(c=>'<label class="opt'+(S.circs.includes(c.id)?' on':'')+'"><input type="checkbox" data-k="circ" value="'+c.id+'"'+(S.circs.includes(c.id)?' checked':'')+'><span class="t"><b>'+esc(c.n)+'</b><small>'+priceTxt(c)+'</small></span></label>').join('')||'<p class="fmt">Chargement des circuits…</p>';
+ h+='<p class="sub">Options facultatives</p>';
+ h+=OPTS.map(o=>'<label class="opt'+(S.opt[o[0]]?' on':'')+'"><input type="checkbox" data-k="opt" value="'+o[0]+'"'+(S.opt[o[0]]?' checked':'')+'><span class="t"><b>'+o[1]+'</b><small>'+o[2]+'</small></span></label>').join('');
+ h+='<p class="cat">Les options sont facultatives. Leur prix est confirmé par notre équipe avant votre départ.</p>';
+ return h+'</div>'+summary()+nav(1,3,'Continuer')}
+function s3(){const{tot,devis}=calc();
+ const L=S.circs.map(cOf).filter(Boolean).map(c=>'<div class="ln"><span>'+esc(c.n)+'</span><span>'+priceTxt(c)+'</span></div>').join('');
+ const O=OPTS.filter(o=>S.opt[o[0]]).map(o=>'<div class="ln"><span>+ '+o[1]+' (à confirmer)</span></div>').join('');
+ return head('Réserver un circuit','Étape 3 sur 4 · Récapitulatif')+'<div class="bd"><div class="box"><h3>'+S.circs.length+' circuit(s) · '+pax()+' personne(s)'+(S.start?' · arrivée le '+fdt(S.start):'')+'</h3>'+L+(O?'<h3 style="margin-top:10px">Options</h3>'+O:'')+'</div>'+
+ '<div class="box"><h3>Inclus</h3><div class="ln"><span>✓ Circuits, guide et organisation par AFA TOURS</span></div><h3 style="margin-top:10px">Non inclus</h3><div class="ln"><span>✕ Vols, visas, boissons, dépenses personnelles</span></div></div>'+
+ '<div class="box" style="display:flex;justify-content:space-between;align-items:center"><b>Total estimé</b><b style="color:var(--red);font-size:1.05rem;text-align:right">'+(tot?money3(tot):'Sur devis')+'</b></div>'+(devis?'<p class="fmt">'+devis+' élément(s) à confirmer par notre équipe.</p>':'')+
+ '</div>'+nav(2,4,'Continuer')}
+function s4(){return head('Réserver un circuit','Étape 4 sur 4 · Vos coordonnées')+'<div class="bd">'+
+ '<div class="row"><div><label class="lbl">Nom complet *</label><input data-txt="nm" value="'+esc(S.nm)+'"></div><div><label class="lbl">Nationalité *</label><input data-txt="nat" value="'+esc(S.nat)+'" placeholder="Bénin, France…"></div></div>'+
+ '<div class="row"><div><label class="lbl">WhatsApp ou téléphone *</label><input data-txt="w" value="'+esc(S.w)+'" placeholder="+229…"></div><div><label class="lbl">E-mail *</label><input type="email" data-txt="e" value="'+esc(S.e)+'"></div></div>'+
+ '<label class="lbl">Autre précision alimentaire</label><input data-txt="dietNote" value="'+esc(S.dietNote)+'" placeholder="Ex. ne mange pas de piment">'+
+ '<p class="lbl">Mode de paiement de l’acompte</p><div class="pay">'+[['momo','Mobile Money','MTN, Moov ou Celtiis'],['card','Carte bancaire','Visa ou Mastercard'],['bank','Virement bancaire','Référence fournie après validation'],['agency','Payer à l’agence ou sur place','Espèces, à Porto-Novo']].map(p=>'<label><input type="radio" name="pay" data-f="pay" value="'+p[0]+'"'+(S.pay===p[0]?' checked':'')+'><span><b>'+p[1]+'</b><small>'+p[2]+'</small></span></label>').join('')+'</div>'+
+ '</div><p class="err" id="err"></p><div class="nv"><button class="btn out" data-a="go" data-to="3">Retour</button><button class="btn red" data-a="send">Envoyer ma demande</button></div>'}
+function render(){
+ if(!READY){app().innerHTML=head('Réserver un circuit','Chargement des circuits…')+'<div class="bd"><p class="note">Un instant.</p></div>';return}
+ if(S.closed){app().innerHTML=closed();return}
+ if(S.done){app().innerHTML=done();return}
+ app().innerHTML=[s1,s2,s3,s4][S.step-1]()}
+function buildPlan(){
+ const{tot,devis}=calc();
+ const circs=S.circs.map(cOf).filter(Boolean),opts=OPTS.filter(o=>S.opt[o[0]]).map(o=>o[1]);
+ const diet=[...S.diet,S.dietNote].filter(Boolean);
+ let txt='*RÉSERVATION CIRCUIT — '+circs.length+' circuit(s)*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Voyageurs : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+(diet.length?' · Régime : '+diet.join(', '):'')+'_\n\n';
+ txt+='*Circuits*\n'+circs.map(c=>'• '+c.n+' — '+priceTxt(c)).join('\n')+'\n\n';
+ if(opts.length)txt+='*Options (à confirmer)*\n'+opts.map(o=>'• '+o).join('\n')+'\n\n';
+ txt+=tot?'*Estimation : '+money3(tot)+'*'+(devis?' _(hors '+devis+' élément(s) à confirmer)_':''):'*Prix à établir sur devis*';
+ return{circuits:circs.map(c=>c.id),options:opts,total:tot,est:tot,quote:!tot||devis>0,text:txt};
+}
+function closed(){return '<div class="ok"><h2 style="font:600 1.4rem Georgia,serif;margin:0">Réservation fermée</h2><p class="note">La fenêtre de réservation est fermée. Sur le site, elle se ferme et la page reste en place.</p><div style="margin-top:14px"><button class="btn out" data-a="reopen">Rouvrir (démonstration)</button></div></div>'}
+function done(){const ok=S.okSent!==false;return '<div class="ok"><div class="ck">'+(ok?'✓':'!')+'</div><h2 style="font:600 1.5rem Georgia,serif;margin:0">'+(ok?'Demande enregistrée':'Une dernière étape')+'</h2>'+(ok?'<p class="note">Votre référence</p><div class="ref">'+S.ref+'</div><p class="note">Notre équipe vous répond sous 24 / 72 h max.</p>':'<p class="note">La connexion à notre serveur a échoué. Envoyez votre demande sur WhatsApp : elle sera traitée tout de suite.</p>')+'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px"><button class="btn out" data-a="mybk">Voir mes réservations</button>'+(S.waUrl?'<a class="btn red" href="'+S.waUrl+'" target="_blank" rel="noopener">'+(ok?'Envoyer aussi sur WhatsApp':'Envoyer sur WhatsApp')+'</a>':'')+'</div><div style="margin-top:10px"><button class="btn out" data-a="close">Fermer</button></div></div>'}
+function closeBooking(){S.panel=null;try{parent.postMessage({type:'afa-close'},'*')}catch(e){}}
+
+app().addEventListener('click',e=>{
+ const t=e.target.closest('[data-a]');if(!t||t.disabled)return;
+ const a=t.dataset.a;
+ if(a==='go'){const to=+t.dataset.to;
+  if(to===3&&S.step===2&&!S.circs.length){document.getElementById('err').textContent='Choisissez au moins un circuit.';return}
+  if(to===2&&S.step===1&&!S.start){document.getElementById('err').textContent='Choisissez une date d’arrivée.';return}
+  S.step=to;render();return}
+ if(a==='close'){closeBooking();return}
+ if(a==='reopen'){S.closed=false;S.done=false;S.step=1;render();return}
+ if(a==='mybk'){try{parent.postMessage({type:'afa-mybk'},'*')}catch(err){}return}
+ if(a==='send'){
+  if(!S.nm||!S.nat||(S.w||'').trim().length<3||(S.e||'').trim().length<3){document.getElementById('err').textContent='Renseignez votre nom, votre nationalité, votre WhatsApp et votre e-mail.';return}
+  t.disabled=true;t.textContent='Envoi…';
+  try{parent.postMessage({type:'afa-plan',plan:buildPlan(),pax:pax(),label:'Réservation circuit',contact:{nm:S.nm,nat:S.nat,w:S.w,e:S.e,nt:S.dietNote,pay:S.pay}},'*')}catch(err){}
+  return}
+});
+app().addEventListener('input',e=>{
+ const f=e.target.dataset.txt;if(!f)return;const v=e.target.value;
+ if(f==='nm')S.nm=v;else if(f==='nat')S.nat=v;else if(f==='w')S.w=v;else if(f==='e')S.e=v;else if(f==='dietNote')S.dietNote=v;
+});
+app().addEventListener('change',e=>{
+ const t=e.target,kk=t.dataset.k,f=t.dataset.f;
+ if(t.dataset.txt)return;
+ if(t.type==='checkbox'&&kk==='circ'){const x=t.value;S.circs=t.checked?S.circs.concat([x]):S.circs.filter(y=>y!==x);render();return}
+ if(t.type==='checkbox'&&kk==='opt'){S.opt[t.value]=t.checked;render();return}
+ if(f==='pay'){S.pay=t.value;return}
+ if(f==='start'){S.start=t.value;render();return}
+ if(f==='adults'){S.adults=Math.max(1,+t.value||1);render();return}
+ if(f==='kids'){S.kids=Math.max(0,+t.value||0);render();return}
+});
+window.addEventListener('message',e=>{
+ const m=e.data;if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}
+ if(!m||m.type!=='afa-data')return;
+ CIRC=m.circuits||[];READY=true;render();
+});
+render();
+</script>
+</body>
+</html>
