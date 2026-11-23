@@ -739,6 +739,14 @@ label.chip.box:has(#priced),#sort,#mapb{display:none!important}
 #chips .chip{flex:0 0 auto!important;white-space:nowrap}
 #circuits .bar{margin-top:10px!important;padding-bottom:10px!important}
 }
+/* Accueil plus court : espaces verticaux réduits entre les sections, hero ajusté à son contenu. Contenu inchangé. */
+.sec{padding-block:clamp(40px,5.5vw,72px)}
+@media(max-width:700px){
+html:not([data-pg="2"]):not([data-pg="3"]):not([data-pg="4"]) .sec{padding-block:36px!important}
+html:not([data-pg="2"]):not([data-pg="3"]):not([data-pg="4"]) .h2{font-size:clamp(1.55rem,6.3vw,2.05rem)!important}
+html:not([data-pg="2"]):not([data-pg="3"]):not([data-pg="4"]) .hero{min-height:auto!important;padding-top:84px!important;padding-bottom:40px!important}
+html:not([data-pg="2"]):not([data-pg="3"]):not([data-pg="4"]) .hero .acts{margin-top:16px!important}
+}
 </style></head><body class="p3">
 <div class="ann"><div class="wrap"><span data-i="ann"></span><a href="#agenda" data-i="annl"></a></div></div>
 <header class="hd"><div class="wrap"><a class="brand" href="#top" aria-label="AFA Tours"><img src="afa-tours-logo.jpg" alt="" width="50" height="50"><span><b>AFA TOURS</b><small>Afrique Authentique Innovant</small></span></a>
