@@ -255,8 +255,8 @@ html{scroll-behavior:smooth;scroll-padding-top:110px}body{overflow-x:clip}
 @keyframes afaCardGlow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 .hero .hero-image,.inner-hero .inner-hero-image{animation:afaHeroGlow 1.8s var(--motion-pop) both}
 .hero:after,.inner-hero:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(110deg,#1c120b22,transparent 48%,#e8792e12);mix-blend-mode:screen}
-.reveal{will-change:opacity,transform;transition:opacity .9s var(--motion-pop),transform .9s var(--motion-pop),filter .9s var(--motion-pop);filter:blur(3px)}
-.reveal.is-visible{filter:blur(0)}
+.reveal{will-change:opacity,transform;transition:opacity .9s var(--motion-pop),transform .9s var(--motion-pop)}
+.reveal.is-visible{opacity:1}
 .tour-card,.destination-card{position:relative}
 .tour-card:after,.destination-card:after{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(120deg,transparent,#e8792e88,transparent);background-size:200% 100%;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;pointer-events:none;transition:opacity .4s}
 .tour-card:hover:after,.destination-card:hover:after,.tour-card:focus-within:after,.destination-card:focus-within:after{opacity:1;animation:afaCardGlow 2.4s linear infinite}
@@ -278,7 +278,7 @@ html{scroll-behavior:smooth;scroll-padding-top:110px}body{overflow-x:clip}
  .hero .hero-content>*:nth-child(2),.inner-hero .inner-hero-content>*:nth-child(2){animation-delay:.12s}
  .hero .hero-content>*:nth-child(3),.inner-hero .inner-hero-content>*:nth-child(3){animation-delay:.22s}
  .hero .hero-content>*:nth-child(4),.inner-hero .inner-hero-content>*:nth-child(4){animation-delay:.32s}
- .reveal{transform:translate3d(0,42px,0) scale(.985);filter:blur(4px);transition-duration:.85s}
+ .reveal{transform:translate3d(0,42px,0) scale(.985);transition-duration:.85s}
  .reveal.is-visible{transform:translate3d(0,0,0) scale(1)}
  .stagger-grid>.reveal:nth-child(2){transition-delay:.12s}
  .stagger-grid>.reveal:nth-child(3){transition-delay:.22s}
