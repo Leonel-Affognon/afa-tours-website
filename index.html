@@ -706,14 +706,9 @@ label.chip.box:has(#priced),#sort,#mapb{display:none!important}
 .rvs .stars2 button{font-size:1.15rem!important;padding:0}
 .rvs .btn{width:auto!important;padding:.55em 1.1em!important;font-size:.9rem!important;margin:0}
 
-/* En-tête « Nos circuits » : mise en page éditoriale, alignée à gauche, filtres en pastilles. */
-#circuits .wm{display:none!important}
-#circuits .eyebrow{letter-spacing:.2em;text-transform:uppercase;font-size:.74rem;justify-content:flex-start}
-#circuits .h2{text-align:left;font-size:clamp(2.1rem,5.6vw,3.5rem);line-height:1.04;max-width:13ch;margin-top:10px}
-#circuits .lede{text-align:left;max-width:44ch;margin-right:auto;color:#7a5a4e;font-size:1rem;line-height:1.55}
-#chips.filters{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;scrollbar-width:none;padding:6px 0 10px;margin-top:6px}
-#chips.filters::-webkit-scrollbar{display:none}
-#chips .chip{flex:0 0 auto;border:1.5px solid #e6d5c3!important;border-radius:999px;padding:.5em 1em;background:#fff;font-size:.9rem;color:#2A0C07}
+/* En-tête « Nos circuits » : tout le contenu est conservé, seuls les thèmes changent de forme (pastilles rondes, centrées). */
+#chips.filters{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 12px;margin-top:10px}
+#chips .chip{border:1.5px solid #e6d5c3!important;border-radius:999px;padding:.5em 1.05em;background:#fff;font-size:.92rem;color:#2A0C07}
 #chips .chip[aria-pressed=true]{background:#2A0C07;color:#FBF6EF;border-color:#2A0C07!important}
 #chips .chip[aria-pressed=true] i{background:#FBF6EF!important}
 </style></head><body class="p3">
