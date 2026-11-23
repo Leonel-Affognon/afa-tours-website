@@ -160,7 +160,7 @@ sync();
 var g=document.getElementById('grid');if(!g)return;var exp=false,btn=document.createElement('button');btn.type='button';btn.className='cmore';
 function lg(){return (typeof lang!=='undefined'&&lang==='en')?'en':'fr'}
 function lim(){return innerWidth>700?6:4}
-function apply(){var n=g.children.length;if(n<=lim()||exp){g.classList.remove('coll');btn.hidden=true;return}g.classList.add('coll');btn.hidden=false;btn.textContent=lg()==='en'?'See all '+n+' tours':'Voir les '+n+' circuits';if(window.__trDom)try{window.__trDom(btn)}catch(e){}}
+function apply(){var n=g.querySelectorAll(':scope>:not(.vsep)').length;if(n<=lim()||exp){g.classList.remove('coll');btn.hidden=true;return}g.classList.add('coll');btn.hidden=false;btn.textContent=lg()==='en'?'See all '+n+' tours':'Voir les '+n+' circuits';if(window.__trDom)try{window.__trDom(btn)}catch(e){}}
 g.after(btn);btn.onclick=function(){exp=true;apply()};
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(apply,60)}).observe(g,{childList:true});
 var bar=document.querySelector('#circuits .bar'),fd=document.getElementById('finder');
