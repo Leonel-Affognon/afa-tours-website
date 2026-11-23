@@ -16,7 +16,7 @@ if(root){
     (data||[]).forEach(t=>{const items=[asMedia(t.cover_image,t.title,"image"),...(Array.isArray(t.gallery)?t.gallery.map((u,i)=>asMedia(u,t.title+" — "+(i+1))):[])];album(t.title,t.summary||t.description||t.location,items,"Expérience");});
    }else{
     const [media,tours,destinations]=await Promise.all([
-     supabase.from("public_media").select("id,display_name,caption,media_type,public_url,published_at").order("published_at",{ascending:false}).limit(150),
+     supabase.from("public_media").select("id,display_name,caption,media_type,public_url,published_at").is("deleted_at",null).order("published_at",{ascending:false}).limit(150),
      supabase.from("tours").select("id,title,location,cover_image,gallery,content_type").eq("status","published").order("sort_order").limit(100),
      supabase.from("destinations").select("id,name,region,cover_image,gallery").eq("status","published").order("sort_order").limit(100)
     ]);

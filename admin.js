@@ -156,9 +156,9 @@ function mediaCard(r,url,legacy){
 }
 function setMediaCardStatus(card,label,state){const badge=card.querySelector("[data-media-status]");if(!badge)return;badge.textContent=label;badge.style.background=state==="published"?"#e5f4e9":"#fde8e7";badge.style.color=state==="published"?"#176536":"#a12622";}
 function updateMediaCount(){const heading=[...content.querySelectorAll("h3")].find(x=>x.textContent.startsWith("Médias enregistrés"));if(heading){const grid=heading.nextElementSibling;const count=grid?.querySelectorAll(".media-edit-card").length??0;heading.textContent="Médias enregistrés ("+count+")";if(!count)grid.innerHTML="<p>Aucun média.</p>";}}
-async function removePublicEntry(id){
+async function removePublicEntry(id,hard=false){
  const {data:p,error}=await supabase.from("public_media").select("id,public_url").eq("source_submission_id",id).maybeSingle();if(error)throw error;
- if(p){const {error:del}=await supabase.from("public_media").delete().eq("id",p.id);if(del)throw del;}
+ if(p){const {error:del}=hard?await supabase.from("public_media").delete().eq("id",p.id):await supabase.from("public_media").update({deleted_at:new Date().toISOString()}).eq("id",p.id);if(del)throw del;}
 }
 function publicObjectPath(url){try{const marker="/storage/v1/object/public/afa-public-media/";const p=new URL(url).pathname;const i=p.indexOf(marker);return i<0?null:decodeURIComponent(p.slice(i+marker.length));}catch{return null;}}
 async function handleMediaAction(e){
@@ -201,7 +201,7 @@ async function handleMediaAction(e){
    const {error:up2}=await supabase.from("media_submissions").update({...patch,status:"approved"}).eq("id",id);if(up2)throw up2;setMediaCardStatus(card,"PUBLIÉ SUR LE SITE","published");feedback.textContent="Publication confirmée : ce média est maintenant visible dans la galerie du site.";return true;
   }
   if(action==="reject"){if(!confirm("Rejeter ce média ? Il sera retiré de la galerie publique."))return true;await removePublicEntry(id);const {error}=await supabase.from("media_submissions").update({...patch,status:"rejected"}).eq("id",id);if(error)throw error;setMediaCardStatus(card,"REJETÉ — NON VISIBLE","rejected");feedback.textContent="Média rejeté et retiré de la galerie publique.";return true;}
-  if(action==="delete"){if(!confirm("Supprimer définitivement ce média et son fichier ?"))return true;await removePublicEntry(id);if(r.object_path.startsWith("incoming/")){const {error}=await supabase.storage.from("afa-submissions").remove([r.object_path]);if(error)throw error;}if(r.object_path.startsWith("visitor/")){const {error}=await supabase.storage.from("afa-public-media").remove([r.object_path]);if(error)throw error;}const {error}=await supabase.from("media_submissions").delete().eq("id",id);if(error)throw error;card.remove();updateMediaCount();return true;}
+  if(action==="delete"){if(!confirm("Supprimer définitivement ce média et son fichier ?"))return true;await removePublicEntry(id,true);if(r.object_path.startsWith("incoming/")){const {error}=await supabase.storage.from("afa-submissions").remove([r.object_path]);if(error)throw error;}if(r.object_path.startsWith("visitor/")){const {error}=await supabase.storage.from("afa-public-media").remove([r.object_path]);if(error)throw error;}const {error}=await supabase.from("media_submissions").delete().eq("id",id);if(error)throw error;card.remove();updateMediaCount();return true;}
  }catch(err){feedback.textContent=err.message||"Erreur.";}finally{b.disabled=false;}
  return true;
 }
@@ -231,9 +231,8 @@ content.addEventListener("click",async e=>{
   if(publicReadError){alert(publicReadError.message);return;}
   if(publicRow){
    const publicPath=(()=>{try{return new URL(publicRow.public_url).pathname.split("/storage/v1/object/public/afa-public-media/")[1]||null}catch{return null}})();
-   const {error:removeRowError}=await supabase.from("public_media").delete().eq("id",publicRow.id);
+   const {error:removeRowError}=await supabase.from("public_media").update({deleted_at:new Date().toISOString()}).eq("id",publicRow.id);
    if(removeRowError){alert(removeRowError.message);return;}
-   if(publicPath){const {error:removeFileError}=await supabase.storage.from("afa-public-media").remove([decodeURIComponent(publicPath)]);if(removeFileError){alert("Entrée publique retirée, mais le fichier doit être supprimé manuellement : "+removeFileError.message);return;}}
   }
  }
  if(active==="media"&&status==="approved"){const {data:row,error:readError}=await supabase.from("media_submissions").select("*").eq("id",id).single();if(readError){alert(readError.message);return;}if(row.consent_publication!==true){alert("Publication impossible : aucune autorisation de publication n’a été donnée.");render();return;}const {data:file,error:downloadError}=await supabase.storage.from("afa-submissions").download(row.object_path);if(downloadError){alert(downloadError.message);return;}const ext=row.object_path.split(".").pop();const publicPath="visitor/"+id+"."+ext;const {error:uploadError}=await supabase.storage.from("afa-public-media").upload(publicPath,file,{upsert:true});if(uploadError){alert(uploadError.message);return;}const {data:publicData}=supabase.storage.from("afa-public-media").getPublicUrl(publicPath);const mediaRecord={source_submission_id:row.id,display_name:row.display_name,caption:row.caption,media_type:row.media_type,public_url:publicData.publicUrl};const {data:existingMedia,error:existingError}=await supabase.from("public_media").select("id").eq("source_submission_id",row.id).maybeSingle();if(existingError){alert(existingError.message);return;}const galleryResult=existingMedia?await supabase.from("public_media").update(mediaRecord).eq("id",existingMedia.id):await supabase.from("public_media").insert(mediaRecord);if(galleryResult.error){alert(galleryResult.error.message);return;}extra={object_path:publicPath};}
