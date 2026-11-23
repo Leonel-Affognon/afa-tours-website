@@ -1446,7 +1446,7 @@ function wa(rec,c,f){const B=t=>'*'+t+'*',I=t=>'_'+t+'_';const L=[];
 L.push(B('DEMANDE DE RÉSERVATION')+'  '+I(rec.ref),'');
 L.push(B('👤 Client'),'Nom : '+B(f.nm),'Nationalité : '+f.nat,f.w?'WhatsApp : '+f.w:'',f.e?'E-mail : '+f.e:'',f.loc?'Position : '+f.loc:'','');
 L.push(B('🧳 Demande'));
-if(ST.plan)L.push(ST.plan.text);else{c.lines.forEach(l=>L.push('• '+l.i.n+(l.s?'  '+I(m(l.s)):'  '+I('sur devis'))));if(f.other)L.push('• Autre : '+I(f.other))}
+if(ST.plan)L.push(ST.plan.text);else{if(ST.pgText)L.push(ST.pgText);else c.lines.forEach(l=>L.push('• '+l.i.n+(l.s?'  '+I(m(l.s)):'  '+I('sur devis'))));if(f.other)L.push('• Autre : '+I(f.other))}
 L.push('');
 L.push(B('📅 Dates')+' : '+(f.d1||'à définir')+(f.d2?' → '+f.d2:''),B('👥 Voyageurs')+' : '+c.pax,B('💳 Paiement souhaité')+' : '+f.payL,B('💰 Total estimé')+' : '+(c.tot?B(m(c.tot))+(c.q?' '+I('+ éléments sur devis'):''):B('sur devis')));
 if(f.nt)L.push('',B('📝 Précisions'),I(f.nt));
@@ -1454,6 +1454,45 @@ let out=L.filter((x,i,a)=>!(x===''&&a[i-1]==='')).join('\n');
 if(lg()==='en'){[['DEMANDE DE RÉSERVATION','BOOKING REQUEST'],['👤 Client','👤 Customer'],['Nom :','Name :'],['Nationalité :','Nationality :'],['E-mail :','E-mail :'],['Position :','Location :'],['🧳 Demande','🧳 Request'],['• Autre :','• Other :'],['sur devis','on request'],['+ éléments sur devis','+ items on request'],['📅 Dates','📅 Dates'],['à définir','to be defined'],['👥 Voyageurs','👥 Travellers'],['💳 Paiement souhaité','💳 Preferred payment'],['💰 Total estimé','💰 Estimated total'],['📝 Précisions','📝 Notes'],['Devis d’abord, paiement ensuite','Quote first, payment afterwards'],['Paiement à l’agence','Pay at the agency'],['Carte bancaire','Bank card'],['Virement','Bank transfer']].forEach(function(p){out=out.split(p[0]).join(p[1])})}
 return out}
 function plain(rec,c,f){return md(wa(rec,c,f)).replace(/^([👤🧳📅👥💳💰📝]\s?)/gm,'')}
+function tt(a,b){return lg()==='en'?b:a}
+let PG=null;
+function dayLabel(f,n){if(f.d1){try{const x=new Date(f.d1+'T00:00:00');x.setDate(x.getDate()+n-1);return tt('Jour ','Day ')+n+' · '+x.toLocaleDateString(lg()==='en'?'en-GB':'fr-FR',{weekday:'long',day:'numeric',month:'long'})}catch(e){}}return tt('Jour ','Day ')+n}
+function priceTxt(i,pax,nn){if(!i.p)return tt('Tarif communiqué sous 24 h','Price confirmed within 24 h');if(i.u==='pp')return m(i.p)+' '+tt('par personne','per person');if(i.u==='n')return m(i.p)+' '+tt('par nuit','per night');if(i.u==='g')return m(i.p)+' '+tt('par groupe','per group');return m(i.p)}
+function buildPG(c,f){const L=c.lines.map(l=>l.i),circ=L.filter(i=>i.g==='c'||i.g==='v'||i.g==='s'),rest=L.filter(i=>i.g==='r'),hot=L.filter(i=>i.g==='h'),tr=L.filter(i=>i.g==='t');
+let d=1;const items=[];circ.forEach(i=>{const span=Math.max(1,i.days||1);items.push({k:'c',i,day:d,span});d+=span});
+const nn=c.nn,N=Math.max(1,d-1,hot.length?nn:1);
+const cd=Math.max(1,circ.length);rest.forEach((i,j)=>items.push({k:'r',i,day:Math.min(N,(j%cd)+1),meal:j<cd?tt('Déjeuner','Lunch'):tt('Dîner','Dinner')}));
+const per=hot.length?Math.ceil(nn/hot.length):0;hot.forEach((i,j)=>items.push({k:'h',i,day:Math.min(N,1+j*per),nights:Math.max(1,Math.min(per,nn-j*per))}));
+tr.forEach((i,j)=>items.push({k:'t',i,day:Math.min(N,j+1)}));
+return{items,N,hasR:rest.length>0,hasH:hot.length>0,hasT:tr.length>0,circDays:new Set(items.filter(x=>x.k==='c').flatMap(x=>Array.from({length:x.span},(_,k)=>x.day+k)))}}
+function progHTML(c,f){const P=PG,pax=c.pax,N=P.N;const OK='<span style="color:#2f8a4b;font-weight:800;width:20px;flex:none">✓</span>',KO='<span style="color:#9a8878;font-weight:800;width:20px;flex:none">✕</span>';
+const sel=(x,idx)=>'<select data-pgday="'+idx+'" aria-label="'+tt('Changer de jour','Change day')+'" style="margin-top:4px;font:inherit;font-size:.82rem;padding:3px 6px;border:1px solid #d9c9b8;border-radius:8px;background:#fff">'+Array.from({length:N},(_,k)=>'<option value="'+(k+1)+'"'+(x.day===k+1?' selected':'')+'>'+tt('Jour ','Day ')+(k+1)+'</option>').join('')+'</select>';
+const row=(ok,t,sub,extra)=>'<div style="display:flex;gap:10px;padding:8px 0;border-top:1px dashed #eadccc">'+(ok?OK:KO)+'<div style="flex:1;min-width:0"><b>'+E(t)+'</b>'+(sub?'<br><span style="color:#6b5648;font-size:.88rem">'+E(sub)+'</span>':'')+(extra?'<br>'+extra:'')+'</div></div>';
+const NI=tt('Non inclus · à votre charge, ou ajoutez-le','Not included · at your own cost, or add it');
+let out='',txt='';
+for(let n=1;n<=N;n++){let rows='',tx='';const it=P.items.map((x,idx)=>[x,idx]).filter(([x])=>x.day===n);
+const isC=P.circDays.has(n);
+P.items.forEach((x,idx)=>{if(x.k==='c'&&x.day<n&&n<x.day+x.span){rows+=row(1,x.i.n,tt('Suite du programme','Programme continues'));tx+=' ✓ '+x.i.n+' ('+tt('suite','continued')+')\n'}});
+it.forEach(([x,idx])=>{const pr=priceTxt(x.i,pax,c.nn);
+if(x.k==='c'){rows+=row(1,x.i.n,tt('Visite guidée incluse · ','Guided visit included · ')+pr,sel(x,idx));tx+=' ✓ '+x.i.n+' — '+tt('visite guidée incluse','guided visit included')+' · '+pr+'\n'}
+else if(x.k==='r'){rows+=row(1,x.meal+' : '+x.i.n,pr,sel(x,idx));tx+=' ✓ '+x.meal+' : '+x.i.n+' · '+pr+'\n'}
+else if(x.k==='t'){rows+=row(1,tt('Transport : ','Transport: ')+x.i.n,pr,sel(x,idx));tx+=' ✓ '+tt('Transport : ','Transport: ')+x.i.n+' · '+pr+'\n'}
+else if(x.k==='h'){rows+=row(1,tt('Hébergement : ','Accommodation: ')+x.i.n,x.nights+' '+tt('nuit','night')+(x.nights>1?'s':'')+' · '+pr,sel(x,idx));tx+=' ✓ '+tt('Hébergement : ','Accommodation: ')+x.i.n+' ('+x.nights+' '+tt('nuit(s)','night(s)')+') · '+pr+'\n'}});
+const hasMeal=it.some(([x])=>x.k==='r'),hasTr=it.some(([x])=>x.k==='t')||P.hasT,hasHot=P.items.some(x=>x.k==='h'&&n>=x.day&&n<x.day+x.nights);
+if(isC&&!hasMeal&&!P.hasR){rows+=row(0,tt('Déjeuner','Lunch'),NI);tx+=' ✕ '+tt('Déjeuner : non inclus','Lunch: not included')+'\n'}
+if(isC&&!P.hasT){rows+=row(0,'Transport',NI);tx+=' ✕ '+tt('Transport : non inclus','Transport: not included')+'\n'}
+if(!P.hasH&&n<=Math.max(1,N-1)){rows+=row(0,tt('Hébergement (nuit '+n+')','Accommodation (night '+n+')'),NI);tx+=' ✕ '+tt('Hébergement : non inclus','Accommodation: not included')+'\n'}
+out+='<div style="border:1px solid #eadccc;border-radius:16px;background:#fff;margin-bottom:10px;overflow:hidden"><div style="background:#FBF6EF;padding:9px 14px;font-weight:700;color:#B51D27">'+E(dayLabel(f,n))+'</div><div style="padding:0 14px 8px">'+rows+'</div></div>';
+txt+=dayLabel(f,n)+'\n'+tx}
+ST.pgText=txt.trim();
+const nm=c.lines.filter(l=>l.i.g==='c'||l.i.g==='v'||l.i.g==='s').length;
+return '<div id="bqprog"><h3 style="font:600 1.5rem var(--d);margin:0 0 4px">'+tt('Votre programme','Your programme')+'</h3><p style="margin:0 0 12px;color:#5a4038">'+c.pax+' '+tt('voyageur'+(c.pax>1?'s':''),'traveller'+(c.pax>1?'s':''))+(f.d1?' · '+tt('à partir du ','from ')+(()=>{try{return new Date(f.d1+'T00:00:00').toLocaleDateString(lg()==='en'?'en-GB':'fr-FR',{day:'numeric',month:'long',year:'numeric'})}catch(e){return f.d1}})():'')+'. '+tt('Relisez, changez un jour si besoin, puis envoyez.','Check it, change a day if needed, then send.')+'</p>'+out+
+'<div style="background:#FBF6EF;border-radius:14px;padding:12px 14px;margin:2px 0 14px"><div style="display:flex;justify-content:space-between;gap:10px"><span>'+tt('Total estimé','Estimated total')+'</span><b>'+(c.tot?m(c.tot):tt('Sur devis','On request'))+'</b></div>'+(c.q?'<div style="color:#6b5648;margin-top:4px;font-size:.9rem">'+tt('+ éléments dont le tarif est communiqué sous 24 h','+ items priced within 24 h')+'</div>':'')+'</div>'+
+'<button type="button" class="btn btn-red" data-pgok style="width:100%">'+tt('Tout est correct, envoyer','All correct, send')+'</button><button type="button" class="btn btn-out" data-pgedit style="width:100%;margin-top:8px">'+tt('Modifier ma réservation','Edit my booking')+'</button></div>'}
+function showProg(f,c){PG=buildPG(c,f);const form=d.querySelector('#bqf');let box=d.querySelector('#bqprog');if(box)box.remove();form.insertAdjacentHTML('beforebegin',progHTML(c,f));form.style.display='none';ST.pc=c;ST.pf=f;if(window.__trDom)try{window.__trDom(d.querySelector('#bqprog'))}catch(e){}d.scrollTo&&d.scrollTo(0,0)}
+function closeProg(){const b=d.querySelector('#bqprog');b&&b.remove();const form=d.querySelector('#bqf');form&&(form.style.display='');ST.pgText=''}
+d.addEventListener('change',e=>{const s=e.target.closest('[data-pgday]');if(!s||!PG)return;PG.items[+s.dataset.pgday].day=+s.value;const y=d.scrollTop;const b=d.querySelector('#bqprog');b.outerHTML=progHTML(ST.pc,ST.pf);d.scrollTop=y});
+d.addEventListener('click',e=>{if(e.target.closest('[data-pgedit]')){closeProg();return}if(e.target.closest('[data-pgok]')){ST.ok=true;const form=d.querySelector('#bqf');const b=d.querySelector('#bqprog');b&&b.remove();form.style.display='';form.requestSubmit?form.requestSubmit():form.dispatchEvent(new Event('submit',{cancelable:true}))}});
 function submit(ev){ev.preventDefault();const err=t=>{$('#bqerr').textContent=t;$('#bqerr').scrollIntoView({block:'center',behavior:'smooth'})};
 const f={nm:val('nm'),nat:val('nat'),w:val('w'),e:val('e'),loc:val('loc'),nt:val('nt'),other:val('other'),d1:val('d1'),d2:val('d2'),pay:val('pay')};
 const c=calc();
@@ -1463,6 +1502,8 @@ if(!f.nat){err('Indiquez votre nationalité.');return}
 if(!f.w&&!f.e){err('Laissez un numéro WhatsApp ou un e-mail pour que nous puissions vous répondre.');return}
 if(f.e&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.e)){err('Cet e-mail ne semble pas valide. Corrigez-le ou laissez seulement votre numéro.');return}
 $('#bqerr').textContent='';
+if(!ST.plan&&!ST.ok){showProg(f,c);return}
+ST.ok=false;
 const payL={q:'Devis d’abord',momo:'Mobile Money',card:'Carte bancaire',transfer:'Virement',agency:'Paiement à l’agence'}[f.pay];f.payL=payL;
 const ref0='AFA-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
 const label=ST.plan?('Séjour sur mesure · '+(ST.plan.days.length)+' jours'):(c.lines.length?c.lines[0].i.n+(c.lines.length>1?' (+'+(c.lines.length-1)+')':''):'Demande libre');
