@@ -281,7 +281,7 @@ function calc(){
    ========================================================== */
 function summary(){const{tot,devis}=calc();return'<div class="sum"><div><small style="color:var(--mute)">Estimation</small><div class="amt">'+(tot?money3(tot):'Sur devis')+'</div><small style="color:var(--mute)">'+(devis?devis+' élément(s) à confirmer':'')+'</small></div></div>'}
 
-function s1(){return head('Composer mon séjour','Étape 1 sur 3 · Vos dates et votre groupe')+'<div class="bd">'+
+function s1(){return head('Composer mon séjour','Étape 1 sur 4 · Vos dates et votre groupe')+'<div class="bd">'+
  '<label class="lbl">Date d’arrivée</label><input type="date" data-f="start" value="'+S.start+'"><span class="fmt">'+(S.start?fdt(S.start):'Choisissez une date')+'</span>'+
  '<label class="lbl">Ville de départ du séjour</label>'+zsel('data-f="startZone"',S.startZone)+
  '<label class="lbl">Nombre de jours</label><input type="number" min="1" max="30" data-f="days" value="'+S.days+'">'+
@@ -438,27 +438,26 @@ function dayHtml(i){
  '<button class="btn out sm" data-a="pOpen" data-kind="veh" data-i="'+i+'" style="margin-top:8px">+ Ajouter un transport</button>';
  return h+'</div></details>';
 }
-function s2(){ensure();let h=head('Composer mon séjour','Étape 2 sur 3 · Votre trajet jour par jour')+'<div class="bd">';
+function s2(){ensure();let h=head('Composer mon séjour','Étape 2 sur 4 · Votre trajet jour par jour')+'<div class="bd">';
  for(let i=0;i<S.days;i++)h+=dayHtml(i);
  h+='<button class="btn out sm" data-a="addday">+ Ajouter une journée</button>'+issuesHtml();
   h+='<p class="cat">Les durées et les prix des trajets sont confirmés par notre équipe avant votre départ. Montants indicatifs en $ et en € (1 € = 655,957 FCFA ; 1 $ ≈ 580 FCFA).</p>';
  return h+'</div>'+summary()+nav(1,3,'Continuer')}
-function s3(){return head('Composer mon séjour','Étape 3 sur 4 · Vos coordonnées')+'<div class="bd"><div class="row"><div><label class="lbl">Nom complet *</label><input data-txt="nm" value="'+esc(S.nm)+'"></div><div><label class="lbl">Nationalité *</label><input data-txt="nat" value="'+esc(S.nat)+'" placeholder="Bénin, France…"></div></div><div class="row"><div><label class="lbl">WhatsApp ou téléphone *</label><input data-txt="w" value="'+esc(S.w)+'" placeholder="+229…"></div><div><label class="lbl">E-mail *</label><input type="email" data-txt="e" value="'+esc(S.e)+'"></div></div></div>'+nav(2,4,'Continuer')}
-function s4(){const{tot,devis}=calc(),ne=errCount();let rows='';
+function s3p(){const{tot,devis}=calc(),ne=errCount();let rows='';
  for(let i=0;i<S.days;i++){rows+='<div class="ln"><span><b>Jour '+(i+1)+'</b> · '+dateOf(i)+'</span></div>'+dayRows(i).map(x=>'<div class="ln" style="padding-left:12px;color:var(--mute)"><span>'+x.text+'</span></div>').join('')}
  const top=ne?'<div class="blocking"><h3>Corrigez ces '+ne+' point(s) avant d’envoyer</h3>'+issues().filter(x=>x.lv==='err2').map(x=>'<div class="alert err2"><b>Jour '+x.d+'</b> · '+x.m+'</div>').join('')+'</div>':'';
- return head('Composer mon séjour','Étape 3 sur 3 · Votre programme proposé')+'<div class="bd">'+top+'<div class="box"><h3>'+S.days+' jour(s) · '+pax()+' personne(s)'+(S.start?' · arrivée le '+fdt(S.start):'')+'</h3>'+rows+'</div>'+
+ return head('Composer mon séjour','Étape 3 sur 4 · Votre programme proposé')+'<div class="bd">'+top+'<div class="box"><h3>'+S.days+' jour(s) · '+pax()+' personne(s)'+(S.start?' · arrivée le '+fdt(S.start):'')+'</h3>'+rows+'</div>'+
  '<div class="box"><h3>Inclus</h3><div class="ln"><span>✓ Circuits, guide et trajets organisés par AFA TOURS</span></div><h3 style="margin-top:10px">Non inclus</h3><div class="ln"><span>✕ Vols, visas, boissons, dépenses personnelles</span></div></div>'+
  '<div class="box" style="display:flex;justify-content:space-between;align-items:center"><b>Total estimé</b><b style="color:var(--red);font-size:1.05rem;text-align:right">'+(tot?money3(tot):'Sur devis')+'</b></div>'+(devis?'<p class="fmt">'+devis+' élément(s) à confirmer par notre équipe.</p>':'')+
- '<p class="lbl">Mode de paiement au choix</p><div class="pay">'+[['momo','Mobile Money','MTN, Moov ou Celtiis'],['card','Carte bancaire','Visa ou Mastercard'],['bank','Virement bancaire','Référence fournie après validation'],['agency','Payer à l’agence ou sur place','Espèces, à Porto-Novo']].map(p=>'<label><input type="radio" name="pay" data-f="pay" value="'+p[0]+'"'+(S.pay===p[0]?' checked':'')+'><span><b>'+p[1]+'</b><small>'+p[2]+'</small></span></label>').join('')+'</div></div>'+
- '<div class="nv"><button class="btn out" data-a="go" data-to="2">Retour</button><button class="btn red" data-a="send"'+(ne?' disabled':'')+'>'+(ne?'Corrigez d’abord':'Envoyer ma demande')+'</button></div>'}
-function done(){return '<div class="ok"><div class="ck">✓</div><h2 style="font:600 1.5rem Georgia,serif;margin:0">Demande enregistrée</h2><p class="note">Votre référence</p><div class="ref">'+S.ref+'</div><p class="note">Notre équipe vous répond sous 24 / 72 h max.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px"><button class="btn out">Voir mes réservations</button><button class="btn red">Envoyer aussi sur WhatsApp</button></div><div style="margin-top:10px"><button class="btn out" data-a="close">Fermer</button></div></div>'}
+ '</div>'+nav(2,4,'Continuer')}
+function s4c(){const{tot,devis}=calc(),ne=errCount();return head('Composer mon séjour','Étape 4 sur 4 · Vos coordonnées')+'<div class="bd">'+'<div class="row"><div><label class="lbl">Nom complet *</label><input data-txt="nm" value="'+esc(S.nm)+'"></div><div><label class="lbl">Nationalité *</label><input data-txt="nat" value="'+esc(S.nat)+'" placeholder="Bénin, France…"></div></div>'+'<div class="row"><div><label class="lbl">WhatsApp ou téléphone *</label><input data-txt="w" value="'+esc(S.w)+'" placeholder="+229…"></div><div><label class="lbl">E-mail *</label><input type="email" data-txt="e" value="'+esc(S.e)+'"></div></div>'+'<p class="lbl">Mode de paiement au choix</p><div class="pay">'+[['momo','Mobile Money','MTN, Moov ou Celtiis'],['card','Carte bancaire','Visa ou Mastercard'],['bank','Virement bancaire','Référence fournie après validation'],['agency','Payer à l’agence ou sur place','Espèces, à Porto-Novo']].map(p=>'<label><input type="radio" name="pay" data-f="pay" value="'+p[0]+'"'+(S.pay===p[0]?' checked':'')+'><span><b>'+p[1]+'</b><small>'+p[2]+'</small></span></label>').join('')+'</div></div>'+'<p class="err" id="err"></p><div class="nv"><button class="btn out" data-a="go" data-to="3">Retour</button><button class="btn red" data-a="send"'+(ne?' disabled':'')+'>Envoyer ma demande</button></div>'}
+function done(){const ok=S.okSent!==false;return '<div class="ok"><div class="ck">'+(ok?'✓':'!')+'</div><h2 style="font:600 1.5rem Georgia,serif;margin:0">'+(ok?'Demande enregistrée':'Une dernière étape')+'</h2>'+(ok?'<p class="note">Votre référence</p><div class="ref">'+S.ref+'</div><p class="note">Notre équipe vous répond sous 24 / 72 h max.</p>':'<p class="note">La connexion à notre serveur a échoué. Envoyez votre demande sur WhatsApp : elle sera traitée tout de suite.</p>')+'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px"><button class="btn out" data-a="mybk">Voir mes réservations</button>'+(S.waUrl?'<a class="btn red" href="'+S.waUrl+'" target="_blank" rel="noopener">'+(ok?'Envoyer aussi sur WhatsApp':'Envoyer sur WhatsApp')+'</a>':'')+'</div><div style="margin-top:10px"><button class="btn out" data-a="close">Fermer</button></div></div>'}
 function closed(){return '<div class="ok"><h2 style="font:600 1.4rem Georgia,serif;margin:0">Réservation fermée</h2><p class="note">La fenêtre de réservation est fermée. Sur le site, elle se ferme et la page reste en place.</p><div style="margin-top:14px"><button class="btn out" data-a="reopen">Rouvrir (démonstration)</button></div></div>'}
 function render(){
  if(!READY){app().innerHTML=head('Composer mon séjour','Chargement des circuits et des partenaires…')+'<div class="bd"><p class="note">Un instant.</p></div>';return}
  if(S.closed){app().innerHTML=closed();return}
  if(S.done){app().innerHTML=done();return}
- ensure();app().innerHTML=[s1,s2,s4][S.step-1]()}
+ ensure();app().innerHTML=[s1,s2,s3p,s4c][S.step-1]()}
 /* Fermer : ferme la fenêtre de réservation (évènement pour le site, message à la page parente) */
 function closeBooking(){S.panel=null;try{parent.postMessage({type:'afa-close'},'*')}catch(e){}}
 
@@ -469,7 +468,7 @@ app().addEventListener('click',e=>{
  const t=e.target.closest('[data-a]');if(!t||t.disabled)return;
  const a=t.dataset.a,i=+t.dataset.i,k=+t.dataset.k,v=+t.dataset.v;
  if(a==='go'){const to=+t.dataset.to;
-  if(to===3&&S.step===2){const n=errCount();if(n){document.getElementById('err').textContent=n+' erreur(s) à corriger ci-dessous avant de continuer.';return}}
+  if((to===3&&S.step===2)||(to===4&&S.step===3)){const n=errCount();if(n){document.getElementById('err').textContent=n+' erreur(s) à corriger ci-dessous avant de continuer.';return}}
   S.step=to;render();return}
  if(a==='open'){S.open=i;return}
  if(a==='addday'){S.days++;ensure();S.open=S.days-1;render();return}
@@ -480,7 +479,8 @@ app().addEventListener('click',e=>{
  if(a==='rmstop'){S.D[i].stops.splice(k,1);if(S.panel&&S.panel.i===i&&S.panel.k===k)S.panel=null;render();return}
  if(a==='nightClear'){S.D[i].night={mode:'none',hotel:'',zone:'',own:{name:'',addr:''},roomType:0,rooms:1,beds:1,twin:false,bf:false};render();return}
  if(a==='delveh'){S.D[i].veh.splice(v,1);render();return}
- if(a==='send'){if(errCount())return;try{parent.postMessage({type:'afa-plan',plan:buildPlan(),pax:pax()},'*')}catch(e){}return}
+ if(a==='send'){if(errCount())return;if(!S.nm||!S.nat||(S.w||'').trim().length<3||(S.e||'').trim().length<3){document.getElementById('err').textContent='Renseignez votre nom, votre nationalité, votre WhatsApp et votre e-mail.';return}t.disabled=true;t.textContent='Envoi…';try{parent.postMessage({type:'afa-plan',plan:buildPlan(),pax:pax(),contact:{nm:S.nm,nat:S.nat,w:S.w,e:S.e,nt:S.dietNote,pay:S.pay}},'*')}catch(err){}return}
+ if(a==='mybk'){try{parent.postMessage({type:'afa-mybk'},'*')}catch(err){}return}
  if(a==='close'){closeBooking();return}
  if(a==='reopen'){S.closed=false;S.done=false;S.step=1;S.panel=null;render();return}
 });
@@ -547,7 +547,7 @@ function buildPlan(){
  return{days:days,total:tot,est:tot,quote:!tot||devis>0,text:txt};
 }
 window.addEventListener('message',e=>{
- const m=e.data;if(!m||m.type!=='afa-data')return;
+ const m=e.data;if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}if(!m||m.type!=='afa-data')return;
  ZONES=m.zones||[];CIRC=m.circuits||[];HOT=m.hotels||[];RES=m.restos||[];VEH=m.veh||[];
  if(!ZONES.includes(S.startZone))S.startZone=ZONES[0]||'';
  READY=true;render();
