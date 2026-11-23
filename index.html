@@ -778,6 +778,13 @@ label,option,summary,.chk,.cft small,.price small,.grp,.fx{font-size:1.125rem!im
 .hd small{font-size:.7rem!important}
 .hd button{font-size:.9rem!important}
 .ann small{font-size:.75rem!important}
+/* Titres plus grands : titres de section sur téléphone, sous-titres de cartes et d'encadrés. Mise en page inchangée. */
+@media(max-width:700px){
+section[id]>.wrap>.h2,#circuits .h2{font-size:clamp(1.9rem,8vw,2.3rem)!important;line-height:1.1!important}
+}
+.sec h3,.sec .ct h3,#grid h3{font-size:1.5rem!important;line-height:1.2!important}
+#circuits .h2{font-weight:650!important}
+@media(max-width:700px){section[id] .h2{font-size:clamp(1.9rem,8vw,2.3rem)!important}}
 </style></head><body class="p3">
 <div class="ann"><div class="wrap"><span data-i="ann"></span><a href="#agenda" data-i="annl"></a></div></div>
 <header class="hd"><div class="wrap"><a class="brand" href="#top" aria-label="AFA Tours"><img src="afa-tours-logo.jpg" alt="" width="50" height="50"><span><b>AFA TOURS</b><small>Afrique Authentique Innovant</small></span></a>
