@@ -695,6 +695,8 @@ img{user-select:none;-webkit-user-select:none}
 html:not([data-pg="2"]):not([data-pg="3"]):not([data-pg="4"]) .dock,
 html:not([data-pg="2"]):not([data-pg="3"]):not([data-pg="4"]) .trust{display:none!important}
 html:not([data-pg="2"]):not([data-pg="3"]):not([data-pg="4"]) .hero{min-height:auto;padding-bottom:64px}
+/* Barre des circuits : on retire « Prix affiché », le menu de tri et « Carte ». La recherche et les thèmes restent. */
+label.chip.box:has(#priced),#sort,#mapb{display:none!important}
 </style></head><body class="p3">
 <div class="ann"><div class="wrap"><span data-i="ann"></span><a href="#agenda" data-i="annl"></a></div></div>
 <header class="hd"><div class="wrap"><a class="brand" href="#top" aria-label="AFA Tours"><img src="afa-tours-logo.jpg" alt="" width="50" height="50"><span><b>AFA TOURS</b><small>Afrique Authentique Innovant</small></span></a>
