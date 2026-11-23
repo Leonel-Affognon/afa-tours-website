@@ -78,7 +78,7 @@ const fxOf=(n,c)=>RATES[c]?Math.ceil(n/655.957*RATES[c]*MRG):null;
 const money3=n=>{const parts=[money(n)];const u=fxOf(n,'USD'),e=fxOf(n,'EUR');if(u!==null)parts.push('≈ '+u.toLocaleString('fr-FR')+' $');if(e!==null)parts.push('≈ '+e.toLocaleString('fr-FR')+' €');return parts.join(' · ')};
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const cOf=id=>CIRC.find(c=>c.id===id);
-const priceTxt=c=>!c.p?'Tarif sur demande':money3(c.p)+(c.unit==='groupe'?' / groupe':' / pers.')+(c.from?' (à partir de)':'');
+const priceTxt=c=>!c.p?'Sur devis':money3(c.p)+(c.unit==='groupe'?' / groupe':' / pers.')+(c.from?' (à partir de)':'');
 const head=(t,s)=>'<div class="hd"><h1>'+t+'</h1><p>'+s+'</p><button class="x" data-a="close" aria-label="Fermer">×</button></div>';
 const nav=(back,next,label)=>'<p class="err" id="err"></p><div class="nv">'+(back?'<button class="btn out" data-a="go" data-to="'+back+'">Retour</button>':'<span></span>')+'<button class="btn red" data-a="go" data-to="'+next+'">'+label+'</button></div>';
 const OPTS=[['resto','Restauration','Repas proposés avec votre circuit'],['transport','Transport','Véhicule avec chauffeur'],['heb','Hébergement','Nuits à organiser avec AFA TOURS']];
