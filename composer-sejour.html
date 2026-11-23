@@ -81,7 +81,7 @@ const SLOTS={'Petit-déjeuner':{t:'07:30',h:0.5,once:true},'Déjeuner':{t:'12:30
 /* ==========================================================
    ÉTAT
    ========================================================== */
-const S={step:1,circs:[],opt:{resto:false,transport:false,heb:false},startZone:'Porto-Novo',start:'',days:3,adults:2,kids:0,diet:[],dietNote:'',open:0,
+const S={step:1,startZone:'Porto-Novo',start:'',days:3,adults:2,kids:0,diet:[],dietNote:'',open:0,
  nm:'',nat:'',w:'',e:'',pay:'momo',done:false,closed:false,ref:'AFA-DEMO',D:[],panel:null};
 /* Une journée : des étapes (circuits, autres destinations, repas) et UNE nuit */
 const newDay=()=>({t0:'08:00',stops:[],veh:[],
@@ -230,7 +230,7 @@ function issuesHtml(){
   (w.length?'<p class="stat">À vérifier</p>'+w.map(line).join(''):'')+
   (n.length?'<p class="stat">Informations</p>'+n.map(line).join(''):'');
 }
-function errCount(){return 0}
+function errCount(){return issues().filter(x=>x.lv==='err2').length}
 
 /* ==========================================================
    LIBELLÉS
@@ -260,8 +260,19 @@ function dayRows(i){
 }
 function calc(){
  let tot=0,devis=0;
- S.circs.forEach(id=>{const c=cOf(id);if(!c)return;if(!c.p){devis++;return}tot+=c.unit==='groupe'?c.p:c.p*S.adults});
- devis+=[S.opt.resto,S.opt.transport,S.opt.heb].filter(Boolean).length;
+ for(let i=0;i<S.days;i++){
+  const d=S.D[i];
+  d.stops.forEach(s=>{
+   if(s.kind==='circ'){const c=cOf(s.ref);tot+=c.unit==='groupe'?c.p:c.p*S.adults;return}
+   if(s.kind==='custom'){devis++;return}
+   const r=rOf(s.ref);
+   if(s.mode==='partner'&&r&&r.p)tot+=r.p*pax();else devis++;
+  });
+  const n=d.night;
+  if(n.mode!=='none'){const h=n.mode==='partner'?hOf(n.hotel):null;if(h&&h.p)tot+=h.p*(n.rooms||1);else devis++}
+  route(i).seq.forEach(x=>{if(x.k==='tr')tot+=x.price});
+  d.veh.forEach(v=>{const x=VEH.find(z=>z.id===v.v);if(x){if(x.p)tot+=x.p*(v.days||1);else devis++}});
+ }
  return{tot,devis};
 }
 
@@ -427,18 +438,16 @@ function dayHtml(i){
  '<button class="btn out sm" data-a="pOpen" data-kind="veh" data-i="'+i+'" style="margin-top:8px">+ Ajouter un transport</button>';
  return h+'</div></details>';
 }
-function s2(){let h=head('Composer mon séjour','Étape 2 sur 4 · Vos circuits et options')+'<div class="bd">';
- h+='<p class="sub">Circuits (un ou plusieurs)</p>';
- h+=CIRC.map(c=>'<label class="opt'+(S.circs.includes(c.id)?' on':'')+'"><input type="checkbox" data-k="circ" value="'+c.id+'"'+(S.circs.includes(c.id)?' checked':'')+'><span class="t"><b>'+esc(c.n)+'</b><small>'+priceTxt(c)+'</small></span></label>').join('')||'<p class="fmt">Chargement des circuits…</p>';
- h+='<p class="sub">Options facultatives</p>';
- h+=[['resto','Restauration','Repas proposés avec votre circuit'],['transport','Transport','Véhicule avec chauffeur'],['heb','Hébergement','Nuits à organiser avec AFA TOURS']].map(o=>'<label class="opt'+(S.opt[o[0]]?' on':'')+'"><input type="checkbox" data-k="opt" value="'+o[0]+'"'+(S.opt[o[0]]?' checked':'')+'><span class="t"><b>'+o[1]+'</b><small>'+o[2]+'</small></span></label>').join('');
- h+='<p class="cat">Les options sont facultatives. Leur prix est confirmé par notre équipe avant votre départ.</p>';
+function s2(){ensure();let h=head('Composer mon séjour','Étape 2 sur 4 · Votre trajet jour par jour')+'<div class="bd">';
+ for(let i=0;i<S.days;i++)h+=dayHtml(i);
+ h+='<button class="btn out sm" data-a="addday">+ Ajouter une journée</button>'+issuesHtml();
+  h+='<p class="cat">Les durées et les prix des trajets sont confirmés par notre équipe avant votre départ. Montants indicatifs en $ et en € (1 € = 655,957 FCFA ; 1 $ ≈ 580 FCFA).</p>';
  return h+'</div>'+summary()+nav(1,3,'Continuer')}
-function s3p(){const{tot,devis}=calc();
- const L=S.circs.map(id=>cOf(id)).filter(Boolean).map(c=>'<div class="ln"><span>'+esc(c.n)+'</span><span>'+priceTxt(c)+'</span></div>').join('');
- const O=[['resto','Restauration'],['transport','Transport'],['heb','Hébergement']].filter(o=>S.opt[o[0]]).map(o=>'<div class="ln"><span>+ '+o[1]+' (à confirmer)</span></div>').join('');
- return head('Composer mon séjour','Étape 3 sur 4 · Votre programme proposé')+'<div class="bd"><div class="box"><h3>'+S.circs.length+' circuit(s) · '+pax()+' personne(s)'+(S.start?' · arrivée le '+fdt(S.start):'')+'</h3>'+L+(O?'<h3 style="margin-top:10px">Options</h3>'+O:'')+'</div>'+
- '<div class="box"><h3>Inclus</h3><div class="ln"><span>✓ Circuits, guide et organisation par AFA TOURS</span></div><h3 style="margin-top:10px">Non inclus</h3><div class="ln"><span>✕ Vols, visas, boissons, dépenses personnelles</span></div></div>'+
+function s3p(){const{tot,devis}=calc(),ne=errCount();let rows='';
+ for(let i=0;i<S.days;i++){rows+='<div class="ln"><span><b>Jour '+(i+1)+'</b> · '+dateOf(i)+'</span></div>'+dayRows(i).map(x=>'<div class="ln" style="padding-left:12px;color:var(--mute)"><span>'+x.text+'</span></div>').join('')}
+ const top=ne?'<div class="blocking"><h3>Corrigez ces '+ne+' point(s) avant d’envoyer</h3>'+issues().filter(x=>x.lv==='err2').map(x=>'<div class="alert err2"><b>Jour '+x.d+'</b> · '+x.m+'</div>').join('')+'</div>':'';
+ return head('Composer mon séjour','Étape 3 sur 4 · Votre programme proposé')+'<div class="bd">'+top+'<div class="box"><h3>'+S.days+' jour(s) · '+pax()+' personne(s)'+(S.start?' · arrivée le '+fdt(S.start):'')+'</h3>'+rows+'</div>'+
+ '<div class="box"><h3>Inclus</h3><div class="ln"><span>✓ Circuits, guide et trajets organisés par AFA TOURS</span></div><h3 style="margin-top:10px">Non inclus</h3><div class="ln"><span>✕ Vols, visas, boissons, dépenses personnelles</span></div></div>'+
  '<div class="box" style="display:flex;justify-content:space-between;align-items:center"><b>Total estimé</b><b style="color:var(--red);font-size:1.05rem;text-align:right">'+(tot?money3(tot):'Sur devis')+'</b></div>'+(devis?'<p class="fmt">'+devis+' élément(s) à confirmer par notre équipe.</p>':'')+
  '</div>'+nav(2,4,'Continuer')}
 function s4c(){const{tot,devis}=calc(),ne=errCount();return head('Composer mon séjour','Étape 4 sur 4 · Vos coordonnées')+'<div class="bd">'+'<div class="row"><div><label class="lbl">Nom complet *</label><input data-txt="nm" value="'+esc(S.nm)+'"></div><div><label class="lbl">Nationalité *</label><input data-txt="nat" value="'+esc(S.nat)+'" placeholder="Bénin, France…"></div></div>'+'<div class="row"><div><label class="lbl">WhatsApp ou téléphone *</label><input data-txt="w" value="'+esc(S.w)+'" placeholder="+229…"></div><div><label class="lbl">E-mail *</label><input type="email" data-txt="e" value="'+esc(S.e)+'"></div></div>'+'<p class="lbl">Mode de paiement au choix</p><div class="pay">'+[['momo','Mobile Money','MTN, Moov ou Celtiis'],['card','Carte bancaire','Visa ou Mastercard'],['bank','Virement bancaire','Référence fournie après validation'],['agency','Payer à l’agence ou sur place','Espèces, à Porto-Novo']].map(p=>'<label><input type="radio" name="pay" data-f="pay" value="'+p[0]+'"'+(S.pay===p[0]?' checked':'')+'><span><b>'+p[1]+'</b><small>'+p[2]+'</small></span></label>').join('')+'</div></div>'+'<p class="err" id="err"></p><div class="nv"><button class="btn out" data-a="go" data-to="3">Retour</button><button class="btn red" data-a="send"'+(ne?' disabled':'')+'>Envoyer ma demande</button></div>'}
@@ -459,7 +468,6 @@ app().addEventListener('click',e=>{
  const t=e.target.closest('[data-a]');if(!t||t.disabled)return;
  const a=t.dataset.a,i=+t.dataset.i,k=+t.dataset.k,v=+t.dataset.v;
  if(a==='go'){const to=+t.dataset.to;
-  if(to===3&&S.step===2&&!S.circs.length){document.getElementById('err').textContent='Choisissez au moins un circuit.';return}
   if((to===3&&S.step===2)||(to===4&&S.step===3)){const n=errCount();if(n){document.getElementById('err').textContent=n+' erreur(s) à corriger ci-dessous avant de continuer.';return}}
   S.step=to;render();return}
  if(a==='open'){S.open=i;return}
@@ -513,8 +521,6 @@ app().addEventListener('change',e=>{
  const f=t.dataset.f,kk=t.dataset.k;
  if(t.dataset.txt||t.dataset.pt||(!f&&!kk))return;
  const i=+t.dataset.i,k=+t.dataset.k;
- if(t.type==='checkbox'&&kk==='circ'){const x=t.value;S.circs=t.checked?S.circs.concat([x]):S.circs.filter(y=>y!==x);render();return}
- if(t.type==='checkbox'&&kk==='opt'){S.opt[t.value]=t.checked;render();return}
  if(t.type==='checkbox'&&kk==='diet'){const x=t.value;S.diet=t.checked?S.diet.concat([x]):S.diet.filter(y=>y!==x);render();return}
  if(f==='pay'){S.pay=t.value;return}
  const D=S.D[i];
@@ -530,14 +536,15 @@ app().addEventListener('change',e=>{
 });
 
 function buildPlan(){
- const{tot,devis}=calc();
- const circs=S.circs.map(cOf).filter(Boolean),opts=[['resto','Restauration'],['transport','Transport'],['heb','Hébergement']].filter(o=>S.opt[o[0]]).map(o=>o[1]);
- const diet=[...S.diet,S.dietNote].filter(Boolean);
- let txt='*SÉJOUR SUR MESURE — '+circs.length+' circuit(s)*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Voyageurs : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+(diet.length?' · Régime : '+diet.join(', '):'')+'_\n\n';
- txt+='*Circuits*\n'+circs.map(c=>'• '+c.n+' — '+priceTxt(c)).join('\n')+'\n\n';
- if(opts.length)txt+='*Options (à confirmer)*\n'+opts.map(o=>'• '+o).join('\n')+'\n\n';
+ const{tot,devis}=calc(),days=[];
+ let txt='*SÉJOUR SUR MESURE — '+S.days+' jour'+(S.days>1?'s':'')+'*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Voyageurs : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+([...S.diet,S.dietNote].filter(Boolean).length?' · Régime : '+[...S.diet,S.dietNote].filter(Boolean).join(', '):'')+'_\n\n';
+ for(let i=0;i<S.days;i++){
+  const rows=dayRows(i);
+  days.push({i:i+1,date:dateOf(i),rows:rows.map(r=>r.text)});
+  txt+='*Jour '+(i+1)+(S.start?' ('+dateOf(i)+')':'')+'*\n'+rows.map(r=>'• '+r.text).join('\n')+'\n\n';
+ }
  txt+=tot?'*Estimation : '+money3(tot)+'*'+(devis?' _(hors '+devis+' élément(s) à confirmer)_':''):'*Prix à établir sur devis*';
- return{days:[],circuits:circs.map(c=>c.id),options:opts,total:tot,est:tot,quote:!tot||devis>0,text:txt};
+ return{days:days,total:tot,est:tot,quote:!tot||devis>0,text:txt};
 }
 window.addEventListener('message',e=>{
  const m=e.data;if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}if(!m||m.type!=='afa-data')return;
