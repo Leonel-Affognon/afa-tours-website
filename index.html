@@ -1412,8 +1412,9 @@ function plData(){
  const A=W.ALLP(),T=window.TRIPS||[];
  const circuits=T.map(t=>({id:t.id,n:t.title,img:t.img||'',cat:t.category||'',dest:t.destination,z:ZID[t.id]||t.destination,dur:t.duration||'',h:hnum(t.duration),p:+t.priceValue||0,unit:t.pg?'groupe':'pers',from:!!t.priceFrom}));
  const pl=x=>({id:x.id,n:x.n,z:x.v||'Porto-Novo',p:+x.p||0});
- const hotels=A.filter(x=>x.k==='hotel'||x.k==='heb').map(pl);
- const restos=A.filter(x=>x.k==='resto').map(pl);
+ const DB=window.__dbP||[];
+ const hotels=DB.filter(x=>x.k==='hotel'||x.k==='heb').map(pl);
+ const restos=DB.filter(x=>x.k==='resto').map(pl);
  const veh=(W.TR||[]).map(x=>({id:x.id,n:x.n,p:0})).concat(A.filter(x=>x.k==='trans').map(x=>({id:x.id,n:x.n,p:+x.p||0})));
  const zones=['Porto-Novo'];
  circuits.concat(hotels,restos).forEach(x=>{if(x.z&&!zones.includes(x.z))zones.push(x.z)});

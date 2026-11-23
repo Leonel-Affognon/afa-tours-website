@@ -66,7 +66,8 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;flex:none;margin:0
    Reçoit les circuits du site (afa-data), renvoie la demande (afa-plan). */
 let CIRC=[],READY=false;
 const S={step:1,start:'',adults:2,kids:0,circs:[],opt:{resto:false,transport:false,heb:false},diet:[],dietNote:'',
- nm:'',nat:'',w:'',e:'',pay:'momo',done:false,closed:false,ref:'',okSent:true,waUrl:''};
+ nm:'',nat:'',w:'',e:'',pay:'momo',done:false,closed:false,ref:'',okSent:true,waUrl:'',pick:{resto:'',transport:'',heb:''}};
+let PARTNERS={restos:[],hotels:[],veh:[]};
 const app=()=>document.getElementById('app');
 const pax=()=>S.adults+S.kids;
 const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
@@ -93,6 +94,19 @@ function s1(){return head('Réserver un circuit','Étape 1 sur 4 · Dates et voy
  '<label class="lbl">Date d’arrivée</label><input type="date" data-f="start" value="'+S.start+'"><span class="fmt">'+(S.start?fdt(S.start):'Choisissez une date')+'</span>'+
  '<div class="row"><div><label class="lbl">Adultes</label><input type="number" min="1" data-f="adults" value="'+S.adults+'"></div><div><label class="lbl">Enfants</label><input type="number" min="0" data-f="kids" value="'+S.kids+'"></div></div>'+
  '</div>'+nav(0,2,'Continuer')}
+const PKIND={resto:'restos',heb:'hotels',transport:'veh'};
+function pFind(key,id){return (PARTNERS[PKIND[key]]||[]).find(p=>p.id===id)}
+function subOpt(key,label){
+ const cities=[...new Set(S.circs.map(cOf).filter(Boolean).map(c=>c.z).filter(Boolean))];
+ const all=PARTNERS[PKIND[key]]||[];
+ const list=cities.length?all.filter(p=>cities.includes(p.z)):all;
+ const where=cities.length?' à '+cities.join(', '):'';
+ let h='<div class="sub-opt"><p class="lbl">'+label+where+'</p>';
+ if(!list.length)h+='<p class="fmt">Aucun partenaire publié'+where+' pour le moment.</p>';
+ h+=list.map(p=>'<label class="opt"><span class="t"><b>'+esc(p.n)+'</b><small>'+esc(p.z)+' · '+(p.p?money(p.p)+(key==='resto'?' / pers.':''):'Sur devis')+'</small></span><input type="radio" name="pk-'+key+'" data-k="pick" data-p="'+key+'" value="'+esc(p.id)+'"'+(S.pick[key]===p.id?' checked':'')+'></label>').join('');
+ h+='<label class="opt"><span class="t"><b>À proposer par AFA TOURS</b><small>Nous vous recommandons une option</small></span><input type="radio" name="pk-'+key+'" data-k="pick" data-p="'+key+'" value="afa"'+(S.pick[key]==='afa'?' checked':'')+'></label></div>';
+ return h;
+}
 function s2(){let h=head('Réserver un circuit','Étape 2 sur 4 · Vos circuits et options')+'<div class="bd">';
  h+='<p class="sub">Circuits (un ou plusieurs)</p>';
  const cardC=c=>'<label class="opt card'+(S.circs.includes(c.id)?' on':'')+'"><span class="cimg">'+(c.img?'<img src="'+esc(c.img)+'" alt="" loading="lazy">':'Photo à venir')+'</span><span class="t"><b>'+esc(c.n)+'</b><small>'+priceTxt(c)+'</small></span><input type="checkbox" data-k="circ" value="'+c.id+'"'+(S.circs.includes(c.id)?' checked':'')+'></label>';
@@ -101,12 +115,15 @@ function s2(){let h=head('Réserver un circuit','Étape 2 sur 4 · Vos circuits 
  if(!CIRC.length)h+='<p class="fmt">Chargement des circuits…</p>';
  Object.keys(groups).forEach(k=>{h+='<p class="sub">'+esc(k)+'</p>'+groups[k].map(cardC).join('')});
  h+='<p class="sub">Options facultatives</p>';
- h+=OPTS.map(o=>'<label class="opt'+(S.opt[o[0]]?' on':'')+'"><input type="checkbox" data-k="opt" value="'+o[0]+'"'+(S.opt[o[0]]?' checked':'')+'><span class="t"><b>'+o[1]+'</b><small>'+o[2]+'</small></span></label>').join('');
+ [['resto','Restauration','Repas proposés avec votre circuit','Choisissez un restaurant'],['transport','Transport','Véhicule avec chauffeur','Choisissez un véhicule'],['heb','Hébergement','Nuits à organiser avec AFA TOURS','Choisissez un hébergement']].forEach(o=>{
+  h+='<label class="opt'+(S.opt[o[0]]?' on':'')+'"><input type="checkbox" data-k="opt" value="'+o[0]+'"'+(S.opt[o[0]]?' checked':'')+'><span class="t"><b>'+o[1]+'</b><small>'+o[2]+'</small></span></label>';
+  if(S.opt[o[0]])h+=subOpt(o[0],o[3]);
+ });
  h+='<p class="cat">Les options sont facultatives. Leur prix est confirmé par notre équipe avant votre départ.</p>';
  return h+'</div>'+summary()+nav(1,3,'Continuer')}
 function s3(){const{tot,devis}=calc();
  const L=S.circs.map(cOf).filter(Boolean).map(c=>'<div class="ln"><span>'+esc(c.n)+'</span><span>'+priceTxt(c)+'</span></div>').join('');
- const O=OPTS.filter(o=>S.opt[o[0]]).map(o=>'<div class="ln"><span>+ '+o[1]+' (à confirmer)</span></div>').join('');
+ const O=OPTS.filter(o=>S.opt[o[0]]).map(o=>{const v=S.pick[o[0]];const nm=v==='afa'?'À proposer par AFA TOURS':(pFind(o[0],v)||{}).n||'Choix à faire';return '<div class="ln"><span>+ '+o[1]+' : '+esc(nm)+' (à confirmer)</span></div>'}).join('');
  return head('Réserver un circuit','Étape 3 sur 4 · Récapitulatif')+'<div class="bd"><div class="box"><h3>'+S.circs.length+' circuit(s) · '+pax()+' personne(s)'+(S.start?' · arrivée le '+fdt(S.start):'')+'</h3>'+L+(O?'<h3 style="margin-top:10px">Options</h3>'+O:'')+'</div>'+
  '<div class="box"><h3>Inclus</h3><div class="ln"><span>✓ Circuits, guide et organisation par AFA TOURS</span></div><h3 style="margin-top:10px">Non inclus</h3><div class="ln"><span>✕ Vols, visas, boissons, dépenses personnelles</span></div></div>'+
  '<div class="box" style="display:flex;justify-content:space-between;align-items:center"><b>Total estimé</b><b style="color:var(--red);font-size:1.05rem;text-align:right">'+(tot?money3(tot):'Sur devis')+'</b></div>'+(devis?'<p class="fmt">'+devis+' élément(s) à confirmer par notre équipe.</p>':'')+
@@ -124,7 +141,7 @@ function render(){
  app().innerHTML=[s1,s2,s3,s4][S.step-1]()}
 function buildPlan(){
  const{tot,devis}=calc();
- const circs=S.circs.map(cOf).filter(Boolean),opts=OPTS.filter(o=>S.opt[o[0]]).map(o=>o[1]);
+ const circs=S.circs.map(cOf).filter(Boolean),opts=OPTS.filter(o=>S.opt[o[0]]).map(o=>{const v=S.pick[o[0]];return o[1]+' : '+(v==='afa'?'à proposer par AFA TOURS':((pFind(o[0],v)||{}).n||'à choisir'))});
  const diet=[...S.diet,S.dietNote].filter(Boolean);
  let txt='*RÉSERVATION CIRCUIT — '+circs.length+' circuit(s)*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Voyageurs : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+(diet.length?' · Régime : '+diet.join(', '):'')+'_\n\n';
  txt+='*Circuits*\n'+circs.map(c=>'• '+c.n+' — '+priceTxt(c)).join('\n')+'\n\n';
@@ -160,7 +177,8 @@ app().addEventListener('change',e=>{
  const t=e.target,kk=t.dataset.k,f=t.dataset.f;
  if(t.dataset.txt)return;
  if(t.type==='checkbox'&&kk==='circ'){const x=t.value;S.circs=t.checked?S.circs.concat([x]):S.circs.filter(y=>y!==x);render();return}
- if(t.type==='checkbox'&&kk==='opt'){S.opt[t.value]=t.checked;render();return}
+ if(t.type==='checkbox'&&kk==='opt'){S.opt[t.value]=t.checked;if(!t.checked)S.pick[t.value]='';render();return}
+ if(t.type==='radio'&&kk==='pick'){S.pick[t.dataset.p]=t.value;render();return}
  if(f==='pay'){S.pay=t.value;return}
  if(f==='start'){S.start=t.value;render();return}
  if(f==='adults'){S.adults=Math.max(1,+t.value||1);render();return}
@@ -171,7 +189,7 @@ window.addEventListener('message',e=>{
  if(m&&m.type==='afa-preset'){PRESET=m.id;if(CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null;render()}return}
  if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}
  if(!m||m.type!=='afa-data')return;
- CIRC=m.circuits||[];if(m.rates){RATES=m.rates;MRG=m.margin||MRG}if(PRESET&&CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null}READY=true;render();
+ CIRC=m.circuits||[];PARTNERS={restos:m.restos||[],hotels:m.hotels||[],veh:m.veh||[]};if(m.rates){RATES=m.rates;MRG=m.margin||MRG}if(PRESET&&CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null}READY=true;render();
 });
 render();
 </script>
