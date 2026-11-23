@@ -195,7 +195,7 @@ sc();setInterval(sc,1500);
 
 /* chargement fiable des photos : certains navigateurs mobiles n'amorcent pas le chargement différé après changement de page */
 (function(){
-function kick(){var vh=innerHeight;document.querySelectorAll('#gal img,#grid img,.bc img,.rv img').forEach(function(i){if(i.complete&&i.naturalWidth)return;var p=i.closest('button,div,article,figure')||i;var r=p.getBoundingClientRect();if(r.height===0&&r.width===0)return;if(r.top<vh*3&&r.bottom>-vh*2){if(i.loading!=='eager'){i.loading='eager';var s=i.getAttribute('src');if(s){i.removeAttribute('src');i.setAttribute('src',s)}}}})}
+function kick(){var vh=innerHeight;document.querySelectorAll('#gal img,#grid img,.bc img,.rv img').forEach(function(i){if(i.complete&&i.naturalWidth)return;var p=i.closest('button,div,article,figure')||i;var r=p.getBoundingClientRect();if(r.height===0&&r.width===0)return;if(r.top<vh*3&&r.bottom>-vh*2){if(i.loading!=='eager'){i.loading='eager'}}})}
 addEventListener('scroll',kick,{passive:true});addEventListener('hashchange',function(){setTimeout(kick,200);setTimeout(kick,900)});setInterval(kick,1200);setTimeout(kick,300);
 })();
 `;
