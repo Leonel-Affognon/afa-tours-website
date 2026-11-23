@@ -54,8 +54,9 @@ async function media(content,supabase){
  // légende
  content.querySelectorAll("[data-cap]").forEach(i=>i.onchange=async()=>{const {error}=await supabase.from("public_media").update({caption:i.value.trim(),display_name:i.value.trim()||"Photo"}).eq("id",i.dataset.cap);toast(error?error.message:"Légende enregistrée",!!error)});
  // supprimer une photo
+ const rejectSources=async(rows)=>{const ids=rows.map(r=>r.source_submission_id).filter(Boolean);if(!ids.length)return;const {error}=await supabase.from("media_submissions").update({status:"rejected"}).in("id",ids);if(error)throw error};
  const rmFiles=async(rows)=>{const ps=rows.map(r=>pubPath(r.public_url)).filter(Boolean);if(ps.length)await supabase.storage.from(BUCKET).remove(ps)};
- content.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Supprimer cette photo ou vidéo ?"))return;const r=items.find(x=>x.id===b.dataset.del);const {error}=await supabase.from("public_media").delete().eq("id",r.id);if(error){toast(error.message,1);return}await rmFiles([r]);toast("Supprimé");media(content,supabase)});
+ content.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Supprimer cette photo ou vidéo ?"))return;const r=items.find(x=>x.id===b.dataset.del);const {error}=await supabase.from("public_media").delete().eq("id",r.id);if(error){toast(error.message,1);return}try{await rejectSources([r])}catch(e){toast(e.message,1);return}await rmFiles([r]);toast("Supprimé");media(content,supabase)});
  // ordre
  content.querySelectorAll("[data-mv]").forEach(b=>b.onclick=async()=>{const [d,id]=b.dataset.mv.split(":"),it=items.find(x=>x.id===id),alb=(it.album||"Autres"),list=by[alb],k=list.findIndex(x=>x.id===id),j=k+(+d);if(j<0||j>=list.length)return;const ord=list.map(x=>x.id);[ord[k],ord[j]]=[ord[j],ord[k]];const res=await Promise.all(ord.map((x,n)=>supabase.from("public_media").update({sort:n}).eq("id",x)));const er=res.find(r=>r.error);if(er){toast(er.error.message,1);return}media(content,supabase)});
  // renommer album
@@ -65,5 +66,5 @@ async function media(content,supabase){
  content.addEventListener("change",e=>{if(e.target.matches("[data-pick]"))upd()});
  const picked=()=>[...content.querySelectorAll("[data-pick]:checked")].map(c=>c.dataset.pick);
  $("#am-mv").onclick=async()=>{const ids=picked(),a=$("#am-mvs").value;const {error}=await supabase.from("public_media").update({album:a}).in("id",ids);if(error){toast(error.message,1);return}toast(ids.length+" déplacé"+(ids.length>1?"s":"")+" vers « "+a+" »");media(content,supabase)};
- $("#am-bd").onclick=async()=>{const ids=picked();if(!confirm("Supprimer "+ids.length+" élément(s) ?"))return;const rows=items.filter(x=>ids.includes(x.id));const {error}=await supabase.from("public_media").delete().in("id",ids);if(error){toast(error.message,1);return}await rmFiles(rows);toast("Supprimé");media(content,supabase)};
+ $("#am-bd").onclick=async()=>{const ids=picked();if(!confirm("Supprimer "+ids.length+" élément(s) ?"))return;const rows=items.filter(x=>ids.includes(x.id));const {error}=await supabase.from("public_media").delete().in("id",ids);if(error){toast(error.message,1);return}try{await rejectSources(rows)}catch(e){toast(e.message,1);return}await rmFiles(rows);toast("Supprimé");media(content,supabase)};
 }

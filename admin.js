@@ -1,3 +1,4 @@
+import "./admin-guard.js";
 import { supabase } from "./backend.js";
 import { renderContentManager } from "./admin-content.js";
 import { renderSiteManager, renderPartners, renderStats, reminderLink, renderTeamAdmin, keep, toast } from "./admin-site.js";
