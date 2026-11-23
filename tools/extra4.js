@@ -164,6 +164,7 @@ sec.innerHTML='<div class="wrap"><div class="l"><div class="stars2" role="group"
 tr.insertAdjacentElement('afterend',sec)}
 function goReview(n){const f=document.querySelector('#rvf'),sect=document.querySelector('#avis');if(!sect)return;if(window.__pg&&window.__pg.reveal)window.__pg.reveal(sect);if(n&&f){const r=f.querySelector('input[name=r][value="'+n+'"]');if(r){r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}));r.dispatchEvent(new Event('click',{bubbles:true}))}}
 const y=(f||sect).getBoundingClientRect().top+scrollY-90;scrollTo({top:y,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});setTimeout(()=>{const t=f&&f.querySelector('textarea');t&&t.focus({preventScroll:true})},700)}
+(function(){const go=()=>{const m=/^#donner-avis(?:-([1-5]))?$/.exec(location.hash);if(m)setTimeout(()=>goReview(+(m[1]||0)),700)};go();addEventListener('hashchange',go)})();
 document.addEventListener('click',e=>{const s=e.target.closest('[data-rate]');if(s){e.preventDefault();goReview(+s.dataset.rate);return}const g=e.target.closest('[data-rvgo]');if(g){e.preventDefault();goReview(0)}});
 })();
 `;
