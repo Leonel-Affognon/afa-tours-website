@@ -96,11 +96,10 @@ function s1(){return head('Réserver un circuit','Étape 1 sur 4 · Dates et voy
 function s2(){let h=head('Réserver un circuit','Étape 2 sur 4 · Vos circuits et options')+'<div class="bd">';
  h+='<p class="sub">Circuits (un ou plusieurs)</p>';
  const cardC=c=>'<label class="opt card'+(S.circs.includes(c.id)?' on':'')+'"><span class="cimg">'+(c.img?'<img src="'+esc(c.img)+'" alt="" loading="lazy">':'Photo à venir')+'</span><span class="t"><b>'+esc(c.n)+'</b><small>'+priceTxt(c)+'</small></span><input type="checkbox" data-k="circ" value="'+c.id+'"'+(S.circs.includes(c.id)?' checked':'')+'></label>';
- const isVodun=c=>/^\s*vodun/i.test(c.cat||'');
- const dest=CIRC.filter(c=>!isVodun(c)),vod=CIRC.filter(isVodun);
+ const catOf=c=>{const w=String(c.cat||'').trim().split(/[\s·]+/)[0]||'Autres';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()};
+ const groups={};CIRC.forEach(c=>{const k=catOf(c);(groups[k]=groups[k]||[]).push(c)});
  if(!CIRC.length)h+='<p class="fmt">Chargement des circuits…</p>';
- if(dest.length){h+='<p class="sub">Circuits destination</p>'+dest.map(cardC).join('')}
- if(vod.length){h+='<p class="sub">Circuit vodun</p>'+vod.map(cardC).join('')}
+ Object.keys(groups).forEach(k=>{h+='<p class="sub">'+esc(k)+'</p>'+groups[k].map(cardC).join('')});
  h+='<p class="sub">Options facultatives</p>';
  h+=OPTS.map(o=>'<label class="opt'+(S.opt[o[0]]?' on':'')+'"><input type="checkbox" data-k="opt" value="'+o[0]+'"'+(S.opt[o[0]]?' checked':'')+'><span class="t"><b>'+o[1]+'</b><small>'+o[2]+'</small></span></label>').join('');
  h+='<p class="cat">Les options sont facultatives. Leur prix est confirmé par notre équipe avant votre départ.</p>';
