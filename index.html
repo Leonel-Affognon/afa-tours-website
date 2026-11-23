@@ -1410,7 +1410,7 @@ document.body.appendChild(d);
 const fr=d.querySelector('#plf');
 function plData(){
  const A=W.ALLP(),T=window.TRIPS||[];
- const circuits=T.map(t=>({id:t.id,n:t.title,img:t.img||'',dest:t.destination,z:ZID[t.id]||t.destination,dur:t.duration||'',h:hnum(t.duration),p:+t.priceValue||0,unit:t.pg?'groupe':'pers',from:!!t.priceFrom}));
+ const circuits=T.map(t=>({id:t.id,n:t.title,img:t.img||'',cat:t.category||'',dest:t.destination,z:ZID[t.id]||t.destination,dur:t.duration||'',h:hnum(t.duration),p:+t.priceValue||0,unit:t.pg?'groupe':'pers',from:!!t.priceFrom}));
  const pl=x=>({id:x.id,n:x.n,z:x.v||'Porto-Novo',p:+x.p||0});
  const hotels=A.filter(x=>x.k==='hotel'||x.k==='heb').map(pl);
  const restos=A.filter(x=>x.k==='resto').map(pl);
