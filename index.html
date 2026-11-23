@@ -718,6 +718,16 @@ label.chip.box:has(#priced),#sort,#mapb{display:none!important}
 #circuits .eyebrow{text-shadow:0 0 6px #fff}
 /* Sections sombres (Événements, Notre approche) : on garde les couleurs d'origine, seul le filigrane est atténué. */
 #agenda .wm,#approche .wm{background-image:linear-gradient(180deg,rgba(232,131,47,.16),rgba(232,131,47,0) 82%)!important;-webkit-text-stroke-color:rgba(232,131,47,.18)!important}
+/* Circuits sur téléphone : en-tête plus compact, même contenu. */
+@media(max-width:700px){
+#circuits{padding-top:44px!important;padding-bottom:28px!important}
+#circuits .eyebrow{margin-bottom:6px}
+#circuits .h2{font-size:clamp(1.65rem,7.4vw,2.1rem)!important;line-height:1.06!important;margin-top:4px}
+#circuits .lede{font-size:.92rem!important;line-height:1.45!important;margin-top:10px!important}
+#chips.filters{gap:8px!important;margin-top:6px!important}
+#chips .chip{font-size:.82rem!important;padding:.4em .85em!important}
+#circuits .bar{margin-top:18px!important;gap:10px 16px!important}
+}
 </style></head><body class="p3">
 <div class="ann"><div class="wrap"><span data-i="ann"></span><a href="#agenda" data-i="annl"></a></div></div>
 <header class="hd"><div class="wrap"><a class="brand" href="#top" aria-label="AFA Tours"><img src="afa-tours-logo.jpg" alt="" width="50" height="50"><span><b>AFA TOURS</b><small>Afrique Authentique Innovant</small></span></a>
