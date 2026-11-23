@@ -5,7 +5,7 @@ const BUCKET="afa-public-media";
 const pubPath=u=>{try{const m="/storage/v1/object/public/"+BUCKET+"/",p=new URL(u).pathname,i=p.indexOf(m);return i<0?null:decodeURIComponent(p.slice(i+m.length))}catch{return null}};
 async function shrink(file){
  if(!file.type.startsWith("image/")||file.type==="image/gif")return file;
- try{const bmp=await createImageBitmap(file),sc=Math.min(1,1800/Math.max(bmp.width,bmp.height));if(sc===1&&file.size<1.5e6)return file;const cv=document.createElement("canvas");cv.width=Math.round(bmp.width*sc);cv.height=Math.round(bmp.height*sc);cv.getContext("2d").drawImage(bmp,0,0,cv.width,cv.height);const b=await new Promise(r=>cv.toBlob(r,"image/jpeg",.86));return b||file}catch(e){return file}
+ try{const bmp=await createImageBitmap(file),sc=Math.min(1,1200/Math.max(bmp.width,bmp.height));if(sc===1&&file.size<1.5e6)return file;const cv=document.createElement("canvas");cv.width=Math.round(bmp.width*sc);cv.height=Math.round(bmp.height*sc);cv.getContext("2d").drawImage(bmp,0,0,cv.width,cv.height);const b=await new Promise(r=>cv.toBlob(r,"image/jpeg",.86));return b||file}catch(e){return file}
 }
 export const renderMedia=(content,supabase)=>keep(content,()=>media(content,supabase));
 async function media(content,supabase){
