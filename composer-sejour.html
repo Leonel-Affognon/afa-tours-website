@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Composer mon séjour · AFA Tours</title>
+<style>
+:root{--brown:#2A0C07;--red:#B51D27;--or:#E8832F;--cream:#FBF6EF;--ink:#2F1A14;--mute:#7a6258;--line:#e6d8cc;--d:Georgia,'Times New Roman',serif}
+*{box-sizing:border-box}
+body{margin:0;background:#ddd3c8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink);display:flex;justify-content:center;padding:24px 12px}
+.app{width:min(480px,100%);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(20,5,2,.35);display:flex;flex-direction:column}
+.hd{background:linear-gradient(120deg,var(--brown),#5b1a10);color:#fff;padding:20px 22px;position:sticky;top:0;z-index:5}
+.hd h1{font:600 1.45rem var(--d);margin:0}.hd p{margin:2px 0 0;opacity:.8;font-size:.9rem}
+.x{position:absolute;right:14px;top:14px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:1.2rem;cursor:pointer}
+.bd{padding:18px 20px;flex:1}
+.lbl{font-weight:700;font-size:.9rem;margin:12px 0 6px;display:block}
+.sub{font:600 1.02rem var(--d);color:var(--red);margin:14px 0 6px}
+input,select{width:100%;padding:.65em .85em;border:1.5px solid #d9c9b8;border-radius:12px;font:inherit;background:#fff;color:var(--ink);margin-top:0}
+input:focus,select:focus{outline:3px solid rgba(232,131,47,.35);border-color:var(--or)}
+input[type=checkbox],input[type=radio]{width:18px;height:18px;flex:none;margin:0;accent-color:#B51D27;padding:0}
+.fmt{display:block;font-size:.84rem;color:var(--mute);font-weight:600;margin-top:4px}
+.fmt a{color:var(--red)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:flex;gap:10px;align-items:center;padding:9px 11px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;margin-top:8px}
+.opt.on{border-color:var(--red);background:#fff7f4}
+.opt .t{flex:1;min-width:0;display:grid;gap:2px}.opt .t b{font-size:.93rem}.opt .t small{color:var(--mute);font-size:.8rem}
+.day{border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.day>summary{list-style:none;cursor:pointer;padding:13px 15px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;background:#fff}
+.day>summary::-webkit-details-marker{display:none}
+.day>summary b{font:600 1.05rem var(--d)}.day>summary small{color:var(--mute);font-weight:600}
+.day .in{padding:0 15px 15px}
+.card{background:var(--cream);border-radius:14px;padding:12px 14px;margin-top:10px}
+.card.draft{border:2px solid var(--or);background:#fffaf5}
+.card h4{margin:0 0 8px;font:600 .98rem var(--d)}
+.tl{list-style:none;padding:0;margin:6px 0}
+.tl li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.btn{border-radius:999px;padding:.75em 1.3em;font:inherit;font-weight:700;cursor:pointer;border:1.5px solid transparent;display:inline-block;text-align:center;background:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.red{background:var(--red);color:#fff}.out{background:#fff;color:var(--ink);border-color:var(--brown)}.sm{padding:.45em .9em;font-size:.86rem}
+.rm{background:none;border:0;color:var(--red);font-weight:700;cursor:pointer;padding:4px 0;white-space:nowrap}
+.sum{background:var(--cream);border-top:1px solid var(--line);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sum .amt{font:700 1.1rem var(--d);color:var(--red)}
+.nv{display:flex;justify-content:space-between;gap:10px;padding:14px 20px 20px}
+.box{background:var(--cream);border-radius:14px;padding:13px 15px;margin:10px 0}
+.box h3{font:600 1.02rem var(--d);color:var(--red);margin:0 0 6px}
+.ln{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:.92rem}
+.pay{display:grid;gap:8px;margin:8px 0}.pay label{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:14px;padding:11px 13px;cursor:pointer}.pay label:has(input:checked){border-color:var(--red);background:#fff7f4}.pay small{display:block;color:var(--mute)}
+.ok{text-align:center;padding:30px 20px}.ck{width:74px;height:74px;border-radius:50%;background:#e6f6ea;color:#1b8a3b;display:grid;place-items:center;margin:0 auto 14px;font-size:2.2rem}
+.ref{font:800 1.4rem ui-monospace,Menlo,monospace;letter-spacing:.06em;background:var(--cream);border-radius:12px;padding:.5em 1em;display:inline-block;margin:8px 0}
+.note{font-size:.88rem;color:var(--mute);margin:6px 0 0}
+.err{color:#b51d27;font-weight:700;font-size:.88rem;min-height:1.2em;margin-top:8px}
+.alert{border-radius:12px;padding:8px 11px;font-size:.88rem;margin:6px 0}
+.alert.err2{background:#fdecec;color:#8a1520;font-weight:600}.alert.warn{background:#fff4e6;color:#7a4300}.alert.info{background:#eef4fb;color:#24476b}
+.blocking{border:2px solid #B51D27;border-radius:14px;padding:10px 12px;margin:10px 0;background:#fff}
+.blocking h3{margin:0 0 6px;color:#B51D27;font:700 1rem var(--d)}
+.stat{font-weight:700;font-size:.9rem;margin:10px 0 0}
+.cat{font-size:.84rem;color:var(--mute);background:var(--cream);border-radius:12px;padding:9px 11px;margin-top:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+/* ==========================================================
+   DONNÉES
+   Circuits et partenaires : lus dans la base du site (publiés uniquement).
+   Zones, durées de trajet, prix des véhicules, taux de change : PROPOSITIONS à valider.
+   ========================================================== */
+/* Données reçues du site à l'ouverture (circuits, partenaires, transports). */
+let ZONES=[],CIRC=[],HOT=[],RES=[],VEH=[],READY=false;
+const ROOMS=['Chambre simple','Chambre double','Chambre twin (2 lits séparés)','Suite'];
+const DIET=['Végétarien','Halal','Sans porc','Sans gluten','Allergie arachides','Allergie fruits de mer'];
+const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const DEFAULT_CIRC_H=4;
+const ZID={'axe-du-pouvoir':'Porto-Novo','secrets-riviere-noire':'Porto-Novo','vie-ciel-eau':'Cotonou','route-memoires':'Ouidah','traces-danxome':'Abomey','amazone-atlantique':'Cotonou','fleuve-ocean':'Grand-Popo','aguegues':'Porto-Novo','dangbo':'Porto-Novo','vodun-gardiens':'Porto-Novo','egungun':'Porto-Novo','guelede':'Porto-Novo','ketou':'Plateau','pobe':'Plateau','sakete':'Plateau'};
+/* Taux indicatifs : 1 € = 655,957 FCFA (taux fixe) ; 1 $ = 580 FCFA (à mettre à jour) */
+const EUR_XOF=655.957, USD_XOF=580;
+/* Repas : heure proposée, durée, et s'il ne peut y en avoir qu'un par jour */
+const SLOTS={'Petit-déjeuner':{t:'07:30',h:0.5,once:true},'Déjeuner':{t:'12:30',h:1.5,once:true},'Dîner':{t:'19:30',h:1.5,once:true},'Repas':{t:'12:00',h:1,once:false}};
+
+/* ==========================================================
+   ÉTAT
+   ========================================================== */
+const S={step:1,startZone:'Porto-Novo',start:'',days:3,adults:2,kids:0,diet:[],dietNote:'',open:0,
+ nm:'',nat:'',w:'',e:'',pay:'momo',done:false,closed:false,ref:'AFA-DEMO',D:[],panel:null};
+/* Une journée : des étapes (circuits, autres destinations, repas) et UNE nuit */
+const newDay=()=>({t0:'08:00',stops:[],veh:[],
+ night:{mode:'none',hotel:'',zone:'',own:{name:'',addr:''},roomType:0,rooms:1,beds:1,twin:false,bf:false}});
+function ensure(){while(S.D.length<S.days)S.D.push(newDay())}
+
+/* ==========================================================
+   UTILITAIRES
+   ========================================================== */
+const app=()=>document.getElementById('app');
+const pax=()=>S.adults+S.kids;
+const money=n=>Math.round(n).toLocaleString('fr-FR')+' FCFA';
+const money3=n=>money(n)+' · '+Math.round(n/USD_XOF).toLocaleString('fr-FR')+' $ · '+Math.round(n/EUR_XOF).toLocaleString('fr-FR')+' €';
+const toH=s=>{const p=String(s||'08:00').split(':');return (+p[0])+(+p[1]||0)/60};
+/* Heure affichée sur 24 h, de 00:00 à 23:59. Au-delà de minuit : « (lendemain) ». */
+const clock=t=>{const m=Math.round(t*60),H=Math.floor(m/60)%24,M=m%60;return ('0'+H).slice(-2)+':'+('0'+M).slice(-2)+(t>=24?' (lendemain)':'')};
+/* Durée : 1h, 1h 30, 6h 30, 45 min */
+const fmtH=h=>{const H=Math.floor(h),m=Math.round((h-H)*60);if(!H)return m+' min';return H+'h'+(m?' '+('0'+m).slice(-2):'')};
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const fdt=v=>{if(!v)return'';const p=v.split('-');return (+p[2])+' '+MOIS[+p[1]-1]+' '+p[0]};
+const dateOf=i=>{if(!S.start)return'Jour '+(i+1);const t=new Date(S.start+'T12:00:00');t.setDate(t.getDate()+i);return t.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})};
+const cOf=id=>CIRC.find(c=>c.id===id), hOf=id=>HOT.find(h=>h.id===id), rOf=id=>RES.find(r=>r.id===id);
+const partnersIn=(list,z)=>list.filter(x=>x.z===z);
+const stopZone=s=>s.kind==='circ'?cOf(s.ref).z:s.zone;
+const planH=c=>c.h===null?DEFAULT_CIRC_H:c.h;
+const mealTime=s=>toH(s.time||SLOTS[s.slot].t);
+const SEARCH=(z,what)=>'https://www.google.com/search?q='+encodeURIComponent(what+' '+z+' Bénin');
+const head=(t,s)=>'<div class="hd"><h1>'+t+'</h1><p>'+s+'</p><button class="x" data-a="close" aria-label="Fermer">×</button></div>';
+const nav=(back,next,label)=>'<p class="err" id="err"></p><div class="nv">'+(back?'<button class="btn out" data-a="go" data-to="'+back+'">Retour</button>':'<span></span>')+'<button class="btn red" data-a="go" data-to="'+next+'">'+label+'</button></div>';
+const opts=(list,val,ph)=>(ph?'<option value="">'+ph+'</option>':'')+list.map(x=>'<option value="'+x.v+'"'+(val===x.v?' selected':'')+(x.d?' disabled':'')+'>'+x.t+'</option>').join('');
+const zsel=(attrs,val,ph)=>'<select '+attrs+'><option value="">'+(ph||'Choisir une ville')+'</option>'+ZONES.map(z=>'<option value="'+z+'"'+(val===z?' selected':'')+'>'+z+'</option>').join('')+'</select>';
+const priceTxt=c=>!c.p?'Tarif sur demande':money3(c.p)+(c.unit==='groupe'?' / groupe':' / pers.')+(c.from?' (à partir de)':'');
+const noPartnerTxt=(z,what)=>'<span class="fmt">Pas de partenaire AFA ('+what+') à '+z+'. <a href="'+SEARCH(z,what)+'" target="_blank" rel="noopener">Chercher en ligne</a>. Vous pouvez aussi l’écrire ci-dessous.</span>';
+const DUR_OPTS=[1,1.5,2,2.5,3,4,5,6,7,8].map(h=>({v:String(h),t:fmtH(h)}));
+
+/* ==========================================================
+   MOTEUR : trajet de chaque journée
+   - Le départ d'une journée = le lieu où l'on a dormi la veille.
+   - Les repas ont une heure fixe. Ils sont placés dans l'ordre des heures.
+   - Chaque trajet est calculé entre deux lieux consécutifs.
+   - Une heure ne dépasse jamais 23 h 59 : une journée qui va au-delà de minuit est bloquante.
+   ========================================================== */
+function lastZone(i){const d=S.D[i];return d.stops.length?stopZone(d.stops[d.stops.length-1]):startOf(i)}
+function startOf(i){return i===0?S.startZone:endOf(i-1)}
+function endOf(i){const d=S.D[i];if(d.night.mode!=='none')return d.night.zone||lastZone(i);return lastZone(i)}
+/* Lieu d'une étape : ville + nom du lieu (pour le calcul du trajet) */
+function stopLoc(s){
+ if(s.kind==='circ'){const c=cOf(s.ref);return{zone:c.z,place:c.dest}}
+ if(s.kind==='custom')return{zone:s.zone,place:s.name||s.zone};
+ const r=s.mode==='partner'?rOf(s.ref):null;
+ if(r)return{zone:r.z,place:r.n};
+ if(s.mode==='own'&&s.own.name)return{zone:s.zone,place:s.own.name};
+ return{zone:s.zone,place:s.zone};
+}
+function nightLoc(n,fallback){
+ const h=n.mode==='partner'?hOf(n.hotel):null;
+ if(h)return{zone:h.z,place:h.n};
+ const z=n.zone||fallback.zone;
+ if(n.mode==='own'&&n.own.name)return{zone:z,place:n.own.name};
+ return{zone:z,place:z};
+}
+/* Temps de trajet entre deux lieux. Démonstration : à remplacer par Google Maps. */
+/* Durée de trajet : à confirmer par l’équipe tant que le calcul Google Maps n’est pas branché. null = inconnue. */
+function travelH(a,b){return a.place===b.place?0:null}
+function route(i){
+ const d=S.D[i],warn=[],seq=[];
+ const flow=[],meals=[];
+ d.stops.forEach((s,idx)=>{if(s.kind==='meal')meals.push({s,idx,m:mealTime(s)});else flow.push({s,idx})});
+ meals.sort((a,b)=>a.m-b.m);
+ const t0=toH(d.t0);
+ let loc={zone:startOf(i),place:startOf(i)},cur=t0,act=0,tr=0,mi=0,fi=0;
+ /* trajet vers un lieu. Si l'heure du lieu est fixe, le trajet part au plus tard pour y arriver à l'heure */
+ const moveTo=(to,fixedAt)=>{
+  const h=travelH(loc,to);
+  if(h===null){seq.push({k:'tr',from:loc,to,h:null,t:cur,price:0});tr++}
+  else if(h>0){const st=fixedAt===undefined?cur:Math.max(cur,fixedAt-h);seq.push({k:'tr',from:loc,to,h,t:st,price:0});tr++;cur=st+h}
+  loc=to;
+ };
+ const placeMeal=(x,pre)=>{
+  const m=x.m,z=stopLoc(x.s),dh=SLOTS[x.s.slot].h;
+  const lbl=x.s.slot==='Repas'?(x.s.name||'Repas libre'):x.s.slot;
+  if(pre){/* avant le départ : pas de trajet */}
+  else if(m<cur){warn.push(lbl+' prévu à '+clock(m)+' tombe pendant une visite ou un trajet (jusqu’à '+clock(cur)+'). Décalez-le.');loc=z}
+  else{moveTo(z,m);if(cur>m+1e-6)warn.push('Arrivée à '+z.place+' vers '+clock(cur)+', après '+lbl+' prévu à '+clock(m)+'. Décalez-le.')}
+  seq.push({k:'meal',idx:x.idx,s:x.s,zone:z.zone,place:z.place,t:m});
+  cur=Math.max(cur,m+dh);act+=dh;
+ };
+ /* repas avant le départ (ex. petit-déjeuner à 7h 30 pour un départ à 8h) */
+ while(mi<meals.length&&meals[mi].m<t0)placeMeal(meals[mi++],true);
+ if(cur>t0+1e-6)warn.push('Le repas du matin finit à '+clock(cur)+', après l’heure de départ ('+clock(t0)+'). Avancez le départ.');
+ seq.push({k:'start',zone:loc.zone,place:loc.place,t:t0});
+ cur=Math.max(cur,t0);
+ while(fi<flow.length||mi<meals.length){
+  if(mi<meals.length&&(fi>=flow.length||meals[mi].m<=cur)){placeMeal(meals[mi++],false);continue}
+  const c=flow[fi++],s=c.s,z=stopLoc(s);
+  moveTo(z);
+  const c0=s.kind==='circ'?cOf(s.ref):null,h=c0?planH(c0):(s.h===null?DEFAULT_CIRC_H:s.h);
+  seq.push({k:'circ',idx:c.idx,s,c0,zone:z.zone,place:z.place,t:cur,h});
+  cur+=h;act+=h;
+ }
+ const n=d.night;
+ if(n.mode!=='none'){const to=nightLoc(n,loc);moveTo(to);seq.push({k:'night',zone:to.zone,place:to.place,t:cur,n})}
+ return{seq,end:cur,act,tr,endZone:loc.zone,warn};
+}
+function usedMap(){const m={};for(let j=0;j<S.days;j++)S.D[j].stops.forEach(s=>{if(s.kind==='circ'&&!(s.ref in m))m[s.ref]=j+1});return m}
+function hasSlot(i,slot){return S.D[i].stops.some(s=>s.kind==='meal'&&s.slot===slot)}
+
+/* ==========================================================
+   CONTRÔLES
+   err2 = bloquant (rouge), warn = à vérifier (orange), info = pour information (bleu)
+   ========================================================== */
+function checks(i){
+ const d=S.D[i],r=route(i),out=[],n=d.night;
+ d.stops.forEach(s=>{
+  if(s.kind==='meal'){
+   if(s.slot==='Repas'&&!s.name)out.push(['err2','Repas libre : indiquez le nom du repas.']);
+   if(!s.zone)out.push(['err2',s.slot+' : choisissez la ville.']);
+   if(s.mode==='partner'&&!s.ref)out.push(['err2',s.slot+' : choisissez le restaurant partenaire.']);
+   if(s.mode==='own'&&!s.own.name)out.push(['err2',s.slot+' : indiquez le nom du restaurant choisi.']);
+  }
+  if(s.kind==='custom'){
+   if(!s.name)out.push(['err2','Autre destination : décrivez la visite.']);
+   if(!s.zone)out.push(['err2','Autre destination : choisissez la ville.']);
+   if(s.h===null)out.push(['info','Durée de « '+(s.name||'autre destination')+' » à confirmer : '+fmtH(DEFAULT_CIRC_H)+' retenues dans le calcul.']);
+  }
+ });
+ if(n.mode==='partner'&&!n.hotel)out.push(['err2','Nuit : choisissez l’hôtel.']);
+ if(n.mode==='own'&&!n.own.name)out.push(['err2','Nuit : indiquez le nom de l’hébergement.']);
+ if(n.mode==='own'&&!n.zone)out.push(['err2','Nuit : choisissez la ville.']);
+ r.warn.forEach(m=>out.push(['warn',m]));
+ r.seq.forEach(x=>{if(x.k==='circ'&&x.c0&&x.c0.h===null)out.push(['info','Durée de « '+x.c0.n+' » à confirmer : '+fmtH(DEFAULT_CIRC_H)+' retenues dans le calcul.'])});
+ if(r.end>=24)out.push(['err2','La journée dépasse minuit (fin vers '+clock(r.end)+'). Avancez l’heure de départ ou retirez une étape.']);
+ else if(r.end>21)out.push(['warn','La journée se termine vers '+clock(r.end)+'. Vérifiez les horaires.']);
+ if(r.act>11)out.push(['warn','Plus de 11 h d’activité ce jour-là : envisagez de répartir.']);
+ if(r.tr>=3)out.push(['info','Ce jour-là : '+r.tr+' trajets. Leurs durées sont confirmées par notre équipe.']);
+ if(i>0&&S.D[i-1].night.mode!=='none'&&S.D[i-1].night.bf&&hasSlot(i,'Petit-déjeuner'))
+  out.push(['info','Petit-déjeuner déjà inclus à l’hôtel la veille : supprimez-le si ce n’est pas nécessaire.']);
+ if(n.mode==='none'&&i<S.days-1)out.push(['info','Pas de nuit ce jour-là : le départ du lendemain se fait de '+r.endZone+'.']);
+ return out;
+}
+function issues(){const L=[];for(let i=0;i<S.days;i++)checks(i).forEach(c=>{L.push({d:i+1,lv:c[0],m:c[1]})});return L}
+function issuesHtml(){
+ const L=issues(),e=L.filter(x=>x.lv==='err2'),w=L.filter(x=>x.lv==='warn'),n=L.filter(x=>x.lv==='info');
+ const line=x=>'<div class="alert '+x.lv+'"><b>Jour '+x.d+'</b> · '+x.m+'</div>';
+ return (e.length?'<div class="blocking"><h3>'+e.length+' erreur(s) à corriger avant d’envoyer</h3>'+e.map(line).join('')+'</div>':'<p class="stat">Aucune erreur bloquante.</p>')+
+  (w.length?'<p class="stat">À vérifier</p>'+w.map(line).join(''):'')+
+  (n.length?'<p class="stat">Informations</p>'+n.map(line).join(''):'');
+}
+function errCount(){return issues().filter(x=>x.lv==='err2').length}
+
+/* ==========================================================
+   LIBELLÉS
+   ========================================================== */
+function mealName(s){if(s.mode==='afa')return'à proposer par AFA TOURS';if(s.mode==='own')return(s.own.name||'à préciser')+' (à confirmer)';const r=rOf(s.ref);return r?r.n:'restaurant à choisir'}
+function nightName(n){const room=ROOMS[n.roomType]+', '+n.rooms+' chambre(s)';
+ if(n.mode==='afa')return'hébergement à proposer par AFA TOURS ('+room+')';
+ if(n.mode==='own')return(n.own.name||'hébergement à préciser')+' (à confirmer, '+room+')';
+ const h=hOf(n.hotel);return(h?h.n:'hôtel à choisir')+' ('+room+')'}
+function rowText(x){const T=clock(x.t)+' · ';
+ if(x.k==='tr'&&x.h===null)return T+'Trajet '+x.from.place+' → '+x.to.place+' (durée confirmée par notre équipe)';
+ if(x.k==='start')return T+'Départ de '+x.place;
+ if(x.k==='tr')return T+'Trajet '+x.from.place+' → '+x.to.place+' (environ '+fmtH(x.h)+')';
+ if(x.k==='circ'){
+  if(x.c0)return T+x.c0.n+' · '+x.c0.dest+' (durée : '+x.c0.dur+')';
+  return T+'Autre destination : '+(x.s.name||'à décrire')+' · '+x.zone+' (durée '+(x.s.h===null?'à confirmer, '+fmtH(DEFAULT_CIRC_H)+' retenues':fmtH(x.h))+')';
+ }
+ if(x.k==='meal')return T+(x.s.slot==='Repas'?x.s.name||'Repas libre':x.s.slot)+' à '+x.zone+' : '+mealName(x.s);
+ return T+'Nuit à '+x.zone+' : '+nightName(x.n)}
+function dayRows(i){
+ const out=[];
+ route(i).seq.forEach(x=>{
+  out.push({text:rowText(x),idx:(x.k==='circ'||x.k==='meal')?x.idx:undefined});
+  if(x.k==='start'&&i>0&&S.D[i-1].night.mode!=='none'&&S.D[i-1].night.bf)out.push({text:clock(x.t)+' · Petit-déjeuner à l’hôtel, inclus'});
+ });
+ return out;
+}
+function calc(){
+ let tot=0,devis=0;
+ for(let i=0;i<S.days;i++){
+  const d=S.D[i];
+  d.stops.forEach(s=>{
+   if(s.kind==='circ'){const c=cOf(s.ref);tot+=c.unit==='groupe'?c.p:c.p*S.adults;return}
+   if(s.kind==='custom'){devis++;return}
+   const r=rOf(s.ref);
+   if(s.mode==='partner'&&r&&r.p)tot+=r.p*pax();else devis++;
+  });
+  const n=d.night;
+  if(n.mode!=='none'){const h=n.mode==='partner'?hOf(n.hotel):null;if(h&&h.p)tot+=h.p*(n.rooms||1);else devis++}
+  route(i).seq.forEach(x=>{if(x.k==='tr')tot+=x.price});
+  d.veh.forEach(v=>{const x=VEH.find(z=>z.id===v.v);if(x){if(x.p)tot+=x.p*(v.days||1);else devis++}});
+ }
+ return{tot,devis};
+}
+
+/* ==========================================================
+   AFFICHAGE
+   ========================================================== */
+function summary(){const{tot,devis}=calc();return'<div class="sum"><div><small style="color:var(--mute)">Estimation</small><div class="amt">'+(tot?money3(tot):'Sur devis')+'</div><small style="color:var(--mute)">'+(devis?devis+' élément(s) à confirmer':'')+'</small></div></div>'}
+
+function s1(){return head('Composer mon séjour','Étape 1 sur 3 · Vos dates et votre groupe')+'<div class="bd">'+
+ '<label class="lbl">Date d’arrivée</label><input type="date" data-f="start" value="'+S.start+'"><span class="fmt">'+(S.start?fdt(S.start):'Choisissez une date')+'</span>'+
+ '<label class="lbl">Ville de départ du séjour</label>'+zsel('data-f="startZone"',S.startZone)+
+ '<label class="lbl">Nombre de jours</label><input type="number" min="1" max="30" data-f="days" value="'+S.days+'">'+
+ '<div class="row"><div><label class="lbl">Adultes</label><input type="number" min="1" data-f="adults" value="'+S.adults+'"></div><div><label class="lbl">Enfants</label><input type="number" min="0" data-f="kids" value="'+S.kids+'"></div></div>'+
+ '<p class="sub">Nourriture et régime</p>'+DIET.map(x=>'<label class="opt'+(S.diet.includes(x)?' on':'')+'"><input type="checkbox" data-k="diet" value="'+x+'"'+(S.diet.includes(x)?' checked':'')+'><span class="t"><b>'+x+'</b></span></label>').join('')+
+ '<label class="lbl">Autre précision alimentaire</label><input data-txt="dietNote" value="'+esc(S.dietNote)+'" placeholder="Ex. ne mange pas de piment">'+
+ '</div>'+nav(0,2,'Continuer')}
+
+/* Ajout d'une étape : rien n'apparaît dans le programme tant que le client n'a pas validé */
+/* ==========================================================
+   PANNEAU UNIQUE : un clic sur un bouton ouvre le panneau,
+   on remplit, « Valider » enregistre et ferme le panneau.
+   Pour en ouvrir un autre, on reclique sur le bouton.
+   ========================================================== */
+function openPanel(kind,i,k,slot){
+ const d=S.D[i];let P;
+ if(kind==='stop'){
+  const s=(k!=null)?d.stops[k]:null;
+  P={kind,i,k:s?k:null,zone:s?stopZone(s):lastZone(i),type:s?'custom':'',ref:'',desc:s?s.name:'',dh:s?(s.h===null?'na':String(s.h)):''};
+ } else if(kind==='meal'){
+  const s=(k!=null)?d.stops[k]:null,sl=s?s.slot:slot;
+  P={kind,i,k:s?k:null,slot:sl,zone:s?s.zone:lastZone(i),time:s?(s.time||SLOTS[sl].t):SLOTS[sl].t,mode:s?s.mode:'afa',ref:s?s.ref:'',name:s?s.name:'',oname:s?s.own.name:'',oaddr:s?s.own.addr:''};
+ } else if(kind==='night'){
+  const n=d.night;
+  P={kind,i,k:null,mode:n.mode==='none'?'':n.mode,zone:n.zone,hotel:n.hotel,oname:n.own.name,oaddr:n.own.addr,roomType:n.roomType,rooms:n.rooms,beds:n.beds,twin:n.twin,bf:n.bf};
+ } else {
+  const v=(k!=null)?d.veh[k]:null;
+  P={kind,i,k:v?k:null,v:v?v.v:'',days:v?v.days:1,from:v?v.from:''};
+ }
+ S.panel=P;render();
+}
+function panelOk(P){
+ if(!P)return false;
+ const d=S.D[P.i];
+ if(P.kind==='stop'){
+  if(!P.zone)return false;
+  if(P.ref){const u=usedMap();return !!cOf(P.ref)&&!(u[P.ref]&&!(P.k!=null&&d.stops[P.k].kind==='circ'&&d.stops[P.k].ref===P.ref))}
+  return P.desc.trim()!==''&&!!P.dh;
+ }
+ if(P.kind==='meal'){
+  if(!P.zone||!P.time)return false;
+  if(P.slot==='Repas'&&!P.name.trim())return false;
+  if(P.mode==='partner')return !!P.ref;
+  if(P.mode==='own')return P.oname.trim()!=='';
+  return P.mode==='afa';
+ }
+ if(P.kind==='night'){
+  if(P.mode==='none')return true;
+  if(P.mode==='afa')return !!P.zone;
+  if(P.mode==='partner')return !!P.zone&&!!P.hotel;
+  if(P.mode==='own')return !!P.zone&&P.oname.trim()!=='';
+  return false;
+ }
+ if(P.kind==='veh')return !!P.v;
+ return false;
+}
+function panelTitle(P){
+ if(P.kind==='stop')return P.k!=null?'Modifier l’autre destination':'Ajouter un circuit ou une destination';
+ if(P.kind==='meal')return (P.k!=null?'Modifier : ':'Ajouter : ')+(P.slot==='Repas'?'repas libre':P.slot);
+ if(P.kind==='night')return 'Nuit';
+ return P.k!=null?'Modifier le transport':'Ajouter un transport';
+}
+function stopFields(P){
+ const used=usedMap(),list=P.zone?CIRC.filter(c=>c.z===P.zone):[];
+ let h='<label class="lbl" style="margin-top:0">1. Ville</label>'+zsel('data-pf="zone"',P.zone);
+ if(!P.zone)return h+'<span class="fmt">Choisissez d’abord la ville.</span>';
+ h+='<label class="lbl">2. Circuit du catalogue</label>';
+ h+=list.length?'<select data-pf="ref">'+opts(list.map(x=>({v:x.id,t:x.n+' · '+x.dur+' · '+priceTxt(x)+(used[x.id]?' (déjà au jour '+used[x.id]+')':''),d:!!used[x.id]})),P.ref,'Choisir un circuit')+'</select>':
+  '<span class="fmt">Aucun circuit publié à '+P.zone+'.</span>';
+ return h;
+}
+function stopDesc(P){
+ return '<label class="lbl">Ou autre destination : décrivez la visite</label><input data-pt="desc" value="'+esc(P.desc)+'" placeholder="Ex. Zangbeto : visite du sanctuaire">'+
+  '<label class="lbl">Durée</label><select data-pf="dh">'+opts(DUR_OPTS.concat([{v:'na',t:'Je ne sais pas encore ('+fmtH(DEFAULT_CIRC_H)+')'}]),P.dh,'Choisir la durée')+'</select>';
+}
+function mealFields(P){
+ const list=partnersIn(RES,P.zone),none=!!P.zone&&!list.length;
+ let h='';
+ if(P.slot==='Repas')h+='<label class="lbl" style="margin-top:0">Nom du repas</label><input data-pt="name" value="'+esc(P.name)+'" placeholder="Ex. pique-nique, cocktail de bienvenue">';
+ h+='<div class="row"><div><label class="lbl" '+(P.slot==='Repas'?'':'style="margin-top:0"')+'>Heure</label><input type="time" data-pf="time" value="'+P.time+'"></div><div><label class="lbl" '+(P.slot==='Repas'?'':'style="margin-top:0"')+'>Ville</label>'+zsel('data-pf="zone"',P.zone)+'</div></div>';
+ const modes=none?[{v:'afa',t:'Laissez AFA TOURS me proposer'},{v:'own',t:'J’ai déjà mon restaurant ou je l’indique'}]:[{v:'afa',t:'Laissez AFA TOURS me proposer'},{v:'partner',t:'Choisir un restaurant partenaire'},{v:'own',t:'J’ai déjà mon restaurant ou je l’indique'}];
+ h+='<label class="lbl">Choix</label><select data-pf="mode">'+opts(modes,P.mode,'Choisir')+'</select>';
+ if(P.mode==='partner'&&!none)h+='<label class="lbl">Restaurant</label><select data-pf="ref">'+opts(list.map(r=>({v:r.id,t:r.n})),P.ref,'Choisir')+'</select>';
+ if(none&&P.zone)h+=noPartnerTxt(P.zone,'restaurant');
+ if(P.mode==='own'||(none&&P.zone))h+='<input data-pt="oname" value="'+esc(P.oname)+'" placeholder="Nom du restaurant" style="margin-top:6px"><input data-pt="oaddr" value="'+esc(P.oaddr)+'" placeholder="Adresse ou lien Maps" style="margin-top:6px">';
+ return h;
+}
+function nightFields(P){
+ const i=P.i,prev=i>0?S.D[i-1].night:null;
+ const list=partnersIn(HOT,P.zone),none=!!P.zone&&!list.length;
+ let h='<select data-pf="mode">'+opts([{v:'none',t:'Pas de nuit ici'},{v:'afa',t:'Laissez AFA TOURS me proposer'},{v:'partner',t:'Choisir un hôtel partenaire'},{v:'own',t:'J’ai déjà mon hébergement ou je l’indique'}],P.mode,'Choisir')+'</select>';
+ if(prev&&prev.mode!=='none')h+='<button class="btn out sm" data-a="pSame" style="margin-top:8px">Même hébergement que la veille</button>';
+ if(P.mode&&P.mode!=='none'){
+  h+='<label class="lbl">Ville de la nuit</label>'+zsel('data-pf="zone"',P.zone);
+  if(P.mode==='partner'&&!none&&P.zone)h+='<label class="lbl">Hôtel</label><select data-pf="hotel">'+opts(list.map(x=>({v:x.id,t:x.n})),P.hotel,'Choisir')+'</select>';
+  if(none&&P.zone)h+=noPartnerTxt(P.zone,'hôtel');
+  if(P.mode==='own'||(none&&P.zone))h+='<input data-pt="oname" value="'+esc(P.oname)+'" placeholder="Nom de l’hébergement" style="margin-top:6px"><input data-pt="oaddr" value="'+esc(P.oaddr)+'" placeholder="Adresse ou lien Maps" style="margin-top:6px">';
+  h+='<div class="row"><div><label class="lbl">Chambre</label><select data-pf="roomType">'+opts(ROOMS.map((x,k)=>({v:k,t:x})),P.roomType)+'</select></div><div><label class="lbl">Nombre de chambres</label><input type="number" min="1" data-pf="rooms" value="'+P.rooms+'"></div></div>';
+  h+='<div class="row"><div><label class="lbl">Nombre de lits</label><input type="number" min="1" data-pf="beds" value="'+P.beds+'"></div><div></div></div>';
+  h+='<label class="opt'+(P.twin?' on':'')+'"><input type="checkbox" data-pf="twin"'+(P.twin?' checked':'')+'><span class="t"><b>Lit à deux places</b></span></label>';
+  h+='<label class="opt'+(P.bf?' on':'')+'"><input type="checkbox" data-pf="bf"'+(P.bf?' checked':'')+'><span class="t"><b>Petit-déjeuner inclus le lendemain matin</b></span></label>';
+ }
+ return h;
+}
+function vehFields(P){
+ return '<label class="lbl" style="margin-top:0">Véhicule</label><select data-pf="v">'+opts(VEH.map(x=>({v:x.id,t:x.n+(x.p?' · '+money3(x.p)+' / jour':' · sur devis')})),P.v,'Choisir un véhicule')+'</select>'+
+  '<div class="row"><div><label class="lbl">Jours</label><input type="number" min="1" data-pf="days" value="'+P.days+'"></div><div></div></div>'+
+  '<input data-pt="from" value="'+esc(P.from)+'" placeholder="Prise en charge (aéroport, hôtel, adresse)" style="margin-top:6px">';
+}
+function panelHtml(){
+ const P=S.panel;
+ let body=P.kind==='stop'?(stopFields(P)+(P.zone&&!P.ref?stopDesc(P):'')):P.kind==='meal'?mealFields(P):P.kind==='night'?nightFields(P):vehFields(P);
+ const ok=panelOk(P);
+ return '<div class="card draft"><h4>'+panelTitle(P)+'</h4>'+body+
+  '<div class="nv" style="padding:12px 0 0"><button class="btn out sm" data-a="pCancel">Annuler</button><button class="btn red sm" data-a="pOk"'+(ok?'':' disabled')+'>Valider</button></div></div>';
+}
+function applyPanel(){
+ const P=S.panel;if(!P||!panelOk(P))return;
+ const d=S.D[P.i];
+ if(P.kind==='stop'){
+  const st=P.ref?{kind:'circ',ref:P.ref}:{kind:'custom',name:P.desc.trim(),zone:P.zone,h:P.dh==='na'?null:+P.dh};
+  if(P.k!=null)d.stops[P.k]=st;else d.stops.push(st);
+ }
+ if(P.kind==='meal'){
+  const st={kind:'meal',slot:P.slot,name:P.name.trim(),time:P.time,zone:P.zone,mode:P.mode,ref:P.mode==='partner'?P.ref:'',own:{name:P.oname.trim(),addr:P.oaddr.trim()}};
+  if(P.k!=null)d.stops[P.k]=st;else d.stops.push(st);
+ }
+ if(P.kind==='night'){
+  d.night={mode:P.mode,zone:P.mode==='none'?'':P.zone,hotel:P.mode==='partner'?P.hotel:'',own:{name:P.oname.trim(),addr:P.oaddr.trim()},roomType:P.roomType,rooms:P.rooms,beds:P.beds,twin:P.twin,bf:P.bf};
+ }
+ if(P.kind==='veh'){const x={v:P.v,days:P.days,from:P.from.trim()};if(P.k!=null)d.veh[P.k]=x;else d.veh.push(x)}
+ S.panel=null;render();
+}
+function nightLine(i){const n=S.D[i].night;return n.mode==='none'?'Pas de nuit ici':nightName(n)+' · '+n.zone}
+function dayHtml(i){
+ const d=S.D[i],r=route(i),rows=dayRows(i);
+ const zs=[];r.seq.forEach(x=>{const z=x.k==='tr'?x.to.zone:x.zone;if(z&&zs[zs.length-1]!==z)zs.push(z)});
+ const P=S.panel&&S.panel.i===i?S.panel:null;
+ let h='<details class="day" '+(i===S.open?'open':'')+'><summary data-a="open" data-i="'+i+'"><b>Jour '+(i+1)+'</b><small>'+dateOf(i)+' · '+zs.join(' → ')+'</small></summary><div class="in">';
+ h+='<span class="fmt">Départ : '+(i===0?S.startZone+' (choisi à l’étape 1)':startOf(i)+' (là où vous avez dormi)')+'</span>';
+ h+='<label class="lbl">Heure de départ</label><input type="time" data-f="t0" data-i="'+i+'" value="'+d.t0+'">';
+ h+='<p class="sub">Programme</p><ul class="tl">'+rows.map(x=>{
+   const st=x.idx!==undefined?d.stops[x.idx]:null;
+   const edit=st&&st.kind==='meal'?'<button class="rm" data-a="pOpen" data-kind="meal" data-i="'+i+'" data-k="'+x.idx+'">Modifier</button>':
+    st&&st.kind==='custom'?'<button class="rm" data-a="pOpen" data-kind="stop" data-i="'+i+'" data-k="'+x.idx+'">Modifier</button>':'';
+   const del=x.idx!==undefined?'<button class="rm" data-a="rmstop" data-i="'+i+'" data-k="'+x.idx+'">Retirer</button>':'';
+   return '<li><span style="flex:1">'+x.text+'</span>'+edit+del+'</li>'}).join('')+'</ul>';
+ h+='<div class="chips"><button class="btn out sm" data-a="pOpen" data-kind="stop" data-i="'+i+'">+ Ajouter un circuit ou une destination</button>';
+ Object.keys(SLOTS).forEach(x=>{const dis=SLOTS[x].once&&hasSlot(i,x);h+='<button class="btn out sm" data-a="pOpen" data-kind="meal" data-s="'+x+'" data-i="'+i+'"'+(dis?' disabled':'')+'>+ '+x+(dis?' (déjà prévu)':'')+'</button>'});
+ h+='</div>';
+ if(P)h+=panelHtml();
+ h+='<p class="sub">Nuit (une seule par jour)</p><div class="card"><div class="lbl" style="margin:0">'+nightLine(i)+'</div><div class="chips"><button class="btn out sm" data-a="pOpen" data-kind="night" data-i="'+i+'">'+(d.night.mode==='none'?'+ Ajouter la nuit':'Modifier la nuit')+'</button>'+(d.night.mode!=='none'?'<button class="rm" data-a="nightClear" data-i="'+i+'">Retirer la nuit</button>':'')+'</div></div>';
+ h+='<p class="sub">Transport</p>'+d.veh.map((v,k)=>{const x=VEH.find(z=>z.id===v.v);return '<div class="card"><div class="lbl" style="margin:0">'+(x?x.n:'Véhicule à choisir')+' · '+(v.days||1)+' jour(s)'+(v.from?' · '+esc(v.from):'')+'</div><div class="chips"><button class="rm" data-a="pOpen" data-kind="veh" data-i="'+i+'" data-k="'+k+'">Modifier</button><button class="rm" data-a="delveh" data-i="'+i+'" data-v="'+k+'">Retirer ce transport</button></div></div>'}).join('')+
+ '<button class="btn out sm" data-a="pOpen" data-kind="veh" data-i="'+i+'" style="margin-top:8px">+ Ajouter un transport</button>';
+ return h+'</div></details>';
+}
+function s2(){ensure();let h=head('Composer mon séjour','Étape 2 sur 3 · Votre trajet jour par jour')+'<div class="bd">';
+ for(let i=0;i<S.days;i++)h+=dayHtml(i);
+ h+='<button class="btn out sm" data-a="addday">+ Ajouter une journée</button>'+issuesHtml();
+  h+='<p class="cat">Les durées et les prix des trajets sont confirmés par notre équipe avant votre départ. Montants indicatifs en $ et en € (1 € = 655,957 FCFA ; 1 $ ≈ 580 FCFA).</p>';
+ return h+'</div>'+summary()+nav(1,3,'Continuer')}
+function s3(){return head('Composer mon séjour','Étape 3 sur 4 · Vos coordonnées')+'<div class="bd"><div class="row"><div><label class="lbl">Nom complet *</label><input data-txt="nm" value="'+esc(S.nm)+'"></div><div><label class="lbl">Nationalité *</label><input data-txt="nat" value="'+esc(S.nat)+'" placeholder="Bénin, France…"></div></div><div class="row"><div><label class="lbl">WhatsApp ou téléphone *</label><input data-txt="w" value="'+esc(S.w)+'" placeholder="+229…"></div><div><label class="lbl">E-mail *</label><input type="email" data-txt="e" value="'+esc(S.e)+'"></div></div></div>'+nav(2,4,'Continuer')}
+function s4(){const{tot,devis}=calc(),ne=errCount();let rows='';
+ for(let i=0;i<S.days;i++){rows+='<div class="ln"><span><b>Jour '+(i+1)+'</b> · '+dateOf(i)+'</span></div>'+dayRows(i).map(x=>'<div class="ln" style="padding-left:12px;color:var(--mute)"><span>'+x.text+'</span></div>').join('')}
+ const top=ne?'<div class="blocking"><h3>Corrigez ces '+ne+' point(s) avant d’envoyer</h3>'+issues().filter(x=>x.lv==='err2').map(x=>'<div class="alert err2"><b>Jour '+x.d+'</b> · '+x.m+'</div>').join('')+'</div>':'';
+ return head('Composer mon séjour','Étape 3 sur 3 · Votre programme proposé')+'<div class="bd">'+top+'<div class="box"><h3>'+S.days+' jour(s) · '+pax()+' personne(s)'+(S.start?' · arrivée le '+fdt(S.start):'')+'</h3>'+rows+'</div>'+
+ '<div class="box"><h3>Inclus</h3><div class="ln"><span>✓ Circuits, guide et trajets organisés par AFA TOURS</span></div><h3 style="margin-top:10px">Non inclus</h3><div class="ln"><span>✕ Vols, visas, boissons, dépenses personnelles</span></div></div>'+
+ '<div class="box" style="display:flex;justify-content:space-between;align-items:center"><b>Total estimé</b><b style="color:var(--red);font-size:1.05rem;text-align:right">'+(tot?money3(tot):'Sur devis')+'</b></div>'+(devis?'<p class="fmt">'+devis+' élément(s) à confirmer par notre équipe.</p>':'')+
+ '<p class="lbl">Mode de paiement au choix</p><div class="pay">'+[['momo','Mobile Money','MTN, Moov ou Celtiis'],['card','Carte bancaire','Visa ou Mastercard'],['bank','Virement bancaire','Référence fournie après validation'],['agency','Payer à l’agence ou sur place','Espèces, à Porto-Novo']].map(p=>'<label><input type="radio" name="pay" data-f="pay" value="'+p[0]+'"'+(S.pay===p[0]?' checked':'')+'><span><b>'+p[1]+'</b><small>'+p[2]+'</small></span></label>').join('')+'</div></div>'+
+ '<div class="nv"><button class="btn out" data-a="go" data-to="2">Retour</button><button class="btn red" data-a="send"'+(ne?' disabled':'')+'>'+(ne?'Corrigez d’abord':'Envoyer ma demande')+'</button></div>'}
+function done(){return '<div class="ok"><div class="ck">✓</div><h2 style="font:600 1.5rem Georgia,serif;margin:0">Demande enregistrée</h2><p class="note">Votre référence</p><div class="ref">'+S.ref+'</div><p class="note">Notre équipe vous répond sous 24 / 72 h max.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px"><button class="btn out">Voir mes réservations</button><button class="btn red">Envoyer aussi sur WhatsApp</button></div><div style="margin-top:10px"><button class="btn out" data-a="close">Fermer</button></div></div>'}
+function closed(){return '<div class="ok"><h2 style="font:600 1.4rem Georgia,serif;margin:0">Réservation fermée</h2><p class="note">La fenêtre de réservation est fermée. Sur le site, elle se ferme et la page reste en place.</p><div style="margin-top:14px"><button class="btn out" data-a="reopen">Rouvrir (démonstration)</button></div></div>'}
+function render(){
+ if(!READY){app().innerHTML=head('Composer mon séjour','Chargement des circuits et des partenaires…')+'<div class="bd"><p class="note">Un instant.</p></div>';return}
+ if(S.closed){app().innerHTML=closed();return}
+ if(S.done){app().innerHTML=done();return}
+ ensure();app().innerHTML=[s1,s2,s4][S.step-1]()}
+/* Fermer : ferme la fenêtre de réservation (évènement pour le site, message à la page parente) */
+function closeBooking(){S.panel=null;try{parent.postMessage({type:'afa-close'},'*')}catch(e){}}
+
+/* ==========================================================
+   ÉVÉNEMENTS
+   ========================================================== */
+app().addEventListener('click',e=>{
+ const t=e.target.closest('[data-a]');if(!t||t.disabled)return;
+ const a=t.dataset.a,i=+t.dataset.i,k=+t.dataset.k,v=+t.dataset.v;
+ if(a==='go'){const to=+t.dataset.to;
+  if(to===3&&S.step===2){const n=errCount();if(n){document.getElementById('err').textContent=n+' erreur(s) à corriger ci-dessous avant de continuer.';return}}
+  S.step=to;render();return}
+ if(a==='open'){S.open=i;return}
+ if(a==='addday'){S.days++;ensure();S.open=S.days-1;render();return}
+ if(a==='pOpen'){openPanel(t.dataset.kind,i,t.dataset.k!==undefined?k:null,t.dataset.s);return}
+ if(a==='pCancel'){S.panel=null;render();return}
+ if(a==='pOk'){applyPanel();return}
+ if(a==='pSame'){const P=S.panel,p=S.D[P.i-1].night;P.mode=p.mode;P.zone=p.zone;P.hotel=p.hotel;P.oname=p.own.name;P.oaddr=p.own.addr;render();return}
+ if(a==='rmstop'){S.D[i].stops.splice(k,1);if(S.panel&&S.panel.i===i&&S.panel.k===k)S.panel=null;render();return}
+ if(a==='nightClear'){S.D[i].night={mode:'none',hotel:'',zone:'',own:{name:'',addr:''},roomType:0,rooms:1,beds:1,twin:false,bf:false};render();return}
+ if(a==='delveh'){S.D[i].veh.splice(v,1);render();return}
+ if(a==='send'){if(errCount())return;try{parent.postMessage({type:'afa-plan',plan:buildPlan(),pax:pax()},'*')}catch(e){}return}
+ if(a==='close'){closeBooking();return}
+ if(a==='reopen'){S.closed=false;S.done=false;S.step=1;S.panel=null;render();return}
+});
+app().addEventListener('input',e=>{
+ const t=e.target;
+ if(t.dataset.pt){const P=S.panel;if(!P)return;const f=t.dataset.pt;P[f]=t.value;
+  const b=document.querySelector('[data-a=pOk]');if(b)b.disabled=!panelOk(P);return}
+ const f=t.dataset.txt;if(!f)return;
+ const i=+t.dataset.i,k=+t.dataset.k,v=+t.dataset.v,val=t.value;
+ if(f==='dietNote')S.dietNote=val;
+ else if(f==='nm')S.nm=val;else if(f==='nat')S.nat=val;else if(f==='w')S.w=val;else if(f==='e')S.e=val;
+ else if(f==='vehFrom')S.D[i].veh[v].from=val;
+});
+app().addEventListener('change',e=>{
+ const t=e.target;
+ if(t.dataset.pf){
+  const P=S.panel;if(!P)return;const f=t.dataset.pf;
+  switch(f){
+   case 'zone':P.zone=t.value;
+    if(P.kind==='stop'&&!CIRC.some(c=>c.id===P.ref&&c.z===P.zone))P.ref='';
+    if(P.kind==='meal'){const l=partnersIn(RES,P.zone);if(P.mode==='partner'&&!l.some(r=>r.id===P.ref)){P.ref='';if(!l.length)P.mode='afa'}}
+    if(P.kind==='night'){if(!(hOf(P.hotel)&&hOf(P.hotel).z===P.zone))P.hotel='';if(P.mode==='partner'&&!partnersIn(HOT,P.zone).length)P.mode='afa'}
+    break;
+   case 'ref':P.ref=t.value;break;
+   case 'dh':P.dh=t.value;break;
+   case 'time':P.time=t.value||P.time;break;
+   case 'mode':P.mode=t.value;if(P.kind==='meal'&&P.mode!=='partner')P.ref='';break;
+   case 'hotel':P.hotel=t.value;break;
+   case 'roomType':P.roomType=+t.value;break;
+   case 'rooms':P.rooms=Math.max(1,+t.value||1);break;
+   case 'beds':P.beds=Math.max(1,+t.value||1);break;
+   case 'twin':P.twin=t.checked;break;
+   case 'bf':P.bf=t.checked;break;
+   case 'v':P.v=t.value;break;
+   case 'days':P.days=Math.max(1,+t.value||1);break;
+  }
+  render();return}
+ const f=t.dataset.f,kk=t.dataset.k;
+ if(t.dataset.txt||t.dataset.pt||(!f&&!kk))return;
+ const i=+t.dataset.i,k=+t.dataset.k;
+ if(t.type==='checkbox'&&kk==='diet'){const x=t.value;S.diet=t.checked?S.diet.concat([x]):S.diet.filter(y=>y!==x);render();return}
+ if(f==='pay'){S.pay=t.value;return}
+ const D=S.D[i];
+ switch(f){
+  case 'start':S.start=t.value;break;
+  case 'startZone':S.startZone=t.value;break;
+  case 'days':S.days=Math.max(1,Math.min(30,+t.value||1));break;
+  case 'adults':S.adults=Math.max(1,+t.value||1);break;
+  case 'kids':S.kids=Math.max(0,+t.value||0);break;
+  case 't0':D.t0=t.value||'08:00';break;
+ }
+ render();
+});
+
+function buildPlan(){
+ const{tot,devis}=calc(),days=[];
+ let txt='*SÉJOUR SUR MESURE — '+S.days+' jour'+(S.days>1?'s':'')+'*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Voyageurs : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+([...S.diet,S.dietNote].filter(Boolean).length?' · Régime : '+[...S.diet,S.dietNote].filter(Boolean).join(', '):'')+'_\n\n';
+ for(let i=0;i<S.days;i++){
+  const rows=dayRows(i);
+  days.push({i:i+1,date:dateOf(i),rows:rows.map(r=>r.text)});
+  txt+='*Jour '+(i+1)+(S.start?' ('+dateOf(i)+')':'')+'*\n'+rows.map(r=>'• '+r.text).join('\n')+'\n\n';
+ }
+ txt+=tot?'*Estimation : '+money3(tot)+'*'+(devis?' _(hors '+devis+' élément(s) à confirmer)_':''):'*Prix à établir sur devis*';
+ return{days:days,total:tot,est:tot,quote:!tot||devis>0,text:txt};
+}
+window.addEventListener('message',e=>{
+ const m=e.data;if(!m||m.type!=='afa-data')return;
+ ZONES=m.zones||[];CIRC=m.circuits||[];HOT=m.hotels||[];RES=m.restos||[];VEH=m.veh||[];
+ if(!ZONES.includes(S.startZone))S.startZone=ZONES[0]||'';
+ READY=true;render();
+});
+S.D=[newDay()];ensure();render();
+</script>
+</body>
+</html>

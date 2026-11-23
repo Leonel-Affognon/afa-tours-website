@@ -75,64 +75,35 @@ all();
 (function(){
 const W=window.__AFA;if(!W)return;
 const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const KEY='afa_plan';
-let P;try{P=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){P=null}
-if(!P||!P.days)P={start:'',n:7,pax:2,rooms:1,days:[]};
-function save(){try{localStorage.setItem(KEY,JSON.stringify(P))}catch(e){}}
-function ensure(){while(P.days.length<P.n)P.days.push({city:'',c:[],lod:P.days.length?'prev':'afa',r:[],t:[],note:''});P.days.length=P.n}
-const d=document.createElement('dialog');d.className='xd';d.id='pl';d.setAttribute('aria-labelledby','plt');
-d.innerHTML='<div class="xh"><h2 id="plt">Composer mon séjour</h2><p>Choisissez vos circuits, vos hôtels et vos transports jour par jour. Le prix se calcule tout seul.</p><button class="xx" type="button" aria-label="Fermer" id="plx">×</button></div><div class="xb"><div class="plw"><div class="pls" id="pls"></div><div class="pld" id="pld"></div><p class="plq" id="plq"></p></div><div class="plf"><div><div class="tt" id="pltt"></div><small id="plsm"></small></div><button class="btn btn-red" type="button" id="plgo">Envoyer ma demande</button></div></div>';
+/* Composer mon séjour : la page composer-sejour.html est chargée dans une fenêtre.
+   Le site lui envoie les circuits, partenaires et transports ; elle renvoie le plan,
+   qui ouvre ensuite la demande de réservation existante. */
+const ZID={'axe-du-pouvoir':'Porto-Novo','secrets-riviere-noire':'Porto-Novo','vie-ciel-eau':'Cotonou','route-memoires':'Ouidah','traces-danxome':'Abomey','amazone-atlantique':'Cotonou','fleuve-ocean':'Grand-Popo','aguegues':'Porto-Novo','dangbo':'Porto-Novo','vodun-gardiens':'Porto-Novo','egungun':'Porto-Novo','guelede':'Porto-Novo','ketou':'Plateau','pobe':'Plateau','sakete':'Plateau'};
+const hnum=s=>{const n=(String(s||'').replace(',','.').match(/\d+(?:\.\d+)?/g)||[]).map(Number);return n.length?Math.max(...n):null};
+const d=document.createElement('dialog');d.className='xd hasfx';d.id='pl';d.setAttribute('aria-label','Composer mon séjour');
+d.style.cssText='width:min(520px,calc(100% - 16px));height:min(92vh,880px);max-height:92vh;padding:0;border:0;border-radius:18px;overflow:hidden';
+d.innerHTML='<iframe id="plf" title="Composer mon séjour" src="composer-sejour.html" style="width:100%;height:100%;border:0;display:block"></iframe>';
 document.body.appendChild(d);
-const $=s=>d.querySelector(s);
-const circuits=()=>(window.TRIPS||[]);
-const lodgings=()=>W.ALLP().filter(x=>x.k==='hotel'||x.k==='heb');
-const restos=()=>W.ALLP().filter(x=>x.k==='resto');
-const trans=()=>W.TR.map(x=>({id:x.id,n:x.n,p:x.p||0,u:''})).concat(W.ALLP().filter(x=>x.k==='trans').map(x=>({id:x.id,n:x.n,p:x.p||0,u:x.u||''})));
-const m=n=>typeof money==='function'?money(n):n.toLocaleString('fr-FR')+' FCFA';
-function setup(){
-$('#pls').innerHTML='<label>Arrivée<input type="date" id="pst" value="'+E(P.start)+'"></label><label>Nombre de jours<div class="plc" id="pn">'+[3,5,7,10,14,21].map(n=>'<button type="button" data-n="'+n+'" class="'+(P.n===n?'on':'')+'">'+n+'</button>').join('')+'</div></label><label>Autre durée (1 à 60)<input type="number" min="1" max="60" id="pnc" value="'+P.n+'"></label><label>Voyageurs<input type="number" min="1" max="99" id="ppx" value="'+P.pax+'"></label><label>Chambres<input type="number" min="1" max="50" id="prm" value="'+P.rooms+'"></label>'}
-function dateOf(i){if(!P.start)return'';const t=new Date(P.start+'T12:00:00');t.setDate(t.getDate()+i);return t.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}
-function lodOpts(i,v){const l=lodgings();return (i?'<option value="prev"'+(v==='prev'?' selected':'')+'>Même hébergement que la nuit précédente</option>':'')+'<option value="afa"'+(v==='afa'?' selected':'')+'>Laissez AFA TOURS me proposer</option><option value="own"'+(v==='own'?' selected':'')+'>J’ai déjà mon hébergement</option><option value="none"'+(v==='none'?' selected':'')+'>Pas de nuit ici</option>'+l.map(x=>'<option value="'+E(x.id)+'"'+(v===x.id?' selected':'')+'>'+E((W.KI[x.k]||'')+' '+x.n+(x.v?' — '+x.v:'')+(x.p?' · '+m(x.p)+'/nuit':' · sur devis'))+'</option>').join('')}
-function chk(name,i,items,sel,priceFn){return '<div class="pck">'+items.map(x=>'<label><input type="checkbox" data-k="'+name+'" data-i="'+i+'" value="'+E(x.id)+'"'+(sel.includes(x.id)?' checked':'')+'><span>'+E(x.n)+'<small>'+(priceFn(x)||'')+'</small>'+(name==='c'?'<button type="button" class="mo" data-det="'+E(x.id)+'">Voir le détail</button>':'')+'</span></label>').join('')+'</div>'}
-function days(){
-ensure();const op=[...$('#pld').querySelectorAll('details')].map(x=>x.open);
-$('#pld').innerHTML=P.days.map((x,i)=>'<details class="pd" data-i="'+i+'"'+(op[i]||(!op.length&&i===0)?' open':'')+'><summary><b>Jour '+(i+1)+'</b><span>'+E(dateOf(i)+(x.city?' · '+x.city:''))+'</span><i data-sub="'+i+'"></i></summary><div class="pdb"><div><h4>Ville ou lieu</h4><input type="text" data-f="city" data-i="'+i+'" value="'+E(x.city)+'" placeholder="Cotonou, Ouidah, Abomey, Grand-Popo…"></div><div><h4>Circuits et visites ce jour</h4>'+chk('c',i,circuits().map(t=>({id:t.id,n:t.destination+' — '+t.title,p:t.priceValue})),x.c,t=>t.p?'<em>'+m(t.p)+'</em> par personne':'Prix sur devis')+'</div><div><h4>Hébergement pour la nuit</h4><select data-f="lod" data-i="'+i+'">'+lodOpts(i,x.lod)+'</select></div>'+(restos().length?'<div><h4>Restaurants</h4>'+chk('r',i,restos(),x.r,r=>r.p?'<em>'+m(r.p)+'</em> par personne':'Prix sur devis')+'</div>':'')+'<div><h4>Transport</h4>'+chk('t',i,trans(),x.t,t=>t.p?'<em>'+m(t.p)+'</em>'+(t.u?' / '+E(t.u):''):'Prix sur devis')+'</div><div><h4>Précisions pour ce jour</h4><textarea rows="2" data-f="note" data-i="'+i+'" placeholder="Horaires, envies, contraintes…">'+E(x.note)+'</textarea></div></div></details>').join('');
-calc()}
-function resolveLod(i){let v=P.days[i].lod;while(v==='prev'&&i>0){i--;v=P.days[i].lod}return v==='prev'?'afa':v}
-function calc(){
-ensure();let total=0,quote=[],lines=[],txt=[];
-const C=circuits(),L=lodgings(),R=restos(),TT=trans();
-P.days.forEach((x,i)=>{let sub=0,parts=[];
-x.c.forEach(id=>{const t=C.find(z=>z.id===id);if(!t)return;parts.push('Circuit : '+t.destination+' — '+t.title);if(t.priceValue)sub+=t.pg?+t.priceValue:(P.pax>=7&&typeof gprice==='function'?gprice(t.priceValue):t.priceValue)*P.pax;else quote.push('Jour '+(i+1)+' · '+t.destination)});
-const lv=resolveLod(i);
-if(lv==='afa')parts.push('Hébergement : à proposer par AFA TOURS');else if(lv==='own')parts.push('Hébergement : déjà réservé par le client');else if(lv!=='none'){const h=L.find(z=>z.id===lv);if(h){parts.push('Hébergement : '+h.n+(i&&x.lod==='prev'?' (même qu’avant)':''));if(h.p)sub+=h.p*P.rooms;else quote.push('Jour '+(i+1)+' · '+h.n)}}
-x.r.forEach(id=>{const r=R.find(z=>z.id===id);if(!r)return;parts.push('Restaurant : '+r.n);if(r.p)sub+=r.p*P.pax;else quote.push('Jour '+(i+1)+' · '+r.n)});
-x.t.forEach(id=>{const t=TT.find(z=>z.id===id);if(!t)return;parts.push('Transport : '+t.n);if(t.p)sub+=t.p;else quote.push('Jour '+(i+1)+' · '+t.n)});
-if(x.note)parts.push('Note : '+x.note);
-total+=sub;const el=$('[data-sub="'+i+'"]');if(el)el.textContent=sub?m(sub):'';
-txt.push('*Jour '+(i+1)+(P.start?' ('+dateOf(i)+')':'')+(x.city?' — '+x.city:'')+'*\n'+(parts.map(z=>'• '+z.replace(/^Note : (.*)$/,'_Note : $1_')).join('\n')||'• À définir avec AFA TOURS')+'\n')});
-const q=quote.length;
-$('#pltt').textContent=total?m(total)+(q?' + devis':''):'Sur devis';
-$('#plsm').textContent=P.n+' jours · '+P.pax+' voyageur'+(P.pax>1?'s':'')+' · '+P.rooms+' chambre'+(P.rooms>1?'s':'')+(q?' · '+q+' élément'+(q>1?'s':'')+' sans prix':'');
-$('#plq').textContent=q?'Sans prix affiché, donc inclus dans le devis : '+quote.slice(0,8).join(' ; ')+(q>8?'…':'')+'.':'';
-const full='*SÉJOUR SUR MESURE — '+P.n+' jours*'+(P.start?' (arrivée le '+P.start+')':'')+'\n_Voyageurs : '+P.pax+' · Chambres : '+P.rooms+'_\n\n'+txt.join('\n')+'\n'+(total?'*Estimation calculée : '+m(total)+'*'+(q?' _(hors éléments sans prix)_':''):'*Prix à établir sur devis*');
-P.out={days:P.days.map((x,i)=>({i,city:x.city})),total:total,est:total,quote:!total||q>0,text:full};save();return P.out}
-d.addEventListener('input',e=>{const t=e.target;
-if(t.id==='pst'){P.start=t.value;days();return}
-if(t.id==='ppx'){P.pax=Math.max(1,+t.value||1);calc();return}
-if(t.id==='prm'){P.rooms=Math.max(1,+t.value||1);calc();return}
-if(t.id==='pnc'){const n=Math.min(60,Math.max(1,+t.value||1));if(n!==P.n){P.n=n;setup();days()}return}
-if(t.dataset.f){P.days[+t.dataset.i][t.dataset.f]=t.value;if(t.dataset.f==='city'){const s=t.closest('details').querySelector('summary span');s.textContent=dateOf(+t.dataset.i)+(t.value?' · '+t.value:'')}calc()}});
-d.addEventListener('change',e=>{const t=e.target;
-if(t.dataset.k){const a=P.days[+t.dataset.i][t.dataset.k==='c'?'c':t.dataset.k==='r'?'r':'t'];const v=t.value,ix=a.indexOf(v);if(t.checked&&ix<0)a.push(v);if(!t.checked&&ix>=0)a.splice(ix,1);calc();return}
-if(t.dataset.f==='lod'){P.days[+t.dataset.i].lod=t.value;calc()}});
-d.addEventListener('click',e=>{const t=e.target;
-if(t.id==='plx'){d.close();return}
-const n=t.closest('[data-n]');if(n){P.n=+n.dataset.n;setup();days();return}
-const det=t.closest('[data-det]');if(det){e.preventDefault();e.stopPropagation();d.close();setTimeout(()=>{window.openD&&openD(det.dataset.det)},50);return}
-if(t.id==='plgo'){const o=calc();d.close();W.setPlan({days:o.days,total:o.total,est:o.est,quote:o.quote,text:o.text},P.pax)}});
-d.addEventListener('click',e=>{if(e.target===d)d.close()});
-function open(){setup();days();d.showModal();if(window.__trDom)window.__trDom(d)}
+const fr=d.querySelector('#plf');
+function plData(){
+ const A=W.ALLP(),T=window.TRIPS||[];
+ const circuits=T.map(t=>({id:t.id,n:t.title,dest:t.destination,z:ZID[t.id]||t.destination,dur:t.duration||'',h:hnum(t.duration),p:+t.priceValue||0,unit:t.pg?'groupe':'pers',from:!!t.priceFrom}));
+ const pl=x=>({id:x.id,n:x.n,z:x.v||'Porto-Novo',p:+x.p||0});
+ const hotels=A.filter(x=>x.k==='hotel'||x.k==='heb').map(pl);
+ const restos=A.filter(x=>x.k==='resto').map(pl);
+ const veh=(W.TR||[]).map(x=>({id:x.id,n:x.n,p:0})).concat(A.filter(x=>x.k==='trans').map(x=>({id:x.id,n:x.n,p:+x.p||0})));
+ const zones=['Porto-Novo'];
+ circuits.concat(hotels,restos).forEach(x=>{if(x.z&&!zones.includes(x.z))zones.push(x.z)});
+ return{zones,circuits,hotels,restos,veh};
+}
+fr.addEventListener('load',()=>{try{fr.contentWindow.postMessage(Object.assign({type:'afa-data'},plData()),'*')}catch(e){}});
+window.addEventListener('message',e=>{
+ if(e.source!==fr.contentWindow)return;
+ const m=e.data||{};
+ if(m.type==='afa-close'){d.close();return}
+ if(m.type==='afa-plan'){d.close();W.setPlan(m.plan,m.pax);return}
+});
+function open(){d.showModal();if(window.__trDom)window.__trDom(d)}
 window.__plan={open:open};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-plan],.cw [data-bk="plan"]');if(b){e.preventDefault();open()}});
 })();
