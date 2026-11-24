@@ -849,7 +849,7 @@ $('#fd').value=st.d;$('#ft').value=[...st.th][0]||'';$('#fh').value=st.h;$('#sor
 $$('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===lang));$$('.cursel').forEach(s=>s.value=cur);$$('.fxnote').forEach(n=>n.innerHTML=t('fx').replace(/7 ?%/,Math.round((MARGIN-1)*1000)/10+(lang==='fr'?' %':'%'))+(cur==='XOF'||cur==='XAF'||cur==='EUR'?'':' <b>'+(lang==='fr'?'Taux appliqué ':'Rate applied ')+'1 EUR = '+((RATES_24H[cur]||FX[cur])*MARGIN).toLocaleString(loc(),{maximumFractionDigits:2})+' '+cur+'</b> '+(fxLive?t('fxl'):t('fxs'))));
 $('#faq').innerHTML=[1,2,3,4,5,6,7,8].map(i=>'<details class="q"><summary>'+t('q'+i)+'</summary><p>'+t('a'+i)+'</p></details>').join('');renderAgenda();renderGal();renderRv();renderSel();if(window.slidesInit)slidesInit()}
 // ---- événements
-document.addEventListener('change',ev=>{const s=ev.target.closest&&ev.target.closest('.cursel');if(s){cur=s.value;applyLang();['rcf','plf'].forEach(id=>{try{const f=document.getElementById(id);f&&f.contentWindow.postMessage({type:'afa-cur',cur:cur},'*')}catch(e){}})}});
+document.addEventListener('change',ev=>{const s=ev.target.closest&&ev.target.closest('.cursel');if(s){cur=s.value;applyLang();['rcf','plf','dsf'].forEach(id=>{try{const f=document.getElementById(id);f&&f.contentWindow.postMessage({type:'afa-cur',cur:cur},'*')}catch(e){}})}});
 document.addEventListener('click',e=>{const g=e=>e.target.closest(g.s);const c=s=>e.target.closest(s);let b;
 if(b=c('[data-lang]')){lang=b.dataset.lang;applyLang();return}
 if(b=c('.heart'))return toggle(b.dataset.id);if(b=c('[data-add]')){const id=b.dataset.add;if(sel.has(id)){return window.openBook&&openBook('circuit')}if(!sel.has(id)){sel.add(id);renderSel()}return window.__remind&&window.__remind(id)}if(b=c('[data-open]'))return openD(b.dataset.open);
@@ -970,7 +970,12 @@ $('#bbody').innerHTML='<div class="okb"><div class="ck">'+(ok?'✓':'!')+'</div>
 if(window.AFA_SUBMIT||PROD){$('#bbody').innerHTML='<div class="okb"><p style="font-weight:700;padding:26px 0">Envoi de votre demande…</p></div>';
 const pl={action:'booking',request_type:S.kind==='circuit'?'existing_tour':'custom_trip',full_name:S.nm||'Visiteur du site',email:S.e||'sans-email@afa-tours.site',phone:S.w||null,budget:null,preferred_date:S.d1||null,party_size:S.pax,tour_name:rec.label,message:[KN[S.kind],rec.x,'Paiement : '+payL,tot?'Total : '+tot+' FCFA':'Sur devis','Langue : '+lang,S.w?'Contact : '+S.w:'',S.e?'':'(pas d’e-mail)',S.loc?'Position : '+S.loc:'',S.nt].filter(Boolean).join(' | ')};
 Promise.race([SUB(pl),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),12000))]).then(r=>fin(r.reference||ref0,true)).catch(()=>fin(ref0,false))}else fin(ref0,true)}
-window.openBook=function(kind,id){if(window.__rc){window.__rc.open(id);return}S={kind:kind||'circuit',id:id||null,pax:2,nights:1,rooms:1,lodge:'partner'};const l=listFor(S.kind);if(!id||!l.some(x=>x.id===S.id))S.id=l[0]&&l[0].id;$('#bkt').textContent='Réserver';s1();const d=document.querySelector('#dlg');d&&d.open&&d.close();bk.showModal()};
+window.openBook=function(kind,id){if(kind==="sejour"&&id==="sx"&&window.__dsd){window.__dsd.open();return}if(window.__rc){window.__rc.open(id);return}S={kind:kind||'circuit',id:id||null,pax:2,nights:1,rooms:1,lodge:'partner'};const l=listFor(S.kind);if(!id||!l.some(x=>x.id===S.id))S.id=l[0]&&l[0].id;$('#bkt').textContent='Réserver';s1();const d=document.querySelector('#dlg');d&&d.open&&d.close();bk.showModal()};
+window.submitDemande=function(m){const c=m.contact||{};const ref='AFA-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+const rec={ref:ref,lang:lang,at:new Date().toISOString(),kind:'plan',label:'Demande de séjour sur mesure',x:m.text||'',d1:m.arrival||'',pax:m.pax||'',total:0,pay:'',deposit:0,nm:c.nm||'Visiteur du site',w:c.w,e:c.e,nt:c.nt||'',loc:'',status:'À étudier'};
+const a=LS.get('afa_bookings',[]);a.unshift(rec);LS.set('afa_bookings',a);
+const wa='https://wa.me/'+waNum()+'?text='+encodeURIComponent(['Bonjour AFA TOURS, ma demande de séjour '+ref+' :',m.text||'','Nom : '+(c.nm||'—'),c.w?'WhatsApp / téléphone : '+c.w:'',c.e?'E-mail : '+c.e:''].filter(Boolean).join('\n'));
+try{document.getElementById('dsf').contentWindow.postMessage({type:'afa-done',ok:true,ref:ref,wa:wa},'*')}catch(err){}};
 window.submitComposer=function(m,tgt){const c=m.contact||{},plan=m.plan||{},tot=+plan.total||0,pax=m.pax||2;
 const ref0='AFA-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
 const payL={momo:'Mobile Money',card:'Carte bancaire',bank:'Virement',agency:'Paiement à l’agence'}[c.pay]||c.pay||'';
@@ -1444,6 +1449,15 @@ window.addEventListener('message',e=>{
  if(m.type==='afa-mybk'){const mb=document.querySelector('[data-mybk]');if(mb)mb.click();return}
 });
 window.__rc={open:function(id){dr.showModal();if(id){try{fr2.contentWindow.postMessage({type:'afa-preset',id:id},'*')}catch(e){}}}};
+const dsd=document.createElement('dialog');dsd.className='xd hasfx';dsd.id='dsd';dsd.setAttribute('aria-label','Demander mon séjour');
+dsd.style.cssText='width:min(520px,calc(100% - 16px));height:min(92vh,880px);max-height:92vh;padding:0;border:0;border-radius:18px;overflow:hidden';
+dsd.innerHTML='<iframe id="dsf" title="Demander mon séjour" src="demande-sejour.html" style="width:100%;height:100%;border:0;display:block"></iframe>';
+document.body.appendChild(dsd);
+const fr3=dsd.querySelector('#dsf');
+const dsdData=()=>({type:'afa-data',cur:cur,rates:RATES_24H,margin:MARGIN});
+fr3.addEventListener('load',()=>{try{fr3.contentWindow.postMessage(dsdData(),'*')}catch(e){}});
+window.addEventListener('message',e=>{if(e.source!==fr3.contentWindow)return;const m=e.data||{};if(m.type==='afa-close'){dsd.close();return}if(m.type==='afa-request'){window.submitDemande&&window.submitDemande(m);return}});
+window.__dsd={open:function(){dsd.showModal();try{fr3.contentWindow.postMessage(dsdData(),'*')}catch(e){}}};
 window.__plan={open:open};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-plan],.cw [data-bk="plan"]');if(b){e.preventDefault();open()}});
 })();

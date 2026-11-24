@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demander mon séjour · AFA TOURS</title>
+<style>
+:root{--red:#B51D27;--ink:#2a1a14;--mute:#7a6a62;--line:#e6dcd3;--cream:#faf6f1}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#fff;font:15px/1.5 Georgia,serif;color:var(--ink);overflow:hidden}
+.app{height:100%;display:flex;flex-direction:column}
+.hd{background:#4a1f1a;color:#fff;padding:18px 20px;flex:none;position:relative}
+.hd h1{margin:0;font-size:1.3rem}
+.hd p{margin:4px 0 0;opacity:.85;font-size:.9rem}
+.bd{padding:6px 18px 8px;overflow:auto;flex:1;min-height:0}
+.intro{background:var(--cream);border-radius:12px;padding:12px 14px;font-size:.92rem;margin:12px 0 4px}
+h2{font:700 .8rem Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin:18px 0 8px}
+label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
+.in{width:100%;border:1px solid #d9cbbd;border-radius:12px;padding:10px 12px;font:15px Arial,sans-serif;background:#fff;color:var(--ink)}
+.in:focus{outline:2px solid #e8b4b7;border-color:var(--red)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chip{font:600 .85rem Arial,sans-serif;border:1px solid #d9cbbd;border-radius:999px;padding:7px 13px;background:#fff;color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
+.hint{font:.8rem Arial,sans-serif;color:var(--mute);margin:4px 0 0}
+.hidden{display:none!important}
+.in.other{margin-top:8px}
+.bud{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #d9cbbd;border-radius:14px;padding:12px 14px;margin-top:8px;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:inherit}
+.bud[aria-pressed="true"]{border-color:var(--red);box-shadow:0 0 0 2px #f1d3d5}
+.bud b{display:block;font:700 1.05rem Arial,sans-serif;color:var(--ink)}
+.bud div{text-align:right;white-space:nowrap}
+.bud span{display:block;font:.88rem Arial,sans-serif;color:var(--mute);margin-top:2px}
+.bud .fx{color:var(--red);font-weight:700}
+.bud b.fx{color:var(--red)}
+.budg{display:grid;gap:0}
+.err{font:.85rem Arial,sans-serif;color:var(--red);margin:10px 0 0;min-height:1em}
+.note{font:.8rem Arial,sans-serif;color:var(--mute);margin:10px 0 0}
+.ft{display:flex;gap:10px;padding:12px 18px 16px;border-top:1px solid var(--line);flex:none;background:#fff}
+.btn{flex:1;padding:12px;border-radius:999px;border:1px solid var(--red);font:600 .95rem Arial,sans-serif;background:#fff;color:var(--red);cursor:pointer}
+.btn.red{background:var(--red);color:#fff}
+.ok{text-align:center;padding:28px 10px}
+.ok .ck{width:54px;height:54px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.6rem}
+.ok h3{margin:0 0 6px;font-size:1.2rem}
+.ok a{color:var(--red);font:600 .95rem Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hd"><h1>Demander mon séjour</h1><p>Indiquez l’essentiel : notre équipe organise le reste</p></div>
+
+  <form class="bd" id="f" novalidate>
+    <div id="formView">
+      <div class="intro">Vous n’avez pas besoin de tout organiser. Dites-nous vos dates, vos envies et le nombre de personnes : nous vous proposons un programme et un devis.</div>
+
+      <h2>Dates et personnes</h2>
+      <div class="two">
+        <div><label class="f" for="arr">Date d’arrivée *</label><input class="in" id="arr" type="date" required></div>
+        <div><label class="f" for="dur">Durée (nombre de jours) *</label><input class="in" id="dur" type="number" min="1" max="365" inputmode="numeric" placeholder="Ex. 7" required></div>
+      </div>
+      <label class="f">Nombre de personnes *</label>
+      <div class="two">
+        <div><label class="f" for="ad" style="margin-top:0">Adultes</label><input class="in" id="ad" type="number" min="1" value="2" inputmode="numeric" required></div>
+        <div><label class="f" for="en" style="margin-top:0">Enfants</label><input class="in" id="en" type="number" min="0" value="0" inputmode="numeric"></div>
+      </div>
+
+      <h2>Où voulez-vous aller ?</h2>
+      <div class="chips" data-group="dest">
+        <button type="button" class="chip" data-v="Porto-Novo" aria-pressed="false">Porto-Novo</button>
+        <button type="button" class="chip" data-v="Ouidah" aria-pressed="false">Ouidah</button>
+        <button type="button" class="chip" data-v="Cotonou" aria-pressed="false">Cotonou</button>
+        <button type="button" class="chip" data-v="Abomey" aria-pressed="false">Abomey</button>
+        <button type="button" class="chip" data-v="Grand-Popo" aria-pressed="false">Grand-Popo</button>
+        <button type="button" class="chip" data-v="Ganvié" aria-pressed="false">Ganvié</button>
+        <button type="button" class="chip" data-v="Pendjari" aria-pressed="false">Pendjari</button>
+        <button type="button" class="chip" data-v="Autre" data-other="dest" aria-pressed="false">Autre</button>
+      </div>
+      <input class="in other hidden" id="destOther" placeholder="Précisez le ou les lieux souhaités">
+      <p class="hint">Vous pouvez choisir plusieurs lieux.</p>
+
+      <h2>Vos projets et intérêts</h2>
+      <div class="chips" data-group="int">
+        <button type="button" class="chip" data-v="Vodun" aria-pressed="false">Vodun</button>
+        <button type="button" class="chip" data-v="Histoire" aria-pressed="false">Histoire</button>
+        <button type="button" class="chip" data-v="Festival" aria-pressed="false">Festival</button>
+        <button type="button" class="chip" data-v="Nature" aria-pressed="false">Nature</button>
+        <button type="button" class="chip" data-v="Artisanat" aria-pressed="false">Artisanat</button>
+        <button type="button" class="chip" data-v="Détente" aria-pressed="false">Détente</button>
+        <button type="button" class="chip" data-v="Cuisine" aria-pressed="false">Cuisine</button>
+        <button type="button" class="chip" data-v="Autre" data-other="int" aria-pressed="false">Autre</button>
+      </div>
+      <input class="in other hidden" id="intOther" placeholder="Précisez votre ou vos centres d’intérêt">
+      <p class="hint">Vous pouvez choisir plusieurs centres d’intérêt.</p>
+
+      <h2>Votre budget</h2>
+      <p class="hint" style="margin:0 0 6px">Pour le budget total du séjour, choisissez une fourchette. Nous organisons le séjour selon ce budget.</p>
+      <div class="budg" id="bands"></div>
+
+      <label class="f">Ou indiquez votre propre budget</label>
+      <div class="chips" data-group="cur" style="margin:4px 0 8px">
+        <button type="button" class="chip" data-v="XOF" aria-pressed="true">FCFA</button>
+        <button type="button" class="chip" data-v="USD" aria-pressed="false">$</button>
+        <button type="button" class="chip" data-v="EUR" aria-pressed="false">€</button>
+      </div>
+      <input class="in" id="own" type="number" min="0" inputmode="numeric" placeholder="Montant total, dans la devise choisie">
+
+      <h2>Message</h2>
+      <label class="f" for="msg" style="margin-top:0">Vos précisions (facultatif)</label>
+      <textarea class="in" id="msg" rows="3" placeholder="Par exemple : une famille avec un enfant de 8 ans, pas plus de 4 h de route par jour…"></textarea>
+      <p class="hint">Aucun paiement n’est demandé à cette étape.</p>
+
+      <h2>Vos coordonnées</h2>
+      <div class="two">
+        <div><label class="f" for="nm">Nom complet *</label><input class="in" id="nm" autocomplete="name" required></div>
+        <div><label class="f" for="nt">Nationalité *</label><input class="in" id="nt" required></div>
+      </div>
+      <div class="two">
+        <div><label class="f" for="wa">WhatsApp ou téléphone *</label><input class="in" id="wa" type="tel" autocomplete="tel" placeholder="+229…" required></div>
+        <div><label class="f" for="em">E-mail *</label><input class="in" id="em" type="email" autocomplete="email" required></div>
+      </div>
+      <p class="err" id="err" role="alert"></p>
+      <p class="note">Après l’envoi, notre équipe étudie votre demande et vous répond avec un programme et un devis, sous 24 à 72 h.</p>
+    </div>
+
+    <div id="doneView" class="ok hidden" role="status">
+      <div class="ck">✓</div>
+      <h3>Demande bien reçue</h3>
+      <p>Référence : <b id="ref"></b>. Notre équipe revient vers vous avec un programme et un devis.</p>
+      <p><a id="waLink" href="#" target="_blank" rel="noopener">Envoyer aussi ma demande sur WhatsApp</a></p>
+    </div>
+  </form>
+
+  <div class="ft" id="ft">
+    <button type="button" class="btn" id="back">Retour</button>
+    <button type="submit" class="btn red" form="f" id="send">Envoyer ma demande</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var PEG = 655.957;          // FCFA pour 1 €
+  var RATES = {EUR:1, USD:1.10}; // unités par 1 € (remplacées par les taux du site)
+  var MRG = 1.07;
+  var CUR = 'XOF';
+  var BANDS = [[300000,600000],[600000,1000000]];
+  var SEL = {dest:{}, int:{}, budget:null, cur:'XOF'};
+
+  function sp(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+  function r10(n){ return Math.ceil(n/10)*10; }
+  function sym(c){ return c==='XOF'?'FCFA':(c==='USD'?'$':'€'); }
+  function conv(fcfa,c){
+    if(c==='XOF') return r10(fcfa);
+    if(c==='EUR') return r10(fcfa/PEG*MRG);
+    var r = RATES.USD;
+    return r ? r10(fcfa/PEG*MRG*r) : null;
+  }
+  function order(){ return [CUR].concat(['XOF','USD','EUR'].filter(function(c){return c!==CUR})); }
+  function rangeTxt(lo,hi,c){
+    var a=conv(lo,c), b=conv(hi,c);
+    if(a==null||b==null) return null;
+    return sp(a)+' – '+sp(b)+' '+sym(c);
+  }
+
+  function renderBands(){
+    var box = document.getElementById('bands');
+    box.innerHTML = BANDS.map(function(b,i){
+      var cs = order().filter(function(c){return rangeTxt(b[0],b[1],c)});
+      var first = cs[0], rest = cs.slice(1);
+      var head = '<b'+(first!=='XOF'?' class="fx"':'')+'>'+(first!=='XOF'?'≈ ':'')+rangeTxt(b[0],b[1],first)+'</b>';
+      var lines = rest.map(function(c){
+        return '<span'+(c!=='XOF'?' class="fx"':'')+'>'+(c!=='XOF'?'≈ ':'')+rangeTxt(b[0],b[1],c)+'</span>';
+      }).join('');
+      var pressed = SEL.budget===i ? 'true':'false';
+      return '<button type="button" class="bud" data-band="'+i+'" aria-pressed="'+pressed+'">'+head+'<div>'+lines+'</div></button>';
+    }).join('');
+  }
+
+  function setPressed(el,on){ el.setAttribute('aria-pressed', on?'true':'false'); }
+
+  function selectedList(group){
+    return Object.keys(SEL[group]).filter(function(k){return SEL[group][k]});
+  }
+
+  function budgetText(){
+    if(SEL.budget!==null){
+      var b = BANDS[SEL.budget];
+      var c = order()[0];
+      return rangeTxt(b[0],b[1],'XOF')+(CUR!=='XOF'?' ('+rangeTxt(b[0],b[1],CUR)+')':'');
+    }
+    var v = document.getElementById('own').value.trim();
+    if(v) return sp(v)+' '+sym(SEL.cur);
+    return '';
+  }
+
+  function listWithOther(group, otherId){
+    var items = selectedList(group).filter(function(k){return k!=='Autre'});
+    if(SEL[group]['Autre']){
+      var t = document.getElementById(otherId).value.trim();
+      items.push(t?('Autre : '+t):'Autre (non précisé)');
+    }
+    return items.join(', ');
+  }
+
+  function buildText(){
+    var ad = document.getElementById('ad').value, en = document.getElementById('en').value||'0';
+    var lines = [
+      'Date d’arrivée : '+document.getElementById('arr').value,
+      'Durée : '+document.getElementById('dur').value+' jour(s)',
+      'Personnes : '+ad+' adulte(s), '+en+' enfant(s)',
+      'Destinations : '+listWithOther('dest','destOther'),
+      'Centres d’intérêt : '+listWithOther('int','intOther'),
+      'Budget : '+budgetText()
+    ];
+    var msg = document.getElementById('msg').value.trim();
+    if(msg) lines.push('Message : '+msg);
+    return lines.join('\n');
+  }
+
+  function validate(){
+    var miss = [];
+    if(!document.getElementById('arr').value) miss.push('la date d’arrivée');
+    var dur = +document.getElementById('dur').value;
+    if(!(dur>=1)) miss.push('la durée');
+    if(!(+document.getElementById('ad').value>=1)) miss.push('le nombre d’adultes');
+    if(!selectedList('dest').length) miss.push('au moins une destination');
+    if(SEL.dest['Autre'] && !document.getElementById('destOther').value.trim()) miss.push('le lieu précisé dans « Autre »');
+    if(SEL.int['Autre'] && !document.getElementById('intOther').value.trim()) miss.push('le centre d’intérêt précisé dans « Autre »');
+    if(SEL.budget===null && !document.getElementById('own').value.trim()) miss.push('un budget');
+    if(!document.getElementById('nm').value.trim()) miss.push('votre nom');
+    if(!document.getElementById('nt').value.trim()) miss.push('votre nationalité');
+    if(!document.getElementById('wa').value.trim()) miss.push('votre WhatsApp ou téléphone');
+    var em = document.getElementById('em').value.trim();
+    if(!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) miss.push('un e-mail valide');
+    return miss;
+  }
+
+  // Interactions
+  document.addEventListener('click', function(e){
+    var band = e.target.closest('[data-band]');
+    if(band){
+      var i = +band.getAttribute('data-band');
+      SEL.budget = (SEL.budget===i)?null:i;
+      if(SEL.budget!==null) document.getElementById('own').value='';
+      renderBands();
+      return;
+    }
+    var chip = e.target.closest('.chip');
+    if(!chip) return;
+    var g = chip.parentElement.getAttribute('data-group');
+    if(g==='cur'){
+      SEL.cur = chip.getAttribute('data-v');
+      Array.prototype.forEach.call(chip.parentElement.children, function(c){ setPressed(c, c===chip); });
+      return;
+    }
+    var v = chip.getAttribute('data-v');
+    var on = chip.getAttribute('aria-pressed')!=='true';
+    setPressed(chip, on);
+    SEL[g][v] = on;
+    if(chip.hasAttribute('data-other')){
+      var inp = document.getElementById(g==='dest'?'destOther':'intOther');
+      inp.classList.toggle('hidden', !on);
+      if(on) inp.focus();
+    }
+  });
+
+  document.getElementById('own').addEventListener('input', function(){
+    if(this.value.trim() && SEL.budget!==null){ SEL.budget=null; renderBands(); }
+  });
+
+  document.getElementById('back').addEventListener('click', function(){
+    parent.postMessage({type:'afa-close'},'*');
+  });
+
+  document.getElementById('f').addEventListener('submit', function(e){
+    e.preventDefault();
+    var miss = validate();
+    var err = document.getElementById('err');
+    if(miss.length){
+      err.textContent = 'Merci de compléter : '+miss.join(', ')+'.';
+      return;
+    }
+    err.textContent = '';
+    var contact = {
+      nm: document.getElementById('nm').value.trim(),
+      nt: document.getElementById('nt').value.trim(),
+      w: document.getElementById('wa').value.trim(),
+      e: document.getElementById('em').value.trim()
+    };
+    document.getElementById('send').disabled = true;
+    parent.postMessage({type:'afa-request', text: buildText(), arrival: document.getElementById('arr').value,
+      pax: document.getElementById('ad').value+' adulte(s), '+(document.getElementById('en').value||'0')+' enfant(s)',
+      contact: contact}, '*');
+  });
+
+  window.addEventListener('message', function(e){
+    var m = e.data||{};
+    if(e.source!==parent) return;
+    if(m.type==='afa-data' || m.type==='afa-rates' || m.type==='afa-cur'){
+      if(m.cur) CUR = m.cur;
+      if(m.rates) RATES = m.rates;
+      if(m.margin) MRG = m.margin;
+      renderBands();
+    }
+    if(m.type==='afa-done'){
+      document.getElementById('formView').classList.add('hidden');
+      document.getElementById('ref').textContent = m.ref||'';
+      var a = document.getElementById('waLink');
+      if(m.wa) a.href = m.wa;
+      document.getElementById('doneView').classList.remove('hidden');
+      document.getElementById('ft').innerHTML = '<button type="button" class="btn red" id="close">Fermer</button>';
+      document.getElementById('close').addEventListener('click', function(){ parent.postMessage({type:'afa-close'},'*'); });
+    }
+  });
+
+  renderBands();
+})();
+</script>
+</body>
+</html>
