@@ -146,7 +146,7 @@ label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
   var SEL = {dest:{}, int:{}, budget:null, cur:'XOF'};
 
   function sp(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
-  function r10(n){ return Math.ceil(n/10)*10; }
+  function r10(n){ return Math.round(n/10)*10; }
   function sym(c){ return c==='XOF'?'FCFA':(c==='USD'?'$':'€'); }
   function conv(fcfa,c){
     if(c==='XOF') return r10(fcfa);
@@ -201,10 +201,12 @@ label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
     return items.join(', ');
   }
 
+  function frDate(iso){ var p = (iso||'').split('-'); return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : iso; }
+
   function buildText(){
     var ad = document.getElementById('ad').value, en = document.getElementById('en').value||'0';
     var lines = [
-      'Date d’arrivée : '+document.getElementById('arr').value,
+      'Date d’arrivée : '+frDate(document.getElementById('arr').value),
       'Durée : '+document.getElementById('dur').value+' jour(s)',
       'Personnes : '+ad+' adulte(s), '+en+' enfant(s)',
       'Destinations : '+listWithOther('dest','destOther'),
@@ -287,7 +289,7 @@ label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
       e: document.getElementById('em').value.trim()
     };
     document.getElementById('send').disabled = true;
-    parent.postMessage({type:'afa-request', text: buildText(), arrival: document.getElementById('arr').value,
+    parent.postMessage({type:'afa-request', text: buildText(), arrival: frDate(document.getElementById('arr').value),
       pax: document.getElementById('ad').value+' adulte(s), '+(document.getElementById('en').value||'0')+' enfant(s)',
       contact: contact}, '*');
   });
