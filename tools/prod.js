@@ -1,6 +1,6 @@
 // Construit le vrai index.html du site à partir de la Synthèse (p3.html)
-const fs=require('fs');const ROOT='/home/claude/afa-tours-website/';
-let h=fs.readFileSync('/home/claude/pro/p3.html','utf8');
+const fs=require('fs');const ROOT=require('path').join(__dirname,'..')+'/';
+let h=fs.readFileSync(require('path').join(__dirname,'p3.html'),'utf8');
 const rep=(a,b)=>{if(!h.includes(a)){console.error('MANQUE',String(a).slice(0,60));process.exit(1)}h=h.split(a).join(b)};
 // 1. barre de maquette
 h=h.replace(/<nav class="maq-bar".*?<\/nav>/s,'');

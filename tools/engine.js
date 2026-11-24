@@ -1,5 +1,5 @@
 const fs=require('fs');
-const cat=JSON.parse(fs.readFileSync('/home/claude/afa-work/catalog.json','utf8'));
+const cat=JSON.parse(fs.readFileSync(require('path').join(__dirname,'catalog.json'),'utf8'));
 cat.push(
 {id:'vodun-ouidah',destination:'Ouidah',title:'Ouidah, cité des vodun',category:'VODUN · SPIRITUALITÉ · PATRIMOINE',description:'Une immersion respectueuse dans le berceau du vodun : sanctuaires, divinités, symboles et pratiques vivantes, racontés par ceux qui les transmettent.',shortDescription:'Rencontrez les gardiens de la tradition vodun à Ouidah et comprenez ce que ces cultes représentent aujourd’hui.',stops:'Temple des Pythons · Place Chacha · Forêt sacrée de Kpassè · rencontre avec un gardien de la tradition (selon disponibilité)',duration:'Environ 4 h',price:'Tarif sur devis',image:'https://www.gouv.bj/upload/images/albums/802360682082001736762573.jpg'},
 {id:'vodun-gardiens',destination:'Porto-Novo',title:'Zangbeto, Egungun : les gardiens de la nuit',category:'VODUN · MASQUES · TRADITIONS',description:'Découvrez les cultes des masques et des gardiens, leur place dans la vie de la cité et les règles qui entourent leurs sorties, avec des praticiens de la tradition.',shortDescription:'Masques, gardiens et cérémonies : comprendre comment la tradition protège et rassemble la communauté.',stops:'Couvents et lieux de culte · rencontre avec des praticiens · sorties de masques (selon calendrier) · Musée Honmè',duration:'Environ 3 h',price:'Tarif sur devis',image:'https://www.gouv.bj/upload/images/albums/802360682082001736762573.jpg'},
@@ -10,7 +10,7 @@ const hours={'vodun-ouidah':4,'vodun-gardiens':3,'vodun-eaux':5,'axe-du-pouvoir'
 for(let k=cat.length-1;k>=0;k--)if(cat[k].id==='pistes-pendjari')cat.splice(k,1);
 cat.forEach(t=>{t.theme=theme[t.id];t.h=hours[t.id];t.stopsList=t.stops.split(' · ');t.img=t.image;delete t.image;});
 const DATA=JSON.stringify(cat);
-const LOGO=fs.readFileSync('/home/claude/pro/logo.b64','utf8');
+const LOGO=fs.readFileSync(require('path').join(__dirname,'logo.b64'),'utf8');
 const switcher=cur=>`<nav class="maq-bar" aria-label="Choisir une proposition"><span>Propositions</span>${[['p3','Synthèse'],['p1','1 · Lumière'],['p2','2 · Terre']].map(([k,l])=>`<a href="${k}.html"${k===cur?' aria-current="page"':''}>${l}</a>`).join('')}</nav>
 <style>.maq-bar{position:fixed;z-index:999;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:4px;align-items:center;padding:6px;border-radius:999px;background:#fff;color:#2F0E09;box-shadow:0 8px 28px rgba(0,0,0,.35);font:600 13px/1 system-ui,sans-serif}.maq-bar span{padding:0 10px;color:#6b4a42}.maq-bar a{padding:10px 14px;border-radius:999px;text-decoration:none;color:#2F0E09;white-space:nowrap}.maq-bar a:hover{background:#fbebdd}.maq-bar a[aria-current]{background:#B51D27;color:#fff}@media(max-width:700px){.maq-bar{bottom:78px}.maq-bar span{display:none}}</style>`;
 // ---------- CSS de base commun ----------
