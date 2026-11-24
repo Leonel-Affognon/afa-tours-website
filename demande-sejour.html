@@ -11,13 +11,17 @@ html,body{height:100%}
 body{margin:0;background:#fff;font:15px/1.5 Georgia,serif;color:var(--ink);overflow:hidden}
 .app{height:100%;display:flex;flex-direction:column}
 .hd{background:#4a1f1a;color:#fff;padding:18px 20px;flex:none;position:relative}
+.hd{padding-right:64px}
 .hd h1{margin:0;font-size:1.3rem}
+.xc{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:var(--ink);font:400 1.6rem/1 Arial,sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.xc:focus-visible{outline:2px solid #e8b4b7}
 .hd p{margin:4px 0 0;opacity:.85;font-size:.9rem}
 .bd{padding:6px 18px 8px;overflow:auto;flex:1;min-height:0}
 .intro{background:var(--cream);border-radius:12px;padding:12px 14px;font-size:.92rem;margin:12px 0 4px}
 h2{font:700 .8rem Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin:18px 0 8px}
 label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
-.in{width:100%;border:1px solid #d9cbbd;border-radius:12px;padding:10px 12px;font:15px Arial,sans-serif;background:#fff;color:var(--ink)}
+.two>*{min-width:0}
+.in{display:block;width:100%;min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;border:1px solid #d9cbbd;border-radius:12px;padding:10px 12px;font:15px Arial,sans-serif;background:#fff;color:var(--ink)}
 .in:focus{outline:2px solid #e8b4b7;border-color:var(--red)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
@@ -47,7 +51,7 @@ label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
 </head>
 <body>
 <div class="app">
-  <div class="hd"><h1>Demander mon séjour</h1><p>Indiquez l’essentiel : notre équipe organise le reste</p></div>
+  <div class="hd"><button type="button" class="xc" id="x" aria-label="Fermer">×</button><h1>Demander mon séjour</h1><p>Indiquez l’essentiel : notre équipe organise le reste</p></div>
 
   <form class="bd" id="f" novalidate>
     <div id="formView">
@@ -269,9 +273,9 @@ label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
     if(this.value.trim() && SEL.budget!==null){ SEL.budget=null; renderBands(); }
   });
 
-  document.getElementById('back').addEventListener('click', function(){
-    parent.postMessage({type:'afa-close'},'*');
-  });
+  function closeForm(){ parent.postMessage({type:'afa-close'},'*'); }
+  document.getElementById('back').addEventListener('click', closeForm);
+  document.getElementById('x').addEventListener('click', closeForm);
 
   document.getElementById('f').addEventListener('submit', function(e){
     e.preventDefault();
