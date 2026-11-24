@@ -73,10 +73,10 @@ const pax=()=>S.adults+S.kids;
 const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const fdt=v=>{if(!v)return'';const p=v.split('-');return (+p[2])+' '+MOIS[+p[1]-1]+' '+p[0]};
 const money=n=>Math.round(n).toLocaleString('fr-FR')+' FCFA';
-let RATES={EUR:1},MRG=1.07,PRESET=null;
+let RATES={EUR:1},MRG=1.07,PRESET=null,CURSEL='XOF';
 /* Même règle que le site : 1 € = 655,957 FCFA, taux 24 h, marge 7 %, arrondi à l'unité supérieure */
 const fxOf=(n,c)=>RATES[c]?Math.ceil(n/655.957*RATES[c]*MRG):null;
-const money3=n=>{const parts=[money(n)];const u=fxOf(n,'USD'),e=fxOf(n,'EUR');if(u!==null)parts.push('≈ '+u.toLocaleString('fr-FR')+' $');if(e!==null)parts.push('≈ '+e.toLocaleString('fr-FR')+' €');return parts.join(' · ')};
+const money3=n=>{const cs=[CURSEL].concat(['XOF','USD','EUR'].filter(c=>c!==CURSEL));return cs.map(c=>c==='XOF'?money(n):(v=>v===null?null:'≈ '+v.toLocaleString('fr-FR')+(c==='EUR'?' €':' $'))(fxOf(n,c))).filter(Boolean).join(' · ')};
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const cOf=id=>CIRC.find(c=>c.id===id);
 const priceTxt=c=>!c.p?'Sur devis':money3(c.p)+(c.unit==='groupe'?' / groupe':' / pers.')+(c.from?' (à partir de)':'');
@@ -90,7 +90,7 @@ function calc(){
  return{tot,devis};
 }
 function summary(){const{tot,devis}=calc();return'<div class="sum"><div><small style="color:var(--mute)">Estimation</small><div class="amt">'+(tot?money3(tot):'Sur devis')+'</div><small style="color:var(--mute)">'+(devis?devis+' élément(s) à confirmer':'')+'</small></div></div>'}
-function s1(){return head('Réserver un circuit','Étape 1 sur 4 · Dates et voyageurs')+'<div class="bd">'+
+function s1(){return head('Réserver un circuit','Étape 1 sur 4 · Dates et nombre de personnes')+'<div class="bd">'+
  '<label class="lbl">Date d’arrivée</label><input type="date" data-f="start" value="'+S.start+'"><span class="fmt">'+(S.start?fdt(S.start):'Choisissez une date')+'</span>'+
  '<div class="row"><div><label class="lbl">Adultes</label><input type="number" min="1" data-f="adults" value="'+S.adults+'"></div><div><label class="lbl">Enfants</label><input type="number" min="0" data-f="kids" value="'+S.kids+'"></div></div>'+
  '</div>'+nav(0,2,'Continuer')}
@@ -143,7 +143,7 @@ function s3(){const{tot,devis}=calc();
   const pr=priced?(()=>{const t=split(c.p*q);return '<b>'+t.main+'</b><small>'+t.rest+'</small><small>'+money(c.p).replace(' FCFA','')+' × '+q+'</small>'})():(c.ev?(fp?'<b>'+esc(fp.l)+'</b>'+(fp.p?'<small>'+money(fp.p)+' / pers.</small>':'')+'<small>Estimation, confirmée au devis</small>':'Sur devis<small>à partir de '+split(c.p).main+' / pers.</small>'):'Sur devis');
   return '<div class="rc-row"><div><b>'+esc(c.n)+'</b><small>'+sub+'</small><span class="rc-tag'+(priced||fp?' ok':'')+'">'+(c.ev?(fp?'Formule choisie':'Formule à choisir'):priced?'Prix confirmé':'Sur devis')+'</span></div><div class="rc-pr">'+pr+'</div></div>'}).join('');
  const O=OPTS.filter(o=>S.opt[o[0]]).map(o=>{const v=S.pick[o[0]];const pp=pFind(o[0],v);const det=optName(o[0],v)+(pp&&pp.z?', '+pp.z:'');return '<div class="rc-row"><div><b>'+o[1]+'</b><small>'+esc(det)+'</small><span class="rc-tag">À confirmer</span></div><div class="rc-pr">Sur devis</div></div>'}).join('');
- const hd='<div class="rc-grid"><span>Arrivée</span><span>'+(S.start?fdt(S.start):'—')+'</span><span>Voyageurs</span><span>'+S.adults+' adulte'+(S.adults>1?'s':'')+(S.kids?', '+S.kids+' enfant'+(S.kids>1?'s':''):'')+'</span><span>Circuits</span><span>'+rows.length+'</span><span>Options</span><span>'+OPTS.filter(o=>S.opt[o[0]]).length+'</span></div>';
+ const hd='<div class="rc-grid"><span>Arrivée</span><span>'+(S.start?fdt(S.start):'—')+'</span><span>Nombre de personnes</span><span>'+S.adults+' adulte'+(S.adults>1?'s':'')+(S.kids?', '+S.kids+' enfant'+(S.kids>1?'s':''):'')+'</span><span>Circuits</span><span>'+rows.length+'</span><span>Options</span><span>'+OPTS.filter(o=>S.opt[o[0]]).length+'</span></div>';
  const T=tot?split(tot):null;
  return head('Réserver un circuit','Étape 3 sur 4 · Récapitulatif')+'<div class="bd">'+
  '<style>.rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;background:#faf6f1;border-radius:12px;padding:12px 14px;font-size:.92rem}.rc-grid span:nth-child(odd){color:#7a6a62}.rc-h{font:700 .78rem Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#B51D27;margin:18px 0 8px}.rc-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid #e6dcd3}.rc-row b{display:block}.rc-row small{display:block;color:#7a6a62;font-size:.82rem}.rc-pr{text-align:right;white-space:nowrap;font-size:.92rem}.rc-pr b{display:block;font-weight:600}.rc-pr small{display:block}.rc-tag{display:inline-block;font:600 .72rem Arial,sans-serif;border-radius:20px;padding:2px 8px;background:#f3e3d6;color:#7a3b1e;margin-top:3px}.rc-tag.ok{background:#e4efe2;color:#2e5a2a}.rc-tot{background:#2a1a14;color:#fff;border-radius:14px;padding:14px 16px;margin-top:16px}.rc-tot small{opacity:.8;display:block}.rc-tot .rc-line{display:flex;justify-content:space-between;font-size:.9rem;margin-top:6px}.rc-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.88rem}.rc-two ul{margin:4px 0 0;padding-left:16px}</style>'+
@@ -169,7 +169,7 @@ function buildPlan(){
  const{tot,devis}=calc();
  const circs=S.circs.map(cOf).filter(Boolean),evLine=c=>{const i=S.ev.pkg[c.id];return(c.ev&&i!==undefined&&c.pk&&c.pk[i])?'\n   Formule : '+c.pk[i].l+(c.pk[i].p?' — '+money(c.pk[i].p)+' / pers.':''):''},opts=OPTS.filter(o=>S.opt[o[0]]).map(o=>o[1]+' : '+optName(o[0],S.pick[o[0]]));
  const diet=[...S.diet,S.dietNote].filter(Boolean);
- let txt='*RÉSERVATION CIRCUIT — '+circs.length+' circuit(s)*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Voyageurs : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+(diet.length?' · Régime : '+diet.join(', '):'')+'_\n\n';
+ let txt='*RÉSERVATION CIRCUIT — '+circs.length+' circuit(s)*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Nombre de personnes : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+(diet.length?' · Régime : '+diet.join(', '):'')+'_\n\n';
  txt+='*Circuits*\n'+circs.map(c=>'• '+c.n+' — '+priceTxt(c)+evLine(c)).join('\n')+'\n\n';
  if(opts.length)txt+='*Options (à confirmer)*\n'+opts.map(o=>'• '+o).join('\n')+'\n\n';
  txt+=tot?'*Estimation : '+money3(tot)+'*'+(devis?' _(hors '+devis+' élément(s) à confirmer)_':''):'*Prix à établir sur devis*';
@@ -213,11 +213,12 @@ app().addEventListener('change',e=>{
  if(f==='kids'){S.kids=Math.max(0,+t.value||0);render();return}
 });
 window.addEventListener('message',e=>{
- const m=e.data;if(m&&m.type==='afa-rates'){RATES=m.rates||RATES;MRG=m.margin||MRG;render();return}
+ const m=e.data;if(m&&m.type==='afa-cur'){CURSEL=m.cur||'XOF';render();return}
+ if(m&&m.type==='afa-rates'){RATES=m.rates||RATES;MRG=m.margin||MRG;if(m.cur)CURSEL=m.cur;render();return}
  if(m&&m.type==='afa-preset'){PRESET=m.id;if(CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null;render()}return}
  if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}
  if(!m||m.type!=='afa-data')return;
- CIRC=m.circuits||[];PARTNERS={restos:m.restos||[],hotels:m.hotels||[],veh:m.veh||[]};if(m.rates){RATES=m.rates;MRG=m.margin||MRG}if(PRESET&&CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null}READY=true;render();
+ CIRC=m.circuits||[];PARTNERS={restos:m.restos||[],hotels:m.hotels||[],veh:m.veh||[]};if(m.rates){RATES=m.rates;MRG=m.margin||MRG}if(m.cur)CURSEL=m.cur;if(PRESET&&CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null}READY=true;render();
 });
 render();
 </script>

@@ -75,6 +75,7 @@ const DEFAULT_CIRC_H=4;
 const ZID={'axe-du-pouvoir':'Porto-Novo','secrets-riviere-noire':'Porto-Novo','vie-ciel-eau':'Cotonou','route-memoires':'Ouidah','traces-danxome':'Abomey','amazone-atlantique':'Cotonou','fleuve-ocean':'Grand-Popo','aguegues':'Porto-Novo','dangbo':'Porto-Novo','vodun-gardiens':'Porto-Novo','egungun':'Porto-Novo','guelede':'Porto-Novo','ketou':'Plateau','pobe':'Plateau','sakete':'Plateau'};
 /* Taux indicatifs : 1 € = 655,957 FCFA (taux fixe) ; 1 $ = 580 FCFA (à mettre à jour) */
 const EUR_XOF=655.957, USD_XOF=580;
+let CURSEL='XOF';
 /* Repas : heure proposée, durée, et s'il ne peut y en avoir qu'un par jour */
 const SLOTS={'Petit-déjeuner':{t:'07:30',h:0.5,once:true},'Déjeuner':{t:'12:30',h:1.5,once:true},'Dîner':{t:'19:30',h:1.5,once:true},'Repas':{t:'12:00',h:1,once:false}};
 
@@ -94,7 +95,7 @@ function ensure(){while(S.D.length<S.days)S.D.push(newDay())}
 const app=()=>document.getElementById('app');
 const pax=()=>S.adults+S.kids;
 const money=n=>Math.round(n).toLocaleString('fr-FR')+' FCFA';
-const money3=n=>money(n)+' · '+Math.round(n/USD_XOF).toLocaleString('fr-FR')+' $ · '+Math.round(n/EUR_XOF).toLocaleString('fr-FR')+' €';
+const money3=n=>{const cs=[CURSEL].concat(['XOF','USD','EUR'].filter(c=>c!==CURSEL));const f={XOF:()=>money(n),USD:()=>'≈ '+Math.round(n/USD_XOF).toLocaleString('fr-FR')+' $',EUR:()=>'≈ '+Math.round(n/EUR_XOF).toLocaleString('fr-FR')+' €'};return cs.map(c=>f[c]()).join(' · ')};
 const toH=s=>{const p=String(s||'08:00').split(':');return (+p[0])+(+p[1]||0)/60};
 /* Heure affichée sur 24 h, de 00:00 à 23:59. Au-delà de minuit : « (lendemain) ». */
 const clock=t=>{const m=Math.round(t*60),H=Math.floor(m/60)%24,M=m%60;return ('0'+H).slice(-2)+':'+('0'+M).slice(-2)+(t>=24?' (lendemain)':'')};
@@ -464,7 +465,7 @@ function s3p(){const{tot,devis}=calc(),ne=errCount();
   body+='<h3 class="rc-h">Jour '+(i+1)+' · '+esc(dateOf(i))+'</h3>'+(lines.map(s3pRow).join('')||'<p class="fmt">Aucun élément ce jour.</p>');
  }
  const T=tot?money3(tot).split(' · '):null;
- const hd='<div class="rc-grid"><span>Durée</span><span>'+S.days+' jour(s)</span><span>Arrivée</span><span>'+(S.start?fdt(S.start):'—')+'</span><span>Voyageurs</span><span>'+pax()+' personne(s)</span><span>Éléments à confirmer</span><span>'+devis+'</span></div>';
+ const hd='<div class="rc-grid"><span>Durée</span><span>'+S.days+' jour(s)</span><span>Arrivée</span><span>'+(S.start?fdt(S.start):'—')+'</span><span>Nombre de personnes</span><span>'+pax()+' personne(s)</span><span>Éléments à confirmer</span><span>'+devis+'</span></div>';
  return head('Composer mon séjour','Étape 3 sur 4 · Votre programme proposé')+'<div class="bd">'+
  '<style>.rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;background:#faf6f1;border-radius:12px;padding:12px 14px;font-size:.92rem}.rc-grid span:nth-child(odd){color:#7a6a62}.rc-h{font:700 .78rem Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#B51D27;margin:18px 0 8px}.rc-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid #e6dcd3}.rc-row b{display:block}.rc-row small{display:block;color:#7a6a62;font-size:.82rem}.rc-pr{text-align:right;white-space:nowrap;font-size:.92rem}.rc-pr b{display:block;font-weight:600}.rc-pr small{display:block}.rc-tag{display:inline-block;font:600 .72rem Arial,sans-serif;border-radius:20px;padding:2px 8px;background:#f3e3d6;color:#7a3b1e;margin-top:3px}.rc-tag.ok{background:#e4efe2;color:#2e5a2a}.rc-tot{background:#2a1a14;color:#fff;border-radius:14px;padding:14px 16px;margin-top:16px}.rc-tot small{opacity:.8;display:block}.rc-tot .rc-line{display:flex;justify-content:space-between;font-size:.9rem;margin-top:6px}.rc-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.88rem}.rc-two ul{margin:4px 0 0;padding-left:16px}</style>'+
  top+'<h3 class="rc-h">Votre demande</h3>'+hd+body+
@@ -559,7 +560,7 @@ app().addEventListener('change',e=>{
 
 function buildPlan(){
  const{tot,devis}=calc(),days=[];
- let txt='*SÉJOUR SUR MESURE — '+S.days+' jour'+(S.days>1?'s':'')+'*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Voyageurs : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+([...S.diet,S.dietNote].filter(Boolean).length?' · Régime : '+[...S.diet,S.dietNote].filter(Boolean).join(', '):'')+'_\n\n';
+ let txt='*SÉJOUR SUR MESURE — '+S.days+' jour'+(S.days>1?'s':'')+'*'+(S.start?' (arrivée le '+fdt(S.start)+')':'')+'\n_Nombre de personnes : '+S.adults+' adulte(s)'+(S.kids?', '+S.kids+' enfant(s)':'')+([...S.diet,S.dietNote].filter(Boolean).length?' · Régime : '+[...S.diet,S.dietNote].filter(Boolean).join(', '):'')+'_\n\n';
  for(let i=0;i<S.days;i++){
   const rows=dayRows(i);
   days.push({i:i+1,date:dateOf(i),rows:rows.map(r=>r.text)});
@@ -569,8 +570,8 @@ function buildPlan(){
  return{days:days,total:tot,est:tot,quote:!tot||devis>0,text:txt};
 }
 window.addEventListener('message',e=>{
- const m=e.data;if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}if(!m||m.type!=='afa-data')return;
- ZONES=m.zones||[];CIRC=m.circuits||[];HOT=m.hotels||[];RES=m.restos||[];VEH=m.veh||[];
+ const m=e.data;if(m&&m.type==='afa-cur'){CURSEL=m.cur||'XOF';render();return}if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}if(!m||m.type!=='afa-data')return;
+ if(m.cur)CURSEL=m.cur;ZONES=m.zones||[];CIRC=m.circuits||[];HOT=m.hotels||[];RES=m.restos||[];VEH=m.veh||[];
  if(!ZONES.includes(S.startZone))S.startZone=ZONES[0]||'';
  READY=true;render();
 });
