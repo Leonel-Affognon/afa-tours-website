@@ -980,12 +980,12 @@ window.submitComposer=function(m,tgt){const c=m.contact||{},plan=m.plan||{},tot=
 const ref0='AFA-'+new Date().toISOString().slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
 const payL={momo:'Mobile Money',card:'Carte bancaire',bank:'Virement',agency:'Paiement à l’agence'}[c.pay]||c.pay||'';
 const label=m.label||'Séjour sur mesure';
-const rec={ref:ref0,lang:lang,at:new Date().toISOString(),kind:'plan',label:label,x:plan.text||'',d1:'',pax:pax,total:tot,pay:c.pay,deposit:0,nm:c.nm||'Visiteur du site',w:c.w,e:c.e,nt:c.nt||'',loc:'',status:tot?'À confirmer':'Devis à établir'};
-const fin=(ref,ok)=>{rec.ref=ref;if(ok){try{localStorage.setItem('afa_booked','1');PDONE('resa')}catch(err){}}
+const rec={ref:ref0,lang:lang,at:new Date().toISOString(),kind:m.kind||'plan',label:label,x:plan.text||'',d1:'',pax:pax,total:tot,pay:c.pay,deposit:0,nm:c.nm||'Visiteur du site',w:c.w,e:c.e,nt:c.nt||'',loc:'',status:tot?'À confirmer':'Devis à établir'};
+const fin=(ref,ok)=>{rec.ref=ref;if(ok){try{localStorage.setItem('afa_booked','1');PDONE('resa')}catch(err){}if(typeof __ENG_SET==='function')__ENG_SET([])}
  const a=LS.get('afa_bookings',[]);a.unshift(rec);LS.set('afa_bookings',a);
  const wa='https://wa.me/'+waNum()+'?text='+encodeURIComponent(['Bonjour AFA TOURS, ma demande '+ref+' :','Service : '+label,plan.text||'',pax+' personne(s)',tot?'Total estimé : '+tot+' FCFA':'Prix : sur devis','Paiement souhaité : '+payL,'Nom : '+(c.nm||'—'),c.w?'WhatsApp / téléphone : '+c.w:'',c.e?'E-mail : '+c.e:''].filter(Boolean).join('\n'));
  const f=document.getElementById(tgt||'plf');try{f.contentWindow.postMessage({type:'afa-done',ok:ok,ref:ref,wa:wa},'*')}catch(err){}};
-const pl={action:'booking',request_type:'custom_trip',full_name:c.nm||'Visiteur du site',email:c.e||'sans-email@afa-tours.site',phone:c.w||null,budget:null,preferred_date:null,party_size:pax,tour_name:label,message:[plan.text||'',tot?'Total : '+tot+' FCFA':'Sur devis','Paiement : '+payL,'Langue : '+lang,c.w?'Contact : '+c.w:''].filter(Boolean).join(' | ')};
+const pl={action:'booking',request_type:m.kind==='circuit'?'existing_tour':'custom_trip',full_name:c.nm||'Visiteur du site',email:c.e||'sans-email@afa-tours.site',phone:c.w||null,budget:null,preferred_date:null,party_size:pax,tour_name:label,message:[plan.text||'',tot?'Total : '+tot+' FCFA':'Sur devis','Paiement : '+payL,'Langue : '+lang,c.w?'Contact : '+c.w:''].filter(Boolean).join(' | ')};
 Promise.race([SUB(pl),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),12000))]).then(r=>fin((r&&r.reference)||ref0,true)).catch(()=>fin(ref0,false));};
 window.__AFA={setPlan:(plan,pax)=>{S={kind:'plan',plan:plan,pax:pax||2,nights:1,rooms:1,lodge:'partner',id:'plan'};$('#bkt').textContent='Votre séjour';s3();bk.showModal()},ALLP:()=>ALLP(),TR:TR,SEJ:()=>SEJ,TRIPS:()=>window.TRIPS,KL:KL,KI:KI};
 function err(m){$('#berr').textContent=m}
@@ -1424,7 +1424,7 @@ function plData(){
  const veh=((W.TR||[]).map(x=>({id:x.id,n:x.n,p:0})).concat(A.filter(x=>x.k==='trans').map(x=>({id:x.id,n:x.n,p:+x.p||0})))).filter((x,i,arr)=>arr.findIndex(y=>y.n===x.n)===i);
  const zones=['Porto-Novo'];
  circuits.concat(hotels,restos).forEach(x=>{if(x.z&&!zones.includes(x.z))zones.push(x.z)});
- return{zones,circuits,hotels,restos,veh,rates:RATES_24H,margin:MARGIN,cur:cur};
+ return{zones,circuits,hotels,restos,veh,rates:RATES_24H,margin:MARGIN,cur:cur,saved:(typeof __ENG_SEL==='function'?__ENG_SEL().filter(i=>circuits.some(c=>c.id===i)):[])};
 }
 fr.addEventListener('load',()=>{try{fr.contentWindow.postMessage(Object.assign({type:'afa-data'},plData()),'*')}catch(e){}});
 window.addEventListener('message',e=>{
@@ -1433,7 +1433,7 @@ window.addEventListener('message',e=>{
  if(m.type==='afa-close'){d.close();return}
  if(m.type==='afa-plan'){window.submitComposer&&window.submitComposer(m);return}if(m.type==='afa-mybk'){const mb=document.querySelector('[data-mybk]');if(mb)mb.click();return}
 });
-function open(){d.showModal();if(window.__trDom)window.__trDom(d)}
+function open(){try{fr.contentWindow.postMessage(Object.assign({type:'afa-data'},plData()),'*')}catch(e){}d.showModal();if(window.__trDom)window.__trDom(d)}
 const dr=document.createElement('dialog');dr.className='xd hasfx';dr.id='rc';dr.setAttribute('aria-label','Réserver un circuit');
 dr.style.cssText='width:min(520px,calc(100% - 16px));height:min(92vh,880px);max-height:92vh;padding:0;border:0;border-radius:18px;overflow:hidden';
 dr.innerHTML='<iframe id="rcf" title="Réserver un circuit" src="reserver-circuit.html" style="width:100%;height:100%;border:0;display:block"></iframe>';
@@ -1448,7 +1448,7 @@ window.addEventListener('message',e=>{
  if(m.type==='afa-plan'){window.submitComposer&&window.submitComposer(m,'rcf');return}
  if(m.type==='afa-mybk'){const mb=document.querySelector('[data-mybk]');if(mb)mb.click();return}
 });
-window.__rc={open:function(id){dr.showModal();if(id){try{fr2.contentWindow.postMessage({type:'afa-preset',id:id},'*')}catch(e){}}}};
+window.__rc={open:function(id){if(window.__pushData)window.__pushData();dr.showModal();try{fr2.contentWindow.postMessage({type:'afa-preset',id:id||null,ids:(typeof __ENG_SEL==='function'?__ENG_SEL():[])},'*')}catch(e){}}};
 const dsd=document.createElement('dialog');dsd.className='xd hasfx';dsd.id='dsd';dsd.setAttribute('aria-label','Demander mon séjour');
 dsd.style.cssText='width:min(520px,calc(100% - 16px));height:min(92vh,880px);max-height:92vh;padding:0;border:0;border-radius:18px;overflow:hidden';
 dsd.innerHTML='<iframe id="dsf" title="Demander mon séjour" src="demande-sejour.html" style="width:100%;height:100%;border:0;display:block"></iframe>';

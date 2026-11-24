@@ -88,6 +88,20 @@ const S={step:1,startZone:'Porto-Novo',start:'',days:3,adults:2,kids:0,diet:[],d
 const newDay=()=>({t0:'08:00',stops:[],veh:[],
  night:{mode:'none',hotel:'',zone:'',own:{name:'',addr:''},roomType:0,rooms:1,beds:1,twin:false,bf:false}});
 function ensure(){while(S.D.length<S.days)S.D.push(newDay())}
+/* Circuits enregistrés sur le site (« Réserver ce circuit ») : placés un par jour, sans doublon */
+function addSaved(ids){
+ S.seenSaved=S.seenSaved||[];
+ const have=new Set(S.D.flatMap(d=>d.stops.filter(s=>s.kind==='circ').map(s=>s.ref)));
+ ids.forEach(id=>{
+  if(S.seenSaved.includes(id)||have.has(id))return;
+  S.seenSaved.push(id);
+  let day=S.D.find(d=>!d.stops.length);
+  if(!day){day=newDay();S.D.push(day)}
+  day.stops.push({kind:'circ',ref:id});
+ });
+ S.days=Math.max(S.days,S.D.length);
+ ensure();
+}
 
 /* ==========================================================
    UTILITAIRES
@@ -572,6 +586,7 @@ function buildPlan(){
 window.addEventListener('message',e=>{
  const m=e.data;if(m&&m.type==='afa-cur'){CURSEL=m.cur||'XOF';render();return}if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}if(!m||m.type!=='afa-data')return;
  if(m.cur)CURSEL=m.cur;ZONES=m.zones||[];CIRC=m.circuits||[];HOT=m.hotels||[];RES=m.restos||[];VEH=m.veh||[];
+ if(Array.isArray(m.saved))addSaved(m.saved.filter(id=>CIRC.some(c=>c.id===id)));
  if(!ZONES.includes(S.startZone))S.startZone=ZONES[0]||'';
  READY=true;render();
 });

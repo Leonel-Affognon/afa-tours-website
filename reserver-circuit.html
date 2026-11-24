@@ -64,7 +64,14 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;flex:none;margin:0
 <script>
 /* Réserver un circuit : parcours court (4 étapes) distinct du Composer séjour sur mesure.
    Reçoit les circuits du site (afa-data), renvoie la demande (afa-plan). */
-let CIRC=[],READY=false;
+let CIRC=[],READY=false,SAVED=[],FRESH=false;
+/* Circuits déjà enregistrés sur le site (« Réserver ce circuit ») + circuit ouvert : pré-cochés à l’ouverture */
+function applyPreset(){
+ if(!FRESH||!READY)return;
+ FRESH=false;
+ S.circs=[PRESET].concat(SAVED).filter((v,i,a)=>v&&a.indexOf(v)===i&&CIRC.some(c=>c.id===v));
+ PRESET=null;
+}
 const S={step:1,start:'',adults:2,kids:0,circs:[],opt:{resto:false,transport:false,heb:false},diet:[],dietNote:'',
  nm:'',nat:'',w:'',e:'',pay:'momo',done:false,closed:false,ref:'',okSent:true,waUrl:'',pick:{resto:'',transport:'',heb:''},ev:{open:'',pkg:{}}};
 let PARTNERS={restos:[],hotels:[],veh:[]};
@@ -193,7 +200,7 @@ app().addEventListener('click',e=>{
  if(a==='send'){
   if(!S.nm||!S.nat||(S.w||'').trim().length<3||(S.e||'').trim().length<3){document.getElementById('err').textContent='Renseignez votre nom, votre nationalité, votre WhatsApp et votre e-mail.';return}
   t.disabled=true;t.textContent='Envoi…';
-  try{parent.postMessage({type:'afa-plan',plan:buildPlan(),pax:pax(),label:'Réservation circuit',contact:{nm:S.nm,nat:S.nat,w:S.w,e:S.e,nt:S.dietNote,pay:S.pay}},'*')}catch(err){}
+  try{parent.postMessage({type:'afa-plan',kind:'circuit',plan:buildPlan(),pax:pax(),label:'Réservation circuit',contact:{nm:S.nm,nat:S.nat,w:S.w,e:S.e,nt:S.dietNote,pay:S.pay}},'*')}catch(err){}
   return}
 });
 app().addEventListener('input',e=>{
@@ -215,10 +222,10 @@ app().addEventListener('change',e=>{
 window.addEventListener('message',e=>{
  const m=e.data;if(m&&m.type==='afa-cur'){CURSEL=m.cur||'XOF';render();return}
  if(m&&m.type==='afa-rates'){RATES=m.rates||RATES;MRG=m.margin||MRG;if(m.cur)CURSEL=m.cur;render();return}
- if(m&&m.type==='afa-preset'){PRESET=m.id;if(CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null;render()}return}
+ if(m&&m.type==='afa-preset'){PRESET=m.id||null;SAVED=Array.isArray(m.ids)?m.ids:[];FRESH=true;applyPreset();if(S.done){S.done=false;S.okSent=true;S.step=1}render();return}
  if(m&&m.type==='afa-done'){S.done=true;S.ref=m.ref||S.ref;S.okSent=m.ok!==false;S.waUrl=m.wa||'';render();return}
  if(!m||m.type!=='afa-data')return;
- CIRC=m.circuits||[];PARTNERS={restos:m.restos||[],hotels:m.hotels||[],veh:m.veh||[]};if(m.rates){RATES=m.rates;MRG=m.margin||MRG}if(m.cur)CURSEL=m.cur;if(PRESET&&CIRC.some(c=>c.id===PRESET)){S.circs=[PRESET];PRESET=null}READY=true;render();
+ CIRC=m.circuits||[];PARTNERS={restos:m.restos||[],hotels:m.hotels||[],veh:m.veh||[]};if(m.rates){RATES=m.rates;MRG=m.margin||MRG}if(m.cur)CURSEL=m.cur;READY=true;applyPreset();render();
 });
 render();
 </script>
