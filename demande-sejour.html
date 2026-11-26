@@ -116,7 +116,7 @@ label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
       <h2>Vos coordonnées</h2>
       <div class="two">
         <div><label class="f" for="nm">Nom complet *</label><input class="in" id="nm" autocomplete="name" required></div>
-        <div><label class="f" for="nt">Nationalité *</label><input class="in" id="nt" required></div>
+        <div><label class="f" for="nt">Nationalité</label><input class="in" id="nt"></div>
       </div>
       <div class="two">
         <div><label class="f" for="wa">WhatsApp ou téléphone *</label><input class="in" id="wa" type="tel" autocomplete="tel" placeholder="+229…" required></div>
@@ -233,7 +233,7 @@ label.f{display:block;font:700 .9rem Arial,sans-serif;margin:10px 0 4px}
     if(SEL.int['Autre'] && !document.getElementById('intOther').value.trim()) miss.push('le centre d’intérêt précisé dans « Autre »');
     if(SEL.budget===null && !document.getElementById('own').value.trim()) miss.push('un budget');
     if(!document.getElementById('nm').value.trim()) miss.push('votre nom');
-    if(!document.getElementById('nt').value.trim()) miss.push('votre nationalité');
+    
     if(!document.getElementById('wa').value.trim()) miss.push('votre WhatsApp ou téléphone');
     var em = document.getElementById('em').value.trim();
     if(!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) miss.push('un e-mail valide');

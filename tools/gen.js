@@ -147,4 +147,6 @@ const X2=require('./extra2.js');const X3=require('./extra3.js');const X4=require
 {const fi=out3.indexOf('<div class="fabs">');const fe=out3.indexOf('</div>',out3.indexOf('</a>',fi))+6;
 out3=out3.slice(0,fi)+X2.fabs+out3.slice(out3.indexOf('<a class="fab wa"',fi));}
 out3=out3.replace('</style>',()=>X2.css+X3.css+X4.css+X5.css+X6.css+X7.css+X8.css+X9.css+X10.css+X11.css+'</style>').replace('<div class="gal" id="gal" style="margin-top:28px"></div>','<div class="ig" id="ig"></div><div id="gal" hidden></div>').replace('<div class="end">',()=>X2.soc+'<div class="end">').replace('<script>window.TRIPS',()=>X2.igv+'<script>window.TRIPS').replace('</script></body>',()=>'</script><script>'+X2.js+'</script><script>'+X3.js+'</script><script>'+X4.js+'</script><script>'+X5.js+'</script><script>'+X6.js+X7.js+X8.js+X9.js+X10.js+X11.js+'</script></body>');
+const X12=require('./extra12.js');
+out3=out3.replace('</body>',()=>'<style>'+X12.css+'</style>'+X12.html+'<script>'+X12.js+'</script></body>');
 fs.writeFileSync(require('path').join(__dirname,'p3.html'),out3);console.log('p3',out3.length);
