@@ -817,7 +817,7 @@ const tprice=x=>x.priceValue&&x.pg?(x.priceFrom?t('from')+' ':'')+money(x.priceV
 const ph=(x,cls)=>'<div class="ph th-'+x.theme+' '+(cls||'')+'"><img src="'+esc(x.img||'')+'" alt="'+esc(x.destination)+'" loading="lazy" referrerpolicy="no-referrer" onload="this.parentNode.classList.add(\'ok\')" onerror="this.parentNode.classList.add(\'bad\');this.remove()"><span class="phl">'+esc(x.destination)+'</span></div>';
 const heart='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6a5.3 5.3 0 0 1 9.3 6c-2.3 4.4-9.3 9-9.3 9Z"/></svg>';
 try{globalThis.__SEL0=JSON.parse(localStorage.getItem('afa_sel')||'[]')}catch(x){globalThis.__SEL0=[]}globalThis.__ENG_SEL=()=>[...sel];globalThis.__ENG_SET=a=>{sel.clear();a.forEach(i=>sel.add(i));renderSel()};const sel=new Set(),st={th:new Set(),h:99,priced:false,q:'',sort:'',d:'',map:false};
-const items=()=>[...sel].map(id=>{if(id.startsWith('vd')){const o=VD.opts[+id.slice(2)];return{id,name:VD.short+' · '+o.n[lang],p:o.p}}const x=T.find(y=>y.id===id);return{id,name:x.destination,p:x.priceValue}});
+const items=()=>[...sel].map(id=>{if(id.startsWith('vd')){const o=VD.opts[+id.slice(2)];return{id,name:VD.short+' · '+o.n[lang],p:o.p}}if(id.startsWith('sj')){const s=window.__sejName?window.__sejName(id.slice(2)):null;return{id,name:s?s.n:id,p:null}}const x=T.find(y=>y.id===id);return{id,name:x.destination,p:x.priceValue}});globalThis.__SEL_ITEMS=items;
 function vis(){let l=T.filter(x=>(!st.th.size||st.th.has(x.theme))&&x.h<=st.h&&(!st.priced||x.priceValue)&&(!st.d||x.destination===st.d)&&(!st.q||(x.destination+' '+x.title+' '+x.description+' '+x.stops).toLowerCase().includes(st.q)));
 if(st.sort==='h')l.sort((a,b)=>a.h-b.h);if(st.sort==='p')l.sort((a,b)=>(a.priceValue||1e9)-(b.priceValue||1e9));if(st.sort==='n')l.sort((a,b)=>a.destination.localeCompare(b.destination,'fr'));return l}
 const gbtn=(x,dest)=>{const n=(x.gallery||[]).length;return n?'<button type="button" class="gchip" data-openalb="'+esc(dest||x.destination)+'" style="position:absolute;top:12px;left:12px;z-index:2;background:#fff;border:0;border-radius:999px;padding:6px 10px;font:600 .8rem system-ui,sans-serif;cursor:pointer">📷 '+(n+1)+'</button>':''};
@@ -1875,7 +1875,7 @@ var al=window.applyLang;if(typeof al==='function')window.applyLang=function(){va
 /* réserver = ajouter à la demande ; retour sur la fiche du circuit */
 (function(){
 
-try{(window.__SEL0||[]).forEach(function(id){if(id.indexOf('vd')===0||T.find(function(y){return y.id===id}))sel.add(id)});if(sel.size)renderSel()}catch(x){}
+try{(window.__SEL0||[]).forEach(function(id){if(id.indexOf('vd')===0||id.indexOf('sj')===0||T.find(function(y){return y.id===id}))sel.add(id)});if(sel.size)renderSel()}catch(x){}
 var EN=function(){return typeof lang!=='undefined'&&lang==='en'},rn=+(function(){try{return sessionStorage.getItem('afa_rn')||0}catch(x){return 0}})(),rt=null,lastAct=Date.now();
 var st=document.createElement('style');st.textContent='#rmd{position:fixed;left:12px;right:12px;bottom:84px;z-index:60;max-width:440px;background:#2A0C07;color:#FBF6EF;border-radius:18px;padding:16px 16px 14px;box-shadow:0 18px 44px rgba(0,0,0,.35);border:2px solid #E8832F;animation:rmi .28s ease-out}@media(min-width:701px){#rmd{left:24px;right:auto;bottom:24px}}#rmd b{display:block;font:700 1.05rem/1.25 var(--d,Georgia,serif);margin:0 28px 4px 0}#rmd p{margin:0 0 12px;font-size:.92rem;line-height:1.45;color:#f1e3d6}#rmd .rb{display:flex;flex-wrap:wrap;gap:8px}#rmd .btn{padding:10px 16px;font-size:.92rem}#rmd .x{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:1.2rem;line-height:1;cursor:pointer}#rmd a.btn-w{background:#25D366;color:#073b1a;border:0;font-weight:700;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center}@keyframes rmi{from{opacity:0;transform:translateY(14px)}}@media(prefers-reduced-motion:never){#rmd{animation:none}}';document.head.appendChild(st);
 function names(){try{return items().map(function(i){return i.name})}catch(x){return []}}
@@ -1985,8 +1985,10 @@ addEventListener('scroll',kick,{passive:true});addEventListener('hashchange',fun
 .hubd button.hc:hover,.hubd button.hc:focus-visible{border-color:#B51D27;background:#fff}}
 .hubd button.hc.tp{border-color:#B51D27;background:#fff}
 .hubd .hc b{display:block;font-size:1.02rem}.hubd .hc span{display:block;font-size:.88rem;opacity:.75;margin-top:3px}
+.hubd .hsel{margin:14px 26px 0;padding:12px 14px;border-radius:14px;background:#fbf6ef;border:1px solid #ecd6bd;font-size:.92rem}.hubd .hsel b{display:block;margin-bottom:6px}.hubd .hsel ul{margin:0;padding-left:18px}
 .hubd .hx{position:absolute;top:12px;right:12px;border:0;background:none;font-size:1.4rem;cursor:pointer;color:#2A0C07}</style><dialog class="hubd" id="hubDlg" aria-labelledby="hubT"><button class="hx" type="button" aria-label="Fermer" data-hubx>×</button>
 <div class="hh"><h3 id="hubT" data-hi="t">Que souhaitez-vous réserver ?</h3><p data-hi="p">Choisissez l’option qui vous correspond : vous pourrez compléter votre demande ensuite.</p></div>
+<div id="hubSel" class="hsel" hidden></div>
 <div class="hg">
 <button class="hc" type="button" data-hubact="circuit"><div><b data-hi="c1">Un circuit</b><span data-hi="d1">Choisissez une ou plusieurs visites et réservez-les</span></div></button>
 <button class="hc" type="button" data-hubact="sejour"><div><b data-hi="c2">Demander mon séjour</b><span data-hi="d2">Un séjour préparé, à compléter avec d’autres visites si vous le souhaitez</span></div></button>
@@ -1995,7 +1997,10 @@ addEventListener('scroll',kick,{passive:true});addEventListener('hashchange',fun
 </div></dialog><script>(function(){
 var d=document.getElementById('hubDlg');if(!d)return;var hubPick=null;
 var EN={t:'What would you like to book?',p:'Choose the option that suits you: you can complete your request afterwards.',c1:'A tour',d1:'Choose one or several visits and book them',c2:'Request my stay',d2:'A prepared stay, to complete with other visits if you wish',c3:'Build my custom stay',d3:'Choose your days, visits and meals',c4:'Hotels, transport, drivers',d4:'Our partners, booked separately'};
-function hubLang(){var en=document.documentElement.lang==='en';d.querySelectorAll('[data-hi]').forEach(function(x){var k=x.getAttribute('data-hi');if(!x.dataset.fr)x.dataset.fr=x.textContent;x.textContent=en?EN[k]:x.dataset.fr})}
+function hubLang(){var en=document.documentElement.lang==='en';d.querySelectorAll('[data-hi]').forEach(function(x){var k=x.getAttribute('data-hi');if(!x.dataset.fr)x.dataset.fr=x.textContent;x.textContent=en?EN[k]:x.dataset.fr});hubSum()}
+function hubSum(){var el=document.getElementById('hubSel');if(!el)return;var it=(typeof window.__SEL_ITEMS==='function'?window.__SEL_ITEMS():[]);var en=document.documentElement.lang==='en';if(!it.length){el.hidden=true;el.innerHTML='';return}el.hidden=false;el.innerHTML='<b>'+(en?'Your selection':'Votre sélection')+'</b><ul>'+it.map(function(x){return '<li>'+escx(x.name)+'</li>'}).join('')+'</ul>'}
+function addSej(id){try{if(typeof __ENG_SET==='function'&&typeof __ENG_SEL==='function'){var c=__ENG_SEL();if(c.indexOf('sj'+id)<0)__ENG_SET(c.concat(['sj'+id]))}}catch(err){}}
+window.__sejName=function(sid){var c=document.querySelector('button[data-kind="sejour"][data-id="'+sid+'"]');var h=c&&c.closest('article')&&c.closest('article').querySelector('h3');return h?{n:h.textContent.trim()}:null};
  var origHG=null,origT=null;
 function escx(x){return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function vdPick(){
@@ -2024,7 +2029,7 @@ document.addEventListener('click',function(e){
  var vb=e.target.closest('button,a');
  if(vb&&/^(Réserver ma place|Book my place)$/.test((vb.textContent||'').trim())&&vdPick()){e.preventDefault();e.stopImmediatePropagation();return}
  var b=e.target.closest('[data-book],[data-plan]');
- if(b){e.preventDefault();e.stopImmediatePropagation();hubPick=b.hasAttribute('data-plan')?{kind:'plan'}:{kind:b.getAttribute('data-kind')||'circuit',id:b.getAttribute('data-id')};d.showModal();hubLang();return}
+ if(b){e.preventDefault();e.stopImmediatePropagation();var bk=b.getAttribute('data-kind')||'circuit',bi=b.getAttribute('data-id');var sj=bk==='sejour'&&!!bi&&bi!=='sx';if(sj)addSej(bi);hubPick=b.hasAttribute('data-plan')?{kind:'plan'}:(sj?null:{kind:bk,id:bi});d.showModal();hubLang();return}
  var g=e.target.closest('[data-hub]');if(g){e.preventDefault();hubPick=null;d.showModal();hubLang();return}
  var sx=e.target.closest('a[href="#devis"]');if(sx){e.preventDefault();window.openBook&&openBook('sejour','sx');return}
 },true);
@@ -2037,6 +2042,7 @@ d.addEventListener('click',function(e){var a=e.target.closest('[data-hubact]');i
  else if(k==='plan'){window.__plan&&window.__plan.open()}
  else if(k==='partners'){if(pk&&pk.id&&pk.kind!=='plan'&&pk.kind!=='circuit'&&pk.kind!=='sejour'){window.openBook&&openBook(pk.kind,pk.id)}else{var t=document.getElementById('partenaires');t&&t.scrollIntoView({behavior:'smooth'})}}
 });
+var _ob=window.openBook;window.openBook=function(kind,id){if(kind==='sejour'&&window.__dsd){window.__dsd.open();return}return _ob&&_ob(kind,id)};
 relabel();hide();
 new MutationObserver(function(){relabel();hide()}).observe(document.body,{childList:true,subtree:true});
 })();</script></body></html>

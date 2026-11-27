@@ -7,9 +7,11 @@ const css=`.hubd{opacity:1!important;transform:none!important;border:0;border-ra
 .hubd button.hc{all:unset;cursor:pointer;display:flex;gap:14px;align-items:center;padding:16px 18px;border:1px solid #ecd6bd;border-radius:16px;background:#fbf6ef}
 .hubd button.hc:hover,.hubd button.hc:focus-visible{border-color:#B51D27;background:#fff}
 .hubd .hc b{display:block;font-size:1.02rem}.hubd .hc span{display:block;font-size:.88rem;opacity:.75;margin-top:3px}
+.hubd .hsel{margin:14px 26px 0;padding:12px 14px;border-radius:14px;background:#fbf6ef;border:1px solid #ecd6bd;font-size:.92rem}.hubd .hsel b{display:block;margin-bottom:6px}.hubd .hsel ul{margin:0;padding-left:18px}
 .hubd .hx{position:absolute;top:12px;right:12px;border:0;background:none;font-size:1.4rem;cursor:pointer;color:#2A0C07}`;
 const html=`<dialog class="hubd" id="hubDlg" aria-labelledby="hubT"><button class="hx" type="button" aria-label="Fermer" data-hubx>×</button>
 <div class="hh"><h3 id="hubT" data-hi="t">Que souhaitez-vous réserver ?</h3><p data-hi="p">Choisissez l’option qui vous correspond : vous pourrez compléter votre demande ensuite.</p></div>
+<div id="hubSel" class="hsel" hidden></div>
 <div class="hg">
 <button class="hc" type="button" data-hubact="circuit"><div><b data-hi="c1">Un circuit</b><span data-hi="d1">Choisissez une ou plusieurs visites et réservez-les</span></div></button>
 <button class="hc" type="button" data-hubact="sejour"><div><b data-hi="c2">Demander mon séjour</b><span data-hi="d2">Un séjour préparé, à compléter avec d’autres visites si vous le souhaitez</span></div></button>
@@ -19,7 +21,10 @@ const html=`<dialog class="hubd" id="hubDlg" aria-labelledby="hubT"><button clas
 const js=`(function(){
 var d=document.getElementById('hubDlg');if(!d)return;var hubPick=null;
 var EN={t:'What would you like to book?',p:'Choose the option that suits you: you can complete your request afterwards.',c1:'A tour',d1:'Choose one or several visits and book them',c2:'Request my stay',d2:'A prepared stay, to complete with other visits if you wish',c3:'Build my custom stay',d3:'Choose your days, visits and meals',c4:'Hotels, transport, drivers',d4:'Our partners, booked separately'};
-function hubLang(){var en=document.documentElement.lang==='en';d.querySelectorAll('[data-hi]').forEach(function(x){var k=x.getAttribute('data-hi');if(!x.dataset.fr)x.dataset.fr=x.textContent;x.textContent=en?EN[k]:x.dataset.fr})}
+function hubLang(){var en=document.documentElement.lang==='en';d.querySelectorAll('[data-hi]').forEach(function(x){var k=x.getAttribute('data-hi');if(!x.dataset.fr)x.dataset.fr=x.textContent;x.textContent=en?EN[k]:x.dataset.fr});hubSum()}
+function hubSum(){var el=document.getElementById('hubSel');if(!el)return;var it=(typeof window.__SEL_ITEMS==='function'?window.__SEL_ITEMS():[]);var en=document.documentElement.lang==='en';if(!it.length){el.hidden=true;el.innerHTML='';return}el.hidden=false;el.innerHTML='<b>'+(en?'Your selection':'Votre sélection')+'</b><ul>'+it.map(function(x){return '<li>'+escx(x.name)+'</li>'}).join('')+'</ul>'}
+function addSej(id){try{if(typeof __ENG_SET==='function'&&typeof __ENG_SEL==='function'){var c=__ENG_SEL();if(c.indexOf('sj'+id)<0)__ENG_SET(c.concat(['sj'+id]))}}catch(err){}}
+window.__sejName=function(sid){var c=document.querySelector('button[data-kind="sejour"][data-id="'+sid+'"]');var h=c&&c.closest('article')&&c.closest('article').querySelector('h3');return h?{n:h.textContent.trim()}:null};
  var origHG=null,origT=null;
 function escx(x){return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function vdPick(){
@@ -48,7 +53,7 @@ document.addEventListener('click',function(e){
  var vb=e.target.closest('button,a');
  if(vb&&/^(Réserver ma place|Book my place)$/.test((vb.textContent||'').trim())&&vdPick()){e.preventDefault();e.stopImmediatePropagation();return}
  var b=e.target.closest('[data-book],[data-plan]');
- if(b){e.preventDefault();e.stopImmediatePropagation();hubPick=b.hasAttribute('data-plan')?{kind:'plan'}:{kind:b.getAttribute('data-kind')||'circuit',id:b.getAttribute('data-id')};d.showModal();hubLang();return}
+ if(b){e.preventDefault();e.stopImmediatePropagation();var bk=b.getAttribute('data-kind')||'circuit',bi=b.getAttribute('data-id');var sj=bk==='sejour'&&!!bi&&bi!=='sx';if(sj)addSej(bi);hubPick=b.hasAttribute('data-plan')?{kind:'plan'}:(sj?null:{kind:bk,id:bi});d.showModal();hubLang();return}
  var g=e.target.closest('[data-hub]');if(g){e.preventDefault();hubPick=null;d.showModal();hubLang();return}
  var sx=e.target.closest('a[href="#devis"]');if(sx){e.preventDefault();window.openBook&&openBook('sejour','sx');return}
 },true);
@@ -61,6 +66,7 @@ d.addEventListener('click',function(e){var a=e.target.closest('[data-hubact]');i
  else if(k==='plan'){window.__plan&&window.__plan.open()}
  else if(k==='partners'){if(pk&&pk.id&&pk.kind!=='plan'&&pk.kind!=='circuit'&&pk.kind!=='sejour'){window.openBook&&openBook(pk.kind,pk.id)}else{var t=document.getElementById('partenaires');t&&t.scrollIntoView({behavior:'smooth'})}}
 });
+var _ob=window.openBook;window.openBook=function(kind,id){if(kind==='sejour'&&window.__dsd){window.__dsd.open();return}return _ob&&_ob(kind,id)};
 relabel();hide();
 new MutationObserver(function(){relabel();hide()}).observe(document.body,{childList:true,subtree:true});
 })();`;
