@@ -1785,7 +1785,7 @@ function place(){
  if(rvs){if(!rvs2){rvs2=rvs.cloneNode(true);rvs2.classList.add('rvs2')}if(cur===1){if(rvs2.parentNode)rvs2.remove()}else if(f)f.parentNode.insertBefore(rvs2,nx)}
 }
 function show(n,keep){if(n!==cur)SAVE[cur]=scrollY;cur=n;
- [].slice.call(main.children).forEach(function(e){if(e===bar||e.tagName==='SECTION'&&e.dataset.pg)return;e.classList.toggle('pgoff',n!==1)});
+ [].slice.call(main.children).forEach(function(e){if(e===bar||e.tagName==='DIALOG'||e.tagName==='SECTION'&&e.dataset.pg)return;e.classList.toggle('pgoff',n!==1)});
  secs.forEach(function(s){s.classList.toggle('pgoff',+s.dataset.pg!==n)});
  H.dataset.pg=n;draw();place();
  window.dispatchEvent(new Event('resize'));fxu();
