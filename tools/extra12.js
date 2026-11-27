@@ -45,7 +45,7 @@ d.addEventListener('click',function(e){var v=e.target.closest('[data-vdpick]');i
 });
 var REL={'Réserver ce circuit':'Réserver','Réserver un circuit':'Réserver','Composer un séjour':'Séjour sur mesure','Composer mon séjour sur mesure':'Séjour sur mesure','Demander un devis':'Demander mon séjour','Book this tour':'Book','Book a tour':'Book','Build a stay':'Custom stay','Build my custom stay':'Custom stay','Request a quote':'Request my stay','Réserver ce séjour':'Ajouter au panier','Book this stay':'Add to basket'};
 function relabel(){document.querySelectorAll('button,a').forEach(function(b){if(b.closest('dialog[open]'))return;var t=(b.textContent||'').trim();if(REL[t]&&b.children.length===0)b.textContent=REL[t]})}
-var RULES=[['#approche','a,button',/^(Plan my stay|Request my stay|Planifier mon séjour|Demander mon séjour)$/i],['#devis','a,button',/^(Book my trip|Réserver mon voyage)$/i],['#partenaires','a,button',/^(Book|Réserver)$/i]];
+var RULES=[['#approche','a,button',/^(Plan my stay|Request my stay|Planifier mon séjour|Demander mon séjour)$/i],['#devis','a,button',/^(Book my trip|Réserver mon voyage)$/i],['#partenaires','a,button',/^(Book|Réserver)$/i],['section.hero','a',/^(Request my stay|Demander mon séjour)$/i]];
 function hide(){RULES.forEach(function(r){var sec=document.querySelector(r[0]);if(!sec)return;sec.querySelectorAll(r[1]).forEach(function(el){if(r[2].test((el.textContent||'').trim())){el.style.display='none';el.setAttribute('data-ess','hidden')}})})}
 document.addEventListener('click',function(e){
  if(e.target.closest('#hubDlg'))return;
