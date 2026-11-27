@@ -162,7 +162,7 @@ function s3(){const{tot,devis}=calc();
  '<h3 class="rc-h">Inclus et non inclus</h3><div class="rc-two"><div><b>Inclus</b><ul><li>Circuits, guide et organisation par AFA TOURS</li></ul></div><div><b>Non inclus</b><ul><li>Vols, visas</li><li>Boissons et dépenses personnelles</li></ul></div></div>'+
  '</div>'+nav(2,4,'Continuer')}
 function s4(){return head('Réserver un circuit','Étape 4 sur 4 · Vos coordonnées')+'<div class="bd">'+
- '<div class="row"><div><label class="lbl">Nom complet *</label><input data-txt="nm" value="'+esc(S.nm)+'"></div><div><label class="lbl">Nationalité *</label><input data-txt="nat" value="'+esc(S.nat)+'" placeholder="Bénin, France…"></div></div>'+
+ '<div class="row"><div><label class="lbl">Nom complet *</label><input data-txt="nm" value="'+esc(S.nm)+'"></div><div><label class="lbl">Nationalité</label><input data-txt="nat" value="'+esc(S.nat)+'" placeholder="Bénin, France…"></div></div>'+
  '<div class="row"><div><label class="lbl">WhatsApp ou téléphone *</label><input data-txt="w" value="'+esc(S.w)+'" placeholder="+229…"></div><div><label class="lbl">E-mail *</label><input type="email" data-txt="e" value="'+esc(S.e)+'"></div></div>'+
  '<label class="lbl">Autre précision alimentaire</label><input data-txt="dietNote" value="'+esc(S.dietNote)+'" placeholder="Ex. ne mange pas de piment">'+
  '<p class="lbl">Mode de paiement de l’acompte</p><div class="pay">'+[['momo','Mobile Money','MTN, Moov ou Celtiis'],['card','Carte bancaire','Visa ou Mastercard'],['bank','Virement bancaire','Référence fournie après validation'],['agency','Payer à l’agence ou sur place','Espèces, à Porto-Novo']].map(p=>'<label><input type="radio" name="pay" data-f="pay" value="'+p[0]+'"'+(S.pay===p[0]?' checked':'')+'><span><b>'+p[1]+'</b><small>'+p[2]+'</small></span></label>').join('')+'</div>'+
@@ -198,7 +198,7 @@ app().addEventListener('click',e=>{
  if(a==='reopen'){S.closed=false;S.done=false;S.step=1;render();return}
  if(a==='mybk'){try{parent.postMessage({type:'afa-mybk'},'*')}catch(err){}return}
  if(a==='send'){
-  if(!S.nm||!S.nat||(S.w||'').trim().length<3||(S.e||'').trim().length<3){document.getElementById('err').textContent='Renseignez votre nom, votre nationalité, votre WhatsApp et votre e-mail.';return}
+  if(!S.nm||(S.w||'').trim().length<3||(S.e||'').trim().length<3){document.getElementById('err').textContent='Renseignez votre nom, votre WhatsApp et votre e-mail.';return}
   t.disabled=true;t.textContent='Envoi…';
   try{parent.postMessage({type:'afa-plan',kind:'circuit',plan:buildPlan(),pax:pax(),label:'Réservation circuit',contact:{nm:S.nm,nat:S.nat,w:S.w,e:S.e,nt:S.dietNote,pay:S.pay}},'*')}catch(err){}
   return}
